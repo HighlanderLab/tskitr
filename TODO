@@ -1,0 +1,14 @@
+
+* Put any C/C++/Fortran code in 'src'.
+
+* These two lines were in NAMESPACE from Rcpp.package.skeleton() but devtools wants to autogenerate it
+importFrom(Rcpp, evalCpp)
+exportPattern("^[[:alpha:]]+")
+
+* Any of this usefull to add to DESCRIPTION?
+Depends: R (>= 4.0.0), methods, R6
+Suggests: knitr, rmarkdown, testthat
+VignetteBuilder: knitr
+NeedsCompilation: true
+
+* See also issues at https://github.com/highlanderlab/tskitr/issues
