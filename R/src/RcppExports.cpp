@@ -20,9 +20,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// tskit_version_major
+int tskit_version_major();
+RcppExport SEXP _tskitr_tskit_version_major() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(tskit_version_major());
+    return rcpp_result_gen;
+END_RCPP
+}
+// tskit_table_collection_init_ok
+int tskit_table_collection_init_ok();
+RcppExport SEXP _tskitr_tskit_table_collection_init_ok() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(tskit_table_collection_init_ok());
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_tskitr_rcpp_hello_world", (DL_FUNC) &_tskitr_rcpp_hello_world, 0},
+    {"_tskitr_tskit_version_major", (DL_FUNC) &_tskitr_tskit_version_major, 0},
+    {"_tskitr_tskit_table_collection_init_ok", (DL_FUNC) &_tskitr_tskit_table_collection_init_ok, 0},
     {NULL, NULL, 0}
 };
 

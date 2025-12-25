@@ -1,6 +1,41 @@
+# tskit C sources & objects
+# TSKIT_SOURCES = $(wildcard tskit/*.c) # wildcard is a GNU extension and not allowed on CRAN
+TSKIT_SOURCES = \
+	tskit/convert.c \
+	tskit/core.c \
+	tskit/genotypes.c \
+	tskit/haplotype_matching.c \
+	tskit/kastore.c \
+	tskit/stats.c \
+	tskit/tables.c \
+	tskit/trees.c
+# $(info TSKIT_SOURCES = $(TSKIT_SOURCES)) # for debugging, info is also a GNU extension
+TSKIT_OBJECTS = $(TSKIT_SOURCES:.c=.o)
+# $(info TSKIT_OBJECTS = $(TSKIT_OBJECTS)) # for debugging, info is also a GNU extension
+
+# tskitr C++ sources & objects
+# TSKITR_SOURCES = $(wildcard *.cpp) # wildcard is a GNU extension and not allowed on CRAN
+TSKITR_SOURCES = \
+	tskitr_minimal.cpp \
+	RcppExports.cpp
+# $(info TSKITR_SOURCES = $(TSKITR_SOURCES)) # for debugging, info is also a GNU extension
+TSKITR_OBJECTS = $(TSKITR_SOURCES:.cpp=.o)
+# $(info TSKITR_OBJECTS = $(TSKITR_OBJECTS)) # for debugging, info is also a GNU extension
+
+# All objects
+OBJECTS = $(TSKIT_OBJECTS) $(TSKITR_OBJECTS)
+# $(info OBJECTS = $(OBJECTS)) # for debugging, info is also a GNU extension
+
+# Include paths and preprocessor defines
 PKG_CPPFLAGS = -I../inst/include/tskit -I../inst/include/tskit/tskit
 
-# TSKIT_C_SOURCES = convert.c core.c genotypes.c haplotype_matching.c kastore.c \
-#	stats.c tables.c trees.c
-#
-# SOURCES = $(TSKIT_C_SOURCES) rcpp_hello_world.cpp tskit_minimal.cpp RcppExports.cpp
+# Compiler flags (optional)
+# PKG_CFLAGS   = -O2 -Wall
+# PKG_CXXFLAGS = -O2 -Wall
+
+# Explicit compile rule for tskit C
+tskit/%.o: tskit/%.c
+	$(CC) $(PKG_CPPFLAGS) $(PKG_CFLAGS) $(CFLAGS) -c $< -o $@
+
+# Linking
+$(SHLIB): $(OBJECTS)

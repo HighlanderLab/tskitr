@@ -5,3 +5,11 @@ rcpp_hello_world <- function() {
     .Call(`_tskitr_rcpp_hello_world`)
 }
 
+tskit_version_major <- function() {
+    .Call(`_tskitr_tskit_version_major`)
+}
+
+tskit_table_collection_init_ok <- function() {
+    .Call(`_tskitr_tskit_table_collection_init_ok`)
+}
+

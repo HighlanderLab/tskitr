@@ -20,7 +20,7 @@
 
 * Develop package src code; see https://github.com/RcppCore/RcppArmadillo/tree/master/src
 
-* Should we port any flags from the meson build system to R build system?
+* Should we port any flags from the meson build system to R build system? --> these would go to PKG_CFLAGS or PKG_CXXFLAGS
 
 * These two lines were in NAMESPACE from Rcpp.package.skeleton() but devtools wants to autogenerate it
 importFrom(Rcpp, evalCpp)
