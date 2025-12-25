@@ -1,36 +1,55 @@
 
-* Put any C/C++/Fortran code in 'inst' and build a README.md;
-  see https://github.com/RcppCore/RcppArmadillo/tree/master/inst/include
-
-  inst/include/
-  inst/include/README - instructions on how to get armadillo code
-  inst/include/armadillo - Rcpp/Armadillo glue, but maybe not needed with new versions?
-  inst/include/RcppArmadillo.h - Rcpp/Armadillo glue, ???
-  inst/include/current/armadillo - looks like a massive include from armadillo project
-  inst/include/current/armadillo_bits/ - hpp files from armadillo project
-  inst/include/legacy/ - like the current, but older code I reckon
-
-  https://github.com/RcppCore/RcppNT2/tree/master/inst/include
-
-  inst/include/
-  inst/include/RcppNT2.h - includes for boost/*, nt2/*, RcppNT2/*
-  inst/include/boost/ - boost files
-  inst/include/nt2/ - nt2 files
-  inst/include/RcppNT2/ - RcppNT2 files
-
 * Develop package src code; see https://github.com/RcppCore/RcppArmadillo/tree/master/src
 
-* Should we port any flags from the meson build system to R build system? --> these would go to PKG_CFLAGS or PKG_CXXFLAGS
+* FIX ASSERT, STDERR, STDOUT, and ABORT in tskit
+  checking compiled code ... WARNING
+  File ‘tskitr/libs/tskitr.so’:
+    Found ‘___assert_rtn’, possibly from ‘assert’ (C)
+      Objects: ‘tskit/haplotype_matching.o’, ‘tskit/kastore.o’,
+        ‘tskit/tables.o’, ‘tskit/trees.o’
+    Found ‘___stderrp’, possibly from ‘stderr’ (C)
+      Objects: ‘tskit/core.o’, ‘tskit/genotypes.o’,
+        ‘tskit/haplotype_matching.o’, ‘tskit/tables.o’, ‘tskit/trees.o’
+    Found ‘___stdoutp’, possibly from ‘stdout’ (C)
+      Object: ‘tskit/core.o’
+    Found ‘_abort’, possibly from ‘abort’ (C)
+      Objects: ‘tskit/core.o’, ‘tskit/genotypes.o’,
+        ‘tskit/haplotype_matching.o’, ‘tskit/tables.o’, ‘tskit/trees.o’
 
-* These two lines were in NAMESPACE from Rcpp.package.skeleton() but devtools wants to autogenerate it
-importFrom(Rcpp, evalCpp)
-exportPattern("^[[:alpha:]]+")
+  Compiled code should not call entry points which might terminate R nor
+  write to stdout/stderr instead of to the console, nor use Fortran I/O
+  nor system RNGs nor [v]sprintf.
 
-* Any of this usefull to add to DESCRIPTION?
-Depends: R (>= 4.0.0), methods, R6
-Suggests: knitr, rmarkdown, testthat
-VignetteBuilder: knitr
-NeedsCompilation: true
+  See ‘Writing portable packages’ in the ‘Writing R Extensions’ manual.
+
+https://cran.r-project.org/doc/manuals/r-release/R-exts.html says
+
+Under no circumstances should your compiled code ever call abort or exit85: these terminate the user’s R process, quite possibly losing all unsaved work. One usage that could call abort is the assert macro in C or C++ functions, which should never be active in production code. The normal way to ensure that is to define the macro NDEBUG, and R CMD INSTALL does so as part of the compilation flags. Beware of including headers (including from other packages) which could undefine it, now or in future versions. If you wish to use assert during development, you can include -UNDEBUG in PKG_CPPFLAGS or #undef it in your headers or code files. Note that your own src/Makefile or makefiles in sub-directories may also need to define NDEBUG.
+This applies not only to your own code but to any external software you compile in or link to.
+
+
+Compiled code should not write to stdout or stderr and C++ and Fortran I/O should not be used. As with the previous item such calls may come from external software and may never be called, but package authors are often mistaken about that.
+
+Compiled code should not call the system random number generators such as rand, drand48 and random86, but rather use the interfaces to R’s RNGs described in Random number generation. In particular, if more than one package initializes a system RNG (e.g. via srand), they will interfere with each other. This applies also to Fortran 90’s random_number and random_seed, and Fortran 2018’s random_init. And to GNU Fortran’s rand, irand and srand. Except for drand48, what PRNG these functions use is implementation-dependent.
+
+Nor should the C++11 random number library be used nor any other third-party random number generators such as those in GSL.
+
+Use of sprintf and vsprintf is regarded as a potential security risk and warned about on some platforms.87 R CMD check reports if any calls are found.
+
+* Should we port any flags from extern/tskit/c/meson.build to R build system? --> these would go to PKG_CFLAGS in R/src/Makevars
+
+* ADD CODECOV https://github.com/RcppCore/RcppArmadillo/blob/master/.codecov.yml
+
+* ADD COVRIGNORE https://github.com/RcppCore/RcppArmadillo/blob/master/.covrignore
+
+* ADD GITHUB ACTION; see https://github.com/RcppCore/RcppArmadillo/tree/master/.github/workflows
+  and https://github.com/AlphaGenes/AlphaPart/tree/main/.github/workflows
+
+* ADD A VIGNETTE https://github.com/RcppCore/RcppArmadillo/tree/master/vignettes
+
+* USEFUL TO CLEANUP https://github.com/RcppCore/RcppArmadillo/blob/master/cleanup
+
+* USEFUL TO SAVE CODE FOR ISSUES https://github.com/RcppCore/RcppArmadillo/tree/master/local
 
 * https://github.com/RcppCore/RcppArmadillo/blob/master/.Rbuildignore has
 \.travis\.yml
@@ -39,43 +58,13 @@ NeedsCompilation: true
 ^local
 ^vignettes/rmd
 
-* Mention that tskit&kastore are MIT too - see https://github.com/RcppCore/RcppArmadillo/blob/master/inst/COPYRIGHTS
-* https://github.com/RcppCore/RcppArmadillo/blob/master/inst/AUTHORS
-Armadillo itself carries the following in file NOTICE.TXT:
+* MOVE R/NEWS.md to R/inst/NEWS.md?
 
-  Armadillo C++ Linear Algebra Library
-  Copyright 2008-2016 Conrad Sanderson (http://conradsanderson.id.au)
-  Copyright 2008-2016 National ICT Australia (NICTA)
-
-  This product includes software developed by Conrad Sanderson (http://conradsanderson.id.au)
-  This product includes software developed at National ICT Australia (NICTA)
-
-The RcppArmadillo package integrates Armadillo into R, provides wrappers,
-converters, a test framework, examples and more. It was written by Dirk
-Eddelbuettel, Romain Francois and Doug Bates with contributions by many
-others as detailed in the ChangeLog file.
-
-* https://github.com/RcppCore/RcppArmadillo/blob/master/.codecov.yml looks useful
-
-* https://github.com/RcppCore/RcppArmadillo/blob/master/.covrignore looks useful
-
-* Add GitHub action; see https://github.com/RcppCore/RcppArmadillo/tree/master/.github/workflows
-  and https://github.com/AlphaGenes/AlphaPart/tree/main/.github/workflows
-
-* https://github.com/RcppCore/RcppArmadillo/blob/master/cleanup looks useful to remove temp files
-
-* https://github.com/RcppCore/RcppArmadillo/tree/master/vignettes add a vignette at some point
-
-* https://github.com/RcppCore/RcppArmadillo/tree/master/local looks useful to save code for issues etc.
-
-* I hope we don't need stuff like this! https://github.com/RcppCore/RcppArmadillo/blob/master/configure
-
-* Move R/NEWS.md to R/inst/NEWS.md?
-
-* See these links on how to make tskitr available as a header library for other R packages (this is for using tskitr's C++ "interface" for C++ code in other packages)
+* See these links on how to make tskitr available as a header library for other R packages (for using tskitr's C++ "interface" for C++ code in other packages, say in AlphaSimR)
   * https://github.com/coatless-rd-rcpp/rcpp-shared-cpp-functions
+  * https://epiverse-trace.github.io/posts/share-cpp/index.html
   * https://github.com/coatless-rpkg/sitmo
   * https://github.com/rcppcore/rcpparmadillo
-  * https://epiverse-trace.github.io/posts/share-cpp/index.html
+  * https://github.com/RcppCore/RcppNT2
 
 * See also issues at https://github.com/highlanderlab/tskitr/issues

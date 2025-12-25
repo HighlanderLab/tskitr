@@ -29,7 +29,8 @@ OBJECTS = $(TSKIT_OBJECTS) $(TSKITR_OBJECTS)
 # Include paths and preprocessor defines
 PKG_CPPFLAGS = -I../inst/include/tskit -I../inst/include/tskit/tskit
 
-# Compiler flags (optional)
+# Compiler flags
+# PKG_CFLAGS = -DNDEBUG # Remove asserts as per Writting R extensions manual (TODO)
 # PKG_CFLAGS   = -O2 -Wall
 # PKG_CXXFLAGS = -O2 -Wall
 

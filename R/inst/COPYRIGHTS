@@ -1,0 +1,8 @@
+Files: *
+Copyright: 2025 Gregor Gorjanc
+License: MIT
+
+Files: inst/include/tskit
+       src/tskit
+Copyright: 2018-2019 Tskit Developers
+License: MIT

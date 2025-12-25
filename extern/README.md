@@ -73,12 +73,10 @@ mkdir -p R/inst/include/tskit
 mkdir -p R/inst/include/tskit/tskit
 mkdir -p R/src/tskit
 
-# LICENSE and VERSION files
+# Header files
 cp extern/tskit/LICENSE R/inst/include/tskit/.
 cp extern/tskit/c/VERSION.txt R/inst/include/tskit/.
 cp extern/tskit/c/subprojects/kastore/VERSION.txt R/inst/include/tskit/tskit/VERSION_kastore.txt
-
-# Header files
 cp extern/tskit/c/tskit.h R/inst/include/tskit/.
 cp extern/tskit/c/tskit/convert.h R/inst/include/tskit/tskit/.
 cp extern/tskit/c/tskit/core.h R/inst/include/tskit/tskit/.
@@ -90,6 +88,9 @@ cp extern/tskit/c/tskit/trees.h R/inst/include/tskit/tskit/.
 cp extern/tskit/c/subprojects/kastore/kastore.h R/inst/include/tskit/tskit/.
 
 # Code files
+cp extern/tskit/LICENSE R/src/tskit/.
+cp extern/tskit/c/VERSION.txt R/src/tskit/.
+cp extern/tskit/c/subprojects/kastore/VERSION.txt R/src/tskit/VERSION_kastore.txt
 cp extern/tskit/c/tskit/convert.c R/src/tskit/.
 cp extern/tskit/c/tskit/core.c R/src/tskit/.
 cp extern/tskit/c/tskit/genotypes.c R/src/tskit/.
@@ -103,10 +104,10 @@ cp extern/tskit/c/subprojects/kastore/kastore.c R/src/tskit/.
 Check differences between old copy and new version:
 
 ```
+# Header files
 diff extern/tskit/LICENSE R/inst/include/tskit/LICENSE
 diff extern/tskit/c/VERSION.txt R/inst/include/tskit/VERSION.txt
-cp extern/tskit/c/subprojects/kastore/VERSION.txt R/inst/include/tskit/tskit/VERSION_kastore.txt
-
+diff extern/tskit/c/subprojects/kastore/VERSION.txt R/inst/include/tskit/tskit/VERSION_kastore.txt
 diff extern/tskit/c/tskit.h R/inst/include/tskit/tskit.h
 diff extern/tskit/c/tskit/convert.h R/inst/include/tskit/tskit/convert.h
 diff extern/tskit/c/tskit/core.h R/inst/include/tskit/tskit/core.h
@@ -115,8 +116,12 @@ diff extern/tskit/c/tskit/haplotype_matching.h R/inst/include/tskit/tskit/haplot
 diff extern/tskit/c/tskit/stats.h R/inst/include/tskit/tskit/stats.h
 diff extern/tskit/c/tskit/tables.h R/inst/include/tskit/tskit/tables.h
 diff extern/tskit/c/tskit/trees.h R/inst/include/tskit/tskit/trees.h
-cp extern/tskit/c/subprojects/kastore/kastore.h R/inst/include/tskit/tskit/kastore.h
+diff extern/tskit/c/subprojects/kastore/kastore.h R/inst/include/tskit/tskit/kastore.h
 
+# Code files
+diff extern/tskit/LICENSE R/src/tskit/LICENSE
+diff extern/tskit/c/VERSION.txt R/src/tskit/VERSION.txt
+diff extern/tskit/c/subprojects/kastore/VERSION.txt R/src/tskit/VERSION_kastore.txt
 diff extern/tskit/c/tskit/convert.c R/src/tskit/convert.c
 diff extern/tskit/c/tskit/core.c R/src/tskit/core.c
 diff extern/tskit/c/tskit/genotypes.c R/src/tskit/genotypes.c
@@ -124,15 +129,15 @@ diff extern/tskit/c/tskit/haplotype_matching.c R/src/tskit/haplotype_matching.c
 diff extern/tskit/c/tskit/stats.c R/src/tskit/stats.c
 diff extern/tskit/c/tskit/tables.c R/src/tskit/tables.c
 diff extern/tskit/c/tskit/trees.c R/src/tskit/trees.c
-cp extern/tskit/c/subprojects/kastore/kastore.c R/src/tskit/kastore.c
+diff extern/tskit/c/subprojects/kastore/kastore.c R/src/tskit/kastore.c
 
 Update the files in R package:
 
 ```
+# Header files
 cp -i extern/tskit/LICENSE R/inst/include/tskit/.
 cp -i extern/tskit/c/VERSION.txt R/inst/include/tskit/.
 cp -i extern/tskit/c/subprojects/kastore/VERSION.txt R/inst/include/tskit/tskit/VERSION_kastore.txt
-
 cp -i extern/tskit/c/tskit.h  R/inst/include/tskit/.
 cp -i extern/tskit/c/tskit/convert.h R/inst/include/tskit/tskit/.
 cp -i extern/tskit/c/tskit/core.h R/inst/include/tskit/tskit/.
@@ -143,6 +148,10 @@ cp -i extern/tskit/c/tskit/tables.h R/inst/include/tskit/tskit/.
 cp -i extern/tskit/c/tskit/trees.h R/inst/include/tskit/tskit/.
 cp -i extern/tskit/c/subprojects/kastore/kastore.h R/inst/include/tskit/tskit/.
 
+# Code files
+cp -i extern/tskit/LICENSE R/src/tskit/.
+cp -i extern/tskit/c/VERSION.txt R/src/tskit/.
+cp -i extern/tskit/c/subprojects/kastore/VERSION.txt R/src/tskit/VERSION_kastore.txt
 cp -i extern/tskit/c/tskit/convert.c R/src/tskit/.
 cp -i extern/tskit/c/tskit/core.c R/src/tskit/.
 cp -i extern/tskit/c/tskit/genotypes.c R/src/tskit/.
