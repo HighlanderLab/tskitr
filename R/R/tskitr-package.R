@@ -1,6 +1,5 @@
 #' @useDynLib tskitr, .registration = TRUE
 #' @import Rcpp
-#' @importFrom Rcpp evalCpp
 #' @importFrom Rdpack reprompt
 
 #' @description

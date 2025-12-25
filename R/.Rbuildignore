@@ -5,3 +5,4 @@
 ^TODO$
 ^.*.o$
 ^.*.so$
+^test\.trees$

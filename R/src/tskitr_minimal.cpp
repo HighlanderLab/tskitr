@@ -95,5 +95,10 @@ int tskit_treeseq_num_nodes(SEXP xp) {
 
 /*
 ts <- tskit_treeseq_load_xptr("test.trees")
+ts
+is(ts)
 tskit_treeseq_num_nodes(ts)
+n <- tskit_treeseq_num_nodes(ts)
+n
+is(n)
 */
