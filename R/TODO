@@ -36,6 +36,19 @@ Nor should the C++11 random number library be used nor any other third-party ran
 
 Use of sprintf and vsprintf is regarded as a potential security risk and warned about on some platforms.87 R CMD check reports if any calls are found.
 
+Could use  PKG_CFLAGS = -DNDEBUG to remove asserts as per Writing R extensions manual, but this will not address stdout/stderr and print issues mentioned above!
+
+From https://tskit.dev/tskit/docs/stable/development.html#compile-flags
+If the flag TSK_TRACE_ERRORS is defined (by e.g. -DTSK_TRACE_ERRORS to gcc), then error messages will be printed to stderr when errors occur. This also allows breakpoints to be set in the _tsk_trace_error function to break on all errors.
+
+From https://tskit.dev/tskit/docs/stable/development.html#error-handling
+A critical element of producing reliable C programs is consistent error handling and checking of return values. All return values must be checked! In tskit, all functions (except the most trivial accessors) return an integer to indicate success or failure. Any negative value is an error, and must be handled accordingly.
+
+From https://tskit.dev/tskit/docs/stable/development.html#using-assertions
+There are two different ways to express assertions in tskit code. The first is using the custom tsk_bug_assert macro, which is used to make inexpensive checks at key points during execution. These assertions are always run, regardless of the compiler settings, and should not contribute significantly to the overall runtime.
+
+More expensive assertions, used, for example, to check pre and post conditions on performance critical loops should be expressed using the standard assert macro from assert.h. These assertions will be checked during the execution of C unit tests, but will not be enabled when compiled into the Python C module.
+
 * Should we port any flags from extern/tskit/c/meson.build to R build system? --> these would go to PKG_CFLAGS in R/src/Makevars
 
 * ADD CODECOV https://github.com/RcppCore/RcppArmadillo/blob/master/.codecov.yml

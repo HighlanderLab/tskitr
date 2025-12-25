@@ -40,11 +40,58 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// tskit_table_collection_num_nodes_zero
+int tskit_table_collection_num_nodes_zero();
+RcppExport SEXP _tskitr_tskit_table_collection_num_nodes_zero() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(tskit_table_collection_num_nodes_zero());
+    return rcpp_result_gen;
+END_RCPP
+}
+// tskit_treeseq_num_nodes_from_file
+int tskit_treeseq_num_nodes_from_file(std::string file);
+RcppExport SEXP _tskitr_tskit_treeseq_num_nodes_from_file(SEXP fileSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type file(fileSEXP);
+    rcpp_result_gen = Rcpp::wrap(tskit_treeseq_num_nodes_from_file(file));
+    return rcpp_result_gen;
+END_RCPP
+}
+// tskit_treeseq_load_xptr
+SEXP tskit_treeseq_load_xptr(std::string file);
+RcppExport SEXP _tskitr_tskit_treeseq_load_xptr(SEXP fileSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type file(fileSEXP);
+    rcpp_result_gen = Rcpp::wrap(tskit_treeseq_load_xptr(file));
+    return rcpp_result_gen;
+END_RCPP
+}
+// tskit_treeseq_num_nodes
+int tskit_treeseq_num_nodes(SEXP xp);
+RcppExport SEXP _tskitr_tskit_treeseq_num_nodes(SEXP xpSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type xp(xpSEXP);
+    rcpp_result_gen = Rcpp::wrap(tskit_treeseq_num_nodes(xp));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_tskitr_rcpp_hello_world", (DL_FUNC) &_tskitr_rcpp_hello_world, 0},
     {"_tskitr_tskit_version_major", (DL_FUNC) &_tskitr_tskit_version_major, 0},
     {"_tskitr_tskit_table_collection_init_ok", (DL_FUNC) &_tskitr_tskit_table_collection_init_ok, 0},
+    {"_tskitr_tskit_table_collection_num_nodes_zero", (DL_FUNC) &_tskitr_tskit_table_collection_num_nodes_zero, 0},
+    {"_tskitr_tskit_treeseq_num_nodes_from_file", (DL_FUNC) &_tskitr_tskit_treeseq_num_nodes_from_file, 1},
+    {"_tskitr_tskit_treeseq_load_xptr", (DL_FUNC) &_tskitr_tskit_treeseq_load_xptr, 1},
+    {"_tskitr_tskit_treeseq_num_nodes", (DL_FUNC) &_tskitr_tskit_treeseq_num_nodes, 1},
     {NULL, NULL, 0}
 };
 

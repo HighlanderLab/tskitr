@@ -13,3 +13,19 @@ tskit_table_collection_init_ok <- function() {
     .Call(`_tskitr_tskit_table_collection_init_ok`)
 }
 
+tskit_table_collection_num_nodes_zero <- function() {
+    .Call(`_tskitr_tskit_table_collection_num_nodes_zero`)
+}
+
+tskit_treeseq_num_nodes_from_file <- function(file) {
+    .Call(`_tskitr_tskit_treeseq_num_nodes_from_file`, file)
+}
+
+tskit_treeseq_load_xptr <- function(file) {
+    .Call(`_tskitr_tskit_treeseq_load_xptr`, file)
+}
+
+tskit_treeseq_num_nodes <- function(xp) {
+    .Call(`_tskitr_tskit_treeseq_num_nodes`, xp)
+}
+
