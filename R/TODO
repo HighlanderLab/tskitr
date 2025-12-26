@@ -1,6 +1,8 @@
 
 * Develop package src code; see https://github.com/RcppCore/RcppArmadillo/tree/master/src
 
+* THIS EXAMPLE SHOWS how to build ts tables https://github.com/tskit-dev/tskit-build-examples/blob/main/example.c
+
 * FIX ASSERT, STDERR, STDOUT, and ABORT in tskit
   checking compiled code ... WARNING
   File ‘tskitr/libs/tskitr.so’:
