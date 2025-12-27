@@ -10,18 +10,16 @@ approach is not suitable. For example, where high-performance and low-level work
 with tree sequences is required. R access to the parts of C API is added as the
 need arises.
 
-Contents
---------
+## Contents
 
-  * `extern` - Git submodule for `tskit` and instructions on copying C code
+  * `extern` - Git submodule for `tskit` and instructions on copying C code (saved outside of `R` because `R CMD CHECK` complains otherwise)
 
   * `R` - R package `tskitr`
 
 TODO: Add R package badges (build status, CRAN version, etc.) to README.md
       https://github.com/HighlanderLab/tskitr/issues/1
 
-License
--------
+## License
 
   * See `extern/LICENSE` for `tskit`
 

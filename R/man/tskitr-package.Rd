@@ -24,7 +24,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Gregor Gorjanc \email{gregor.gorjanc@gmail.com}
+\strong{Maintainer}: Gregor Gorjanc \email{gregor.gorjanc@gmail.com} (\href{https://orcid.org/0000-0001-8008-2787}{ORCID})
 
 }
 \keyword{internal}

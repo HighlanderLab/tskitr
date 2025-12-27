@@ -9,6 +9,9 @@ ts <- msprime$sim_ancestry(
 )
 ts <- msprime$sim_mutations(ts, rate = 1e-2, random_seed = 42)
 ts
+ts$num_provenances # 2
+ts$num_populations # 1
+ts$num_migrations # 0
 ts$num_individuals # 80
 ts$num_samples # 160
 ts$num_nodes # 344
@@ -21,6 +24,9 @@ ts$dump("inst/examples/test.trees")
 tskit <- reticulate::import("tskit")
 ts2 <- tskit$load("inst/examples/test.trees")
 ts2
+stopifnot(ts2$num_provenances == 2)
+stopifnot(ts2$num_populations == 1)
+stopifnot(ts2$num_migrations == 0)
 stopifnot(ts2$num_individuals == 80)
 stopifnot(ts2$num_samples == 160)
 stopifnot(ts2$num_nodes == 344)

@@ -46,16 +46,6 @@ Rcpp::List rcpp_hello_world() {
 }
 
 // TODO: Just testing for now, remove later
-// table_collection_init_check()
-int table_collection_init_check() {
-    int ret;
-    tsk_table_collection_t tables;
-    ret = tsk_table_collection_init(&tables, 0);
-    tsk_table_collection_free(&tables);
-    return ret;
-}
-
-// TODO: Just testing for now, remove later
 // table_collection_num_nodes_zero_check()
 int table_collection_num_nodes_zero_check() {
     int n, ret;
@@ -67,22 +57,6 @@ int table_collection_num_nodes_zero_check() {
     }
     n = (int) tables.nodes.num_rows;
     tsk_table_collection_free(&tables);
-    return n;
-}
-
-// TODO: Just testing for now, remove later
-// treeseq_num_nodes_from_file("nonexistent.trees")
-// treeseq_num_nodes_from_file("test.trees")
-int treeseq_num_nodes_from_file(std::string file) {
-    int n, ret;
-    tsk_treeseq_t ts;
-    ret = tsk_treeseq_load(&ts, file.c_str(), 0);
-    if (ret != 0) {
-        tsk_treeseq_free(&ts);
-        Rcpp::stop(tsk_strerror(ret));
-    }
-    n = (int) tsk_treeseq_get_num_nodes(&ts);
-    tsk_treeseq_free(&ts);
     return n;
 }
 
@@ -105,15 +79,13 @@ static void treeseq_xptr_finalize(SEXP xptr_sexp) {
 //' @return An external pointer to a \code{tsk_treeseq_t} object.
 //' @examples
 //' ts_file <- system.file("examples", "test.trees", package = "tskitr")
-//' ts <- treeseq_load(ts_file)
+//' ts <- ts_load(ts_file)
 //' ts
 //' is(ts)
-//' treeseq_num_nodes(ts)
-//' try(treeseq_load())
-//' try(treeseq_load("nonexistent.trees"))
+//' ts_num_nodes(ts)
 //' @export
 // [[Rcpp::export]]
-SEXP treeseq_load(std::string file) {
+SEXP ts_load(std::string file) {
     int ret;
     tsk_treeseq_t *ts_ptr = new tsk_treeseq_t();
     ret = tsk_treeseq_load(ts_ptr, file.c_str(), 0);
@@ -129,24 +101,140 @@ SEXP treeseq_load(std::string file) {
     return xptr;
 }
 
-//' Get number of nodes in a tree sequence
-//'
+//' @name ts_num
+//' @title Get the number of records in a tree sequence
+//' @details These functions return the number of various items in a tree
+//'     sequence, including provenances, populations, migrations, individuals,
+//'     samples, nodes, edges, trees, sites, and mutations.
 //' @param ts an external pointer to a \code{tsk_treeseq_t} object.
-//' @return An integer specifying the number of nodes in the tree sequence.
+//' @return \code{ts_num} returns a named list with the numbers of each item,
+//     while \code{ts_num_x} return the number of each item.
 //' @examples
 //' ts_file <- system.file("examples", "test.trees", package = "tskitr")
-//' ts <- treeseq_load(ts_file)
-//' treeseq_num_nodes(ts)
-//' n <- treeseq_num_nodes(ts)
-//' n
-//' is(n)
-//' try(treeseq_num_nodes())
-//' try(treeseq_num_nodes(nonexistent_ts))
+//' ts <- ts_load(ts_file)
+//' ts_num(ts)
+//' ts_num_provenances(ts)
+//' ts_num_populations(ts)
+//' ts_num_migrations(ts)
+//' ts_num_individuals(ts)
+//' ts_num_samples(ts)
+//' ts_num_nodes(ts)
+//' ts_num_edges(ts)
+//' ts_num_trees(ts)
+//' ts_num_sites(ts)
+//' ts_num_mutations(ts)
 //' @export
 // [[Rcpp::export]]
-int treeseq_num_nodes(SEXP ts) {
+Rcpp::List ts_num(SEXP ts) {
+    Rcpp::XPtr<tsk_treeseq_t> xptr(ts);
+    return Rcpp::List::create(Rcpp::_["num_provenances"] = (int) tsk_treeseq_get_num_provenances(xptr),
+                              Rcpp::_["num_populations"] = (int) tsk_treeseq_get_num_populations(xptr),
+                              Rcpp::_["num_migrations"] = (int) tsk_treeseq_get_num_migrations(xptr),
+                              Rcpp::_["num_individuals"] = (int) tsk_treeseq_get_num_individuals(xptr),
+                              Rcpp::_["num_samples"] = (int) tsk_treeseq_get_num_samples(xptr),
+                              Rcpp::_["num_nodes"] = (int) tsk_treeseq_get_num_nodes(xptr),
+                              Rcpp::_["num_edges"] = (int) tsk_treeseq_get_num_edges(xptr),
+                              Rcpp::_["num_trees"] = (int) tsk_treeseq_get_num_trees(xptr),
+                              Rcpp::_["num_sites"] = (int) tsk_treeseq_get_num_sites(xptr),
+                              Rcpp::_["num_mutations"] = (int) tsk_treeseq_get_num_mutations(xptr));
+}
+
+//' @describeIn ts_num Get the number of provenances in a tree sequence
+//' @export
+// [[Rcpp::export]]
+int ts_num_provenances(SEXP ts) {
+    int n;
+    Rcpp::XPtr<tsk_treeseq_t> xptr(ts);
+    n = (int) tsk_treeseq_get_num_provenances(xptr);
+    return n;
+}
+
+//' @describeIn ts_num Get the number of populations in a tree sequence
+//' @export
+// [[Rcpp::export]]
+int ts_num_populations(SEXP ts) {
+    int n;
+    Rcpp::XPtr<tsk_treeseq_t> xptr(ts);
+    n = (int) tsk_treeseq_get_num_populations(xptr);
+    return n;
+}
+
+//' @describeIn ts_num Get the number of migrations in a tree sequence
+//' @export
+// [[Rcpp::export]]
+int ts_num_migrations(SEXP ts) {
+    int n;
+    Rcpp::XPtr<tsk_treeseq_t> xptr(ts);
+    n = (int) tsk_treeseq_get_num_migrations(xptr);
+    return n;
+}
+
+//' @describeIn ts_num Get the number of individuals in a tree sequence
+//' @export
+// [[Rcpp::export]]
+int ts_num_individuals(SEXP ts) {
+    int n;
+    Rcpp::XPtr<tsk_treeseq_t> xptr(ts);
+    n = (int) tsk_treeseq_get_num_individuals(xptr);
+    return n;
+}
+
+//' @describeIn ts_num Get the number of samples in a tree sequence
+//' @export
+// [[Rcpp::export]]
+int ts_num_samples(SEXP ts) {
+    int n;
+    Rcpp::XPtr<tsk_treeseq_t> xptr(ts);
+    n = (int) tsk_treeseq_get_num_samples(xptr);
+    return n;
+}
+
+//' @describeIn ts_num Get the number of nodes in a tree sequence
+//' @export
+// [[Rcpp::export]]
+int ts_num_nodes(SEXP ts) {
     int n;
     Rcpp::XPtr<tsk_treeseq_t> xptr(ts);
     n = (int) tsk_treeseq_get_num_nodes(xptr);
+    return n;
+}
+
+//' @describeIn ts_num Get the number of edges in a tree sequence
+//' @export
+// [[Rcpp::export]]
+int ts_num_edges(SEXP ts) {
+    int n;
+    Rcpp::XPtr<tsk_treeseq_t> xptr(ts);
+    n = (int) tsk_treeseq_get_num_edges(xptr);
+    return n;
+}
+
+//' @describeIn ts_num Get the number of trees in a tree sequence
+//' @export
+// [[Rcpp::export]]
+int ts_num_trees(SEXP ts) {
+    int n;
+    Rcpp::XPtr<tsk_treeseq_t> xptr(ts);
+    n = (int) tsk_treeseq_get_num_trees(xptr);
+    return n;
+}
+
+//' @describeIn ts_num Get the number of sites in a tree sequence
+//' @export
+// [[Rcpp::export]]
+int ts_num_sites(SEXP ts) {
+    int n;
+    Rcpp::XPtr<tsk_treeseq_t> xptr(ts);
+    n = (int) tsk_treeseq_get_num_sites(xptr);
+    return n;
+}
+
+//' @describeIn ts_num Get the number of mutations in a tree sequence
+//' @export
+// [[Rcpp::export]]
+int ts_num_mutations(SEXP ts) {
+    int n;
+    Rcpp::XPtr<tsk_treeseq_t> xptr(ts);
+    n = (int) tsk_treeseq_get_num_mutations(xptr);
     return n;
 }
