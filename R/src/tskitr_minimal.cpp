@@ -14,6 +14,7 @@
 //' @export
 // [[Rcpp::export]]
 Rcpp::IntegerVector kastore_version() {
+    // Rcpp::_["major"] is shorthand for Rcpp::Named("major")
     return Rcpp::IntegerVector::create(Rcpp::_["major"] = KAS_VERSION_MAJOR,
                                        Rcpp::_["minor"] = KAS_VERSION_MINOR,
                                        Rcpp::_["patch"] = KAS_VERSION_PATCH);
@@ -73,6 +74,8 @@ static void treeseq_xptr_finalize(SEXP xptr_sexp) {
     }
 }
 
+// TODO: rename this to ts_load_ptr and create ts_load R function
+//       that calls ts_load_ptr and assigns it to an S3/4 object!?
 //' Load tree sequence from a file
 //'
 //' @param file a string specifying the full path of the tree sequence file.

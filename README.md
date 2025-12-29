@@ -1,4 +1,4 @@
-# tskitr: R Package providing access to the `tskit` C API
+# tskitr: R access to the `tskit` C API
 
 `tskit` enables performant storage, manipulation and analysis of ancestral
 recombination graphs using succinct tree sequence encoding; see https://tskit.dev.
@@ -10,13 +10,16 @@ approach is not suitable. For example, where high-performance and low-level work
 with tree sequences is required. R access to the parts of C API is added as the
 need arises.
 
+TODO: Link here the STATE_and_AIMS.md file #12
+      https://github.com/HighlanderLab/tskitr/issues/12
+
 ## Contents
 
   * `extern` - Git submodule for `tskit` and instructions on copying C code (saved outside of `R` because `R CMD CHECK` complains otherwise)
 
   * `R` - R package `tskitr`
 
-TODO: Add R package badges (build status, CRAN version, etc.) to README.md
+TODO: Add R package badges (build status, CRAN version, etc.) to README.md #1
       https://github.com/HighlanderLab/tskitr/issues/1
 
 ## License

@@ -27,7 +27,7 @@ OBJECTS = $(TSKIT_OBJECTS) $(TSKITR_OBJECTS)
 # $(info OBJECTS = $(OBJECTS)) # for debugging, info is also a GNU extension
 
 # Include paths and preprocessor defines
-PKG_CPPFLAGS = -I../inst/include/tskit -I../inst/include/tskit/tskit
+PKG_CPPFLAGS = -I../inst/include -I../inst/include/tskit -I../inst/include/tskit/tskit
 
 # Compiler flags
 # PKG_CFLAGS = -DNDEBUG # Remove asserts as per Writting R extensions manual (TODO)
