@@ -30,12 +30,12 @@ TODO: Move reticulate code to an external file (since it's quite long)? #28
       https://github.com/HighlanderLab/tskitr/issues/28
 
 ```
-# install.packages(c("reticulate")
+# install.packages("reticulate")
 library(reticulate)
 reticulate::py_require("msprime")
 # msprime and tskit Python API calls from within R via reticulate
 msprime <- reticulate::import("msprime")
-ts <- msprime$sim_ancestry(10, sequence_length=100, recombination_rate=0.1)
+ts <- msprime$sim_ancestry(10, sequence_length = 100, recombination_rate = 0.1)
 is(ts)
 # "tskit.trees.TreeSequence"
 class(ts)
@@ -66,7 +66,7 @@ print(ts$num_samples)
 # --> a simple object (like an integer) is converted to an R object
 #     https://rstudio.github.io/reticulate/#type-conversions
 
-ts <- msprime$sim_mutations(ts, rate=0.1)
+ts <- msprime$sim_mutations(ts, rate = 0.1)
 ts <- ts$simplify(0:4)
 G <- ts$genotype_matrix()
 str(G)
@@ -88,12 +88,12 @@ TODO: Move slendr/reticulate example to an external file (since it's quite long)
      https://github.com/HighlanderLab/tskitr/issues/27
 
 ```
-# install.packages(c("slendr"))
+# install.packages("slendr")
 library(slendr)
 # setup_env() # run in the first session
 init_env() # run in future sessions
-model <- read_model(path=system.file("extdata/models/introgression",
-  package="slendr"))
+mode_file <- system.file("extdata/models/introgression", package = "slendr")
+model <- read_model(path = mode_file)
 print(model)
 # slendr 'model' object
 # ---------------------
@@ -102,9 +102,9 @@ print(model)
 
 afr <- model$populations[["AFR"]]
 eur <- model$populations[["EUR"]]
-samples <- schedule_sampling(model, times=0, list(afr, 10), list(eur, 100))
-ts <- msprime(model, sequence_length=100, recombination_rate=0.001,
-  samples=samples)
+samples <- schedule_sampling(model, times = 0, list(afr, 10), list(eur, 100))
+ts <- msprime(model, sequence_length = 100, recombination_rate = 0.001,
+  samples = samples)
 is(ts)
 # [1] "slendr_ts"
 class(ts)
@@ -138,7 +138,7 @@ print(ts$num_samples)
 # --> a simple object (like an integer) is converted to an R object
 #     https://rstudio.github.io/reticulate/#type-conversions
 
-ts <- ts_mutate(ts, mutation_rate=0.0001)
+ts <- ts_mutate(ts, mutation_rate = 0.0001)
 G <- ts$genotype_matrix()
 str(G)
 # int [1:100, 1:220] 0 0 2 2 0 2 1 0 0 1 ...
@@ -195,7 +195,7 @@ tskit_version()
 #     1     3     0
 
 # Load a tree sequence
-ts_file <- system.file("examples/test.trees", package="tskitr")
+ts_file <- system.file("examples/test.trees", package = "tskitr")
 ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
 ts
 # <pointer: 0x1236b4220>
@@ -244,11 +244,12 @@ codeString <- '
     n = (int) tsk_treeseq_get_num_individuals(xptr);
     return n;
   }'
-ts_num_individuals2 <- cppFunction(code=codeString, depends="tskitr", plugins="tskitr")
+ts_num_individuals2 <- cppFunction(code = codeString,
+  depends = "tskitr", plugins = "tskitr")
 # Both of the depends and plugins arguments are needed!
 
 # Load a tree sequence
-ts_file <- system.file("examples/test.trees", package="tskitr")
+ts_file <- system.file("examples/test.trees", package = "tskitr")
 ts <- tskitr::ts_load(ts_file)
 
 # Apply the compiled function
@@ -258,27 +259,36 @@ ts_num_individuals2(ts)
 # An identical tskitr implementation of the function
 ts_num_individuals(ts)
 # [1] 80
+
+# Assuming you have modified the tree sequence with the C/C++ code,
+# you might want to write it to disk and load it into Python for analysis
+# (possibly via reticulate)
+mod_ts_file <- file.path(tempdir(), "mod_test.trees")
+ts_dump(ts, file = mod_ts_file)
 ```
+
+TODO: Develop ts_r_to_py() to push ts to reticulate/Python session for analysis #TODO
+      TODO-ADD-URL
 
 ### 3) Call `tskit` C API in C++ code in another R package
 
-Follow the steps below in your R package. To see details of each step, see the files in R package `AlphaSimR` at this [commit](https://github.com/HighlanderLab/AlphaSimR/commit/12657b08e7054d88bc214413d13f36c7cde60d95) (that has proof of concept of using tskit C API).
+Follow the steps below in your R package. To see details of each step, see the files in R package `AlphaSimR` at this [commit](https://github.com/HighlanderLab/AlphaSimR/commit/12657b08e7054d88bc214413d13f36c7cde60d95) (that has a proof of concept of using `tskit` C API via `tskitr`).
 
 a) Open `DESCRIPTION` file and add `tskitr` to the `LinkingTo:` field.
 
-b) Add `#include <tskit.h>` as needed to your header files in `src` directory.
+b) Add `#include <tskit.h>` as needed to your C++ header files in `src` directory.
 
 c) Call `tskit` C API as needed in your C++ code in `src` directory.
 
-d) Configure your package build with the `tskitr` library using the following steps:
+d) Configure your package build to use the `tskitr` library file using the following steps:
 
   * Add `src/Makevars.in` and `src/Makevars.win.in` files with `PKG_LIB = @TSKITR_LIB@` flag, in addition to other flags.
 
   * Add `tools/configure.R` file, which will replace `@TSKITR_LIB@` in `src/Makevars.in` and `src/Makevars.win.in` files with the installed `tskitr` library file, including appropriate flags, and generate `src/Makevars` and `src/Makevars.win`.
 
-  * Add `configure` and `configure.win` shell files (and make them executable) that call `tools/configure.R`.
+  * Add `configure` and `configure.win` scripts (and make them executable) to call `tools/configure.R`.
 
-  * Add `cleanup` and  `cleanup.win` shell files  (and make them executable)that will remove `src/Makevars` and `src/Makevars.win` as well as compilation files.
+  * Add `cleanup` and  `cleanup.win` scripts (and make them executable) to remove `src/Makevars` and `src/Makevars.win` as well as compilation files.
 
 e) You should now be ready to build, check, and install your package using tools like `devtools::build()`, `devtools::check()`, and `devtools::install()` or their `R CMD` equivalents.
 
@@ -291,7 +301,7 @@ remotes::install_github(
 )
 
 # Install AlphaSimR
-# (commit with proof of concept of using tskit C API;
+# (commit with a proof of concept of using tskit C API;
 #  study the file contents in there!)
 remotes::install_github(
   repo = "HighlanderLab/AlphaSimR",
@@ -302,17 +312,24 @@ remotes::install_github(
 library(tskitr)
 library(AlphaSimR)
 
+# Load tree sequence and count the number of individuals
 ts_file <- system.file("examples/test.trees", package = "tskitr")
 ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
 tskitr::ts_num_individuals(ts)
-# AlphaSimR::ts_num_individuals2(ts)
-# the above one doesn't work at the moment due to roxygen2 bug
-AlphaSimR:::ts_num_individuals2(ts)
+AlphaSimR::ts_num_individuals2(ts)
+
+# Assuming you modify the tree sequence with the C/C++ code, you will likely
+# want to export it to disk and analyse it using Python API (possibly via reticulate)
+mod_ts_file <- file.path(tempdir(), "mod_test.trees")
+ts_dump(ts, file = mod_ts_file)
 ```
+
+TODO: Develop ts_r_to_py() to push ts to reticulate/Python session for analysis #TODO
+      TODO-ADD-URL
 
 ### 4) Call `tskit` C API in R code in an R session or another R package
 
-Doable, but do we want/need this? - we would have to write Rcpp wrappers for all the functions in tskit C API. Can this be automated? Would Rcpp module help here?
+Doable, but do we want/need this? - we would have to write Rcpp wrappers for all the functions in tskit C API, which would be a huge amount of work and dillution of effort across the different APIs. Can the wrapping be automated? Would Rcpp module help with the later? Maybe we just state we are not pursuing this goal (at this stage)!?
 
 TODO: Write the STATE_and_AIMS.md file on what we want to achieve with the tskitr package #12
       https://github.com/HighlanderLab/tskitr/issues/12

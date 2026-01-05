@@ -83,3 +83,11 @@
     list(env = list(PKG_LIBS = shQuote(libfile)))
   })
 }
+
+#' @describeIn ts_load Alias for \code{ts_load()}
+#' @export
+ts_read <- ts_load
+
+#' @describeIn ts_dump Alias for \code{ts_dump()}
+#' @export
+ts_write <- ts_dump

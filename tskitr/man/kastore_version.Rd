@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{kastore_version}
 \alias{kastore_version}
-\title{Report the version of kastore C API}
+\title{Report the version of installed kastore C API}
 \usage{
 kastore_version()
 }
@@ -11,10 +11,10 @@ A named vector with three elements \code{major}, \code{minor}, and
     \code{patch}.
 }
 \description{
-Report the version of kastore C API
+Report the version of installed kastore C API
 }
 \details{
-The version is defined by kastore in the header \code{kastore.h}.
+The version is stored in the installed header \code{kastore.h}.
 }
 \examples{
 kastore_version()

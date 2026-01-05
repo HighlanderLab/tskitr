@@ -4,9 +4,9 @@
 // using namespace Rcpp; // to omit Rcpp:: prefix for whole Rcpp API
 // using Rcpp::IntegerVector; // to omit Rcpp:: prefix for IntegerVector
 
-//' Report the version of kastore C API
+//' Report the version of installed kastore C API
 //'
-//' @details The version is defined by kastore in the header \code{kastore.h}.
+//' @details The version is stored in the installed header \code{kastore.h}.
 //' @return A named vector with three elements \code{major}, \code{minor}, and
 //'     \code{patch}.
 //' @examples
@@ -20,9 +20,9 @@ Rcpp::IntegerVector kastore_version() {
                                        Rcpp::_["patch"] = KAS_VERSION_PATCH);
 }
 
-//' Report the version of tskit C API
+//' Report the version of installed tskit C API
 //'
-//' @details The version is defined by tskit in the header \code{tskit/core.h}.
+//' @details The version is defined in the installed header \code{tskit/core.h}.
 //' @return A named vector with three elements \code{major}, \code{minor}, and
 //'     \code{patch}.
 //' @examples
@@ -50,12 +50,14 @@ int table_collection_num_nodes_zero_check() {
     return n;
 }
 
-// Finalizer function to free tsk_treeseq_t when it is garbage collected
-//
-// @details Frees memory allocated to a \code{tsk_treeseq_t} object and deletes
-//   its pointer.
-// @param xptr_sexp an external pointer to a \code{tsk_treeseq_t} object.
-static void treeseq_xptr_finalize(SEXP xptr_sexp) {
+//' Finalizer function to free tsk_treeseq_t when it is garbage collected
+//'
+//' @param xptr_sexp an external pointer to a \code{tsk_treeseq_t} object.
+//' @details Frees memory allocated to a \code{tsk_treeseq_t} object and deletes
+//'   its pointer by calling \code{tsk_treeseq_free()} from the tskit C API.
+//'   See \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_free}
+//'   for more details.
+void treeseq_xptr_finalize(SEXP xptr_sexp) {
     Rcpp::XPtr<tsk_treeseq_t> xptr(xptr_sexp);
     if (xptr.get() != NULL) {
         tsk_treeseq_free(xptr.get());
@@ -65,10 +67,16 @@ static void treeseq_xptr_finalize(SEXP xptr_sexp) {
 
 // TODO: Rename ts_load() to ts_load_ptr() and create ts_load() returning S3/S4 object #22
 //       https://github.com/HighlanderLab/tskitr/issues/22
-//' Load tree sequence from a file
+// TODO: What would be the best class system I should use for this?
+//       R6 to get pass by reference and ts$func() semantics?
+//' Load a tree sequence from a file.
 //'
 //' @param file a string specifying the full path of the tree sequence file.
+//' @param options integer bitwise options (see details).
 //' @return An external pointer to a \code{tsk_treeseq_t} object.
+//' @details This function calls \code{tsk_treeseq_load()} from the tskit C API.
+//'   See \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_load}
+//'   for more details.
 //' @examples
 //' ts_file <- system.file("examples/test.trees", package = "tskitr")
 //' ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
@@ -77,10 +85,10 @@ static void treeseq_xptr_finalize(SEXP xptr_sexp) {
 //' ts_num_nodes(ts)
 //' @export
 // [[Rcpp::export]]
-SEXP ts_load(std::string file) {
+SEXP ts_load(std::string file, int options = 0) {
     int ret;
     tsk_treeseq_t *ts_ptr = new tsk_treeseq_t();
-    ret = tsk_treeseq_load(ts_ptr, file.c_str(), 0);
+    ret = tsk_treeseq_load(ts_ptr, file.c_str(), static_cast<tsk_flags_t>(options));
     if (ret != 0) {
         tsk_treeseq_free(ts_ptr);
         delete ts_ptr;
@@ -95,12 +103,51 @@ SEXP ts_load(std::string file) {
     return xptr;
 }
 
+//' Write a tree sequence to file.
+//'
+//' @param ts an external pointer to a \code{tsk_treeseq_t} object.
+//' @param file a string specifying the full path of the tree sequence file.
+//' @param options integer bitwise options (see details).
+//' @details This function calls \code{tsk_treeseq_dump()} from the tskit C API
+//'   See \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_dump}
+//'   for more details.
+//' @examples
+//' ts_file <- system.file("examples/test.trees", package = "tskitr")
+//' ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+//' ts
+//' dump_file <- tempfile()
+//' ts_dump(ts, dump_file)
+//' @export
+// [[Rcpp::export]]
+void ts_dump(SEXP ts, std::string file, int options = 0) {
+    int ret;
+    Rcpp::XPtr<tsk_treeseq_t> xptr(ts);
+    ret = tsk_treeseq_dump(xptr, file.c_str(), static_cast<tsk_flags_t>(options));
+    if (ret != 0) {
+        Rcpp::stop(tsk_strerror(ret));
+    }
+}
+
 //' @name ts_num
 //' @title Get the number of records in a tree sequence
 //' @details These functions return the number of various items in a tree
 //'     sequence, including provenances, populations, migrations, individuals,
 //'     samples, nodes, edges, trees, sites, and mutations.
 //' @param ts an external pointer to a \code{tsk_treeseq_t} object.
+//' @details These functions call
+//'   \code{tsk_treeseq_get_num_provenances()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_provenances},
+//'   \code{tsk_treeseq_get_num_populations()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_populations},
+//'   \code{tsk_treeseq_get_num_migrations()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_migrations},
+//'   \code{tsk_treeseq_get_num_individuals()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_individuals},
+//'   \code{tsk_treeseq_get_num_samples()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_samples},
+//'   \code{tsk_treeseq_get_num_nodes()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_nodes},
+//'   \code{tsk_treeseq_get_num_edges()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_edges},
+//'   \code{tsk_treeseq_get_num_trees()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_trees},
+//'   \code{tsk_treeseq_get_num_sites()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_sites},
+//'   \code{tsk_treeseq_get_num_mutations()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_mutations},
+//'   and
+//'   \code{tsk_treeseq_get_sequence_length()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_sequence_length}
+//'   from the tskit C API. See the linked documentation for more details.
 //' @return \code{ts_num} returns a named list with the numbers of each item,
 //'     while \code{ts_num_x} return the number of each item. All numbers are
 //'     returned as integers.

@@ -54,6 +54,21 @@ Get the number of records in a tree sequence
 These functions return the number of various items in a tree
     sequence, including provenances, populations, migrations, individuals,
     samples, nodes, edges, trees, sites, and mutations.
+
+These functions call
+  \code{tsk_treeseq_get_num_provenances()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_provenances},
+  \code{tsk_treeseq_get_num_populations()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_populations},
+  \code{tsk_treeseq_get_num_migrations()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_migrations},
+  \code{tsk_treeseq_get_num_individuals()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_individuals},
+  \code{tsk_treeseq_get_num_samples()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_samples},
+  \code{tsk_treeseq_get_num_nodes()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_nodes},
+  \code{tsk_treeseq_get_num_edges()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_edges},
+  \code{tsk_treeseq_get_num_trees()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_trees},
+  \code{tsk_treeseq_get_num_sites()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_sites},
+  \code{tsk_treeseq_get_num_mutations()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_mutations},
+  and
+  \code{tsk_treeseq_get_sequence_length()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_sequence_length}
+  from the tskit C API. See the linked documentation for more details.
 }
 \section{Functions}{
 \itemize{

@@ -31,14 +31,27 @@ BEGIN_RCPP
 END_RCPP
 }
 // ts_load
-SEXP ts_load(std::string file);
-RcppExport SEXP _tskitr_ts_load(SEXP fileSEXP) {
+SEXP ts_load(std::string file, int options);
+RcppExport SEXP _tskitr_ts_load(SEXP fileSEXP, SEXP optionsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::string >::type file(fileSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_load(file));
+    Rcpp::traits::input_parameter< int >::type options(optionsSEXP);
+    rcpp_result_gen = Rcpp::wrap(ts_load(file, options));
     return rcpp_result_gen;
+END_RCPP
+}
+// ts_dump
+void ts_dump(SEXP ts, std::string file, int options);
+RcppExport SEXP _tskitr_ts_dump(SEXP tsSEXP, SEXP fileSEXP, SEXP optionsSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ts(tsSEXP);
+    Rcpp::traits::input_parameter< std::string >::type file(fileSEXP);
+    Rcpp::traits::input_parameter< int >::type options(optionsSEXP);
+    ts_dump(ts, file, options);
+    return R_NilValue;
 END_RCPP
 }
 // ts_num
@@ -177,7 +190,8 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_tskitr_kastore_version", (DL_FUNC) &_tskitr_kastore_version, 0},
     {"_tskitr_tskit_version", (DL_FUNC) &_tskitr_tskit_version, 0},
-    {"_tskitr_ts_load", (DL_FUNC) &_tskitr_ts_load, 1},
+    {"_tskitr_ts_load", (DL_FUNC) &_tskitr_ts_load, 2},
+    {"_tskitr_ts_dump", (DL_FUNC) &_tskitr_ts_dump, 3},
     {"_tskitr_ts_num", (DL_FUNC) &_tskitr_ts_num, 1},
     {"_tskitr_ts_num_provenances", (DL_FUNC) &_tskitr_ts_num_provenances, 1},
     {"_tskitr_ts_num_populations", (DL_FUNC) &_tskitr_ts_num_populations, 1},
