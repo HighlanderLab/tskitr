@@ -54,14 +54,14 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// ts_num
-Rcpp::List ts_num(SEXP ts);
-RcppExport SEXP _tskitr_ts_num(SEXP tsSEXP) {
+// ts_summary
+Rcpp::List ts_summary(SEXP ts);
+RcppExport SEXP _tskitr_ts_summary(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_num(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_summary(ts));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -186,13 +186,35 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ts_time_units
+Rcpp::String ts_time_units(SEXP ts);
+RcppExport SEXP _tskitr_ts_time_units(SEXP tsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ts(tsSEXP);
+    rcpp_result_gen = Rcpp::wrap(ts_time_units(ts));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ts_metadata_length
+Rcpp::List ts_metadata_length(SEXP ts);
+RcppExport SEXP _tskitr_ts_metadata_length(SEXP tsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ts(tsSEXP);
+    rcpp_result_gen = Rcpp::wrap(ts_metadata_length(ts));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_tskitr_kastore_version", (DL_FUNC) &_tskitr_kastore_version, 0},
     {"_tskitr_tskit_version", (DL_FUNC) &_tskitr_tskit_version, 0},
     {"_tskitr_ts_load", (DL_FUNC) &_tskitr_ts_load, 2},
     {"_tskitr_ts_dump", (DL_FUNC) &_tskitr_ts_dump, 3},
-    {"_tskitr_ts_num", (DL_FUNC) &_tskitr_ts_num, 1},
+    {"_tskitr_ts_summary", (DL_FUNC) &_tskitr_ts_summary, 1},
     {"_tskitr_ts_num_provenances", (DL_FUNC) &_tskitr_ts_num_provenances, 1},
     {"_tskitr_ts_num_populations", (DL_FUNC) &_tskitr_ts_num_populations, 1},
     {"_tskitr_ts_num_migrations", (DL_FUNC) &_tskitr_ts_num_migrations, 1},
@@ -204,6 +226,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_tskitr_ts_num_sites", (DL_FUNC) &_tskitr_ts_num_sites, 1},
     {"_tskitr_ts_num_mutations", (DL_FUNC) &_tskitr_ts_num_mutations, 1},
     {"_tskitr_ts_sequence_length", (DL_FUNC) &_tskitr_ts_sequence_length, 1},
+    {"_tskitr_ts_time_units", (DL_FUNC) &_tskitr_ts_time_units, 1},
+    {"_tskitr_ts_metadata_length", (DL_FUNC) &_tskitr_ts_metadata_length, 1},
     {NULL, NULL, 0}
 };
 

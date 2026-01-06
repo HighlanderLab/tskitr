@@ -91,3 +91,81 @@ ts_read <- ts_load
 #' @describeIn ts_dump Alias for \code{ts_dump()}
 #' @export
 ts_write <- ts_dump
+
+# TODO: Do we need/want any other summary functions/methods on ts? #25
+#       https://github.com/HighlanderLab/tskitr/issues/25
+#       # TODO: add min and max time?
+#
+#' Prints a summary of a tree sequence and its contents
+#'
+#' @param ts an external pointer to a \code{tsk_treeseq_t} object.
+#' @details It uses \code{\link{ts_summary}()} and
+#'   \code{\link{ts_metadata_length}()}.
+#'   Note that \code{nbytes} property is not available in
+#'   \code{tskit} C API compared to Python API.
+#' @return list with two data.frames; the first contains tree sequence
+#'   properties and their value; the second contains number of rows in
+#'   tables and the length of their metadata.
+#' @examples
+#' ts_file <- system.file("examples/test.trees", package = "tskitr")
+#' ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+#' ts_print(ts)
+#' ts
+#' @export
+ts_print <- function(ts) {
+  tmp_summary <- ts_summary(ts)
+  tmp_metadata <- ts_metadata_length(ts)
+  ret <- list(
+    ts = data.frame(
+      property = c(
+        "num_samples",
+        "sequence_length",
+        "num_trees",
+        "time_units",
+        # TODO: add min and max time? #25
+        "has_metadata"
+      ),
+      value = c(
+        tmp_summary[["num_samples"]],
+        tmp_summary[["sequence_length"]],
+        tmp_summary[["num_trees"]],
+        tmp_summary[["time_units"]],
+        tmp_metadata[["ts"]] > 0
+      )
+    ),
+    # TODO: report tables metadata? If yes, how?
+    tables = data.frame(
+      table = c(
+        "provenances",
+        "populations",
+        "migrations",
+        "individuals",
+        "nodes",
+        "edges",
+        "sites",
+        "mutations"
+      ),
+      number = c(
+        tmp_summary[["num_provenances"]],
+        tmp_summary[["num_populations"]],
+        tmp_summary[["num_migrations"]],
+        tmp_summary[["num_individuals"]],
+        tmp_summary[["num_nodes"]],
+        tmp_summary[["num_edges"]],
+        tmp_summary[["num_sites"]],
+        tmp_summary[["num_mutations"]]
+      ),
+      has_metadata = c(
+        NA, # provenances have no metadata
+        tmp_metadata[["populations"]] > 0,
+        tmp_metadata[["migrations"]] > 0,
+        tmp_metadata[["individuals"]] > 0,
+        tmp_metadata[["nodes"]] > 0,
+        tmp_metadata[["edges"]] > 0,
+        tmp_metadata[["sites"]] > 0,
+        tmp_metadata[["mutations"]] > 0
+      )
+    )
+  )
+  return(ret)
+}

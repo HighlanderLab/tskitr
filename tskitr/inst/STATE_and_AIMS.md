@@ -200,25 +200,23 @@ ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
 ts
 # <pointer: 0x1236b4220>
 
-# Summarise
-ts_num(ts)
-# $num_provenances
-# [1] 2
-# $num_populations
-# [1] 1
-# $num_migrations
-# [1] 0
-# $num_individuals
-# [1] 80
-...
-ts_num_individuals(ts)
-# [1] 80
-?ts_num
-# see the implemented ts_num_x() functions
+# Print summary of tree sequence and its contents
+ts_print(ts)
+# $ts
+#          property       value
+# 1     num_samples         160
+# 2 sequence_length       10000
+# 3       num_trees          26
+# 4      time_units generations
+# 5    has_metadata       FALSE
+#
+# $tables
+#         table number has_metadata
+# 1 provenances      2           NA
+# 2 populations      1         TRUE
+# 3  migrations      0        FALSE
+# ...
 ```
-
-TODO: Create a summary()/print() method for ts? #26
-      https://github.com/HighlanderLab/tskitr/issues/26
 
 TODO: Do we need/want any other summary functions/methods on ts? #25
       https://github.com/HighlanderLab/tskitr/issues/25
