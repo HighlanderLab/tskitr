@@ -4,10 +4,12 @@
 \alias{ts_py_to_r}
 \title{Transfer a tree sequence from reticulate Python to R}
 \usage{
-ts_py_to_r(ts)
+ts_py_to_r(ts, cleanup = TRUE)
 }
 \arguments{
 \item{ts}{tree sequence in reticulate Python.}
+
+\item{cleanup}{logical delete the temporary file at the end of the function?}
 }
 \value{
 Tree sequence as an external pointer to a \code{tsk_treeseq_t} object.

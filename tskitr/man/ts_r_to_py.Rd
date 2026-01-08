@@ -4,13 +4,15 @@
 \alias{ts_r_to_py}
 \title{Transfer a tree sequence from R to reticulate Python}
 \usage{
-ts_r_to_py(ts, tskit_module = get_tskit())
+ts_r_to_py(ts, tskit_module = get_tskit(), cleanup = TRUE)
 }
 \arguments{
 \item{ts}{tree sequence as an external pointer to a \code{tsk_treeseq_t} object.}
 
 \item{tskit_module}{reticulate Python module of \code{tskit}. By default,
 it calls \code{\link{get_tskit}()} to obtain the module.}
+
+\item{cleanup}{logical delete the temporary file at the end of the function?}
 }
 \value{
 Tree sequence in reticulate Python.

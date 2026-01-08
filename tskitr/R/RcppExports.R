@@ -4,8 +4,8 @@
 #' @name ts_metadata_length
 #' @title Get the length of metadata in a tree sequence and its tables
 #' @param ts tree sequence as an external pointer to a \code{tsk_treeseq_t} object.
-#' @details This function returns the summary of properties and number of records
-#'   in a tree sequence, by calling
+#' @details This function returns the length of metadata stored on the tree
+#'   sequence and in each table by calling
 #'   \code{tsk_treeseq_get_metadata_length()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_metadata_length} on tree sequence and
 NULL
 

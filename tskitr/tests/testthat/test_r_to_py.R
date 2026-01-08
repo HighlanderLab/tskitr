@@ -33,7 +33,7 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
   expect_equal(py_ts$time_units, n$time_units)
 
   expect_equal(reticulate::py_len(py_ts$metadata), m$ts)
-  expect_equal(reticulate::py_len(py_ts$tables$metadata), m$tables)
+  expect_equal(reticulate::py_len(py_ts$tables$metadata), m$ts)
   expect_equal(length(py_ts$tables$populations$metadata), m$populations)
   expect_equal(length(py_ts$tables$migrations$metadata), m$migrations)
   expect_equal(length(py_ts$tables$individuals$metadata), m$individuals)

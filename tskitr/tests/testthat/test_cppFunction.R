@@ -3,6 +3,7 @@ context("test_cppFunction_compilation")
 test_that("compilation via cppFunction() works", {
   # TODO: Time unittests to decide which tests will be active on CRAN #20
   #       https://github.com/HighlanderLab/tskitr/issues/20
+  # skip_on_cran()
   codeString <- '
     #include <tskit.h>
     int ts_num_individuals(SEXP ts) {

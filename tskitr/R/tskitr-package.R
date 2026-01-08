@@ -91,10 +91,11 @@
 #' @description This function imports the reticulate Python \code{tskit} module
 #'   and if it is not yet installed, then it attempts to install it first.
 #' @param obj_name character name of the object holding \code{tskit} reticulate
-#'   Python module. If this object exists in the global R environment, then it
-#'   is returned Otherwise, the function attempts to install and import the
-#'   module before returning it. If \code{NULL}, then the function directly
-#'   attempts to install and import the module before returning it.
+#'   Python module. If this object exists in the global R environment and is a
+#'   reticulate Python object, then it is returned. Otherwise, the function
+#'   attempts to install and import the module before returning it. If
+#'   \code{NULL}, then the function directly attempts to install and import the
+#'   module before returning it.
 #' @details This function is meant for users running \code{tskit <- get_tskit()}
 #'   or similar, but also by other functions in this package that need the
 #'   \code{tskit} reticulate Python module and we don't want to keep importing
@@ -106,22 +107,27 @@
 #' tskit$ALLELES_01
 #' @export
 get_tskit <- function(obj_name = "tskit") {
-  if (is.null(obj_name)) {
-    if (!reticulate::py_module_available("tskit")) {
-      warning(
-        "Python module 'tskit' is not available. Attempting to install it ..."
+  if (
+    !is.null(obj_name) && exists(obj_name, envir = .GlobalEnv, inherits = FALSE)
+  ) {
+    tskit <- get(obj_name, envir = .GlobalEnv, inherits = FALSE)
+    if (!reticulate::is_py_object(tskit)) {
+      stop(
+        "Object '",
+        obj_name,
+        "' exists in the global environment but is not a reticulate Python module"
       )
-      reticulate::py_require("tskit")
-    }
-    return(reticulate::import("tskit", delay_load = TRUE))
-  } else {
-    if (exists(obj_name, envir = .GlobalEnv, inherits = FALSE)) {
-      tskit <- get(obj_name, envir = .GlobalEnv, inherits = FALSE)
-    } else {
-      tskit <- get_tskit(obj_name = NULL)
     }
     return(tskit)
   }
+  # else
+  if (!reticulate::py_module_available("tskit")) {
+    warning(
+      "Python module 'tskit' is not available. Attempting to install it ..."
+    )
+    reticulate::py_require("tskit")
+  }
+  return(reticulate::import("tskit", delay_load = TRUE))
 }
 
 #' @describeIn ts_load Alias for \code{ts_load()}
@@ -216,6 +222,7 @@ ts_print <- function(ts) {
 #' @param ts tree sequence as an external pointer to a \code{tsk_treeseq_t} object.
 #' @param tskit_module reticulate Python module of \code{tskit}. By default,
 #'   it calls \code{\link{get_tskit}()} to obtain the module.
+#' @param cleanup logical delete the temporary file at the end of the function?
 #' @return Tree sequence in reticulate Python.
 #' @seealso \code{\link{ts_py_to_r}()} and \code{\link{ts_dump}()}.
 #' @examples
@@ -229,8 +236,11 @@ ts_print <- function(ts) {
 #' is(py_ts)
 #' py_ts$num_samples # 160
 #' @export
-ts_r_to_py <- function(ts, tskit_module = get_tskit()) {
-  ts_file <- tempfile()
+ts_r_to_py <- function(ts, tskit_module = get_tskit(), cleanup = TRUE) {
+  ts_file <- tempfile(fileext = ".trees")
+  if (cleanup) {
+    on.exit(unlink(ts_file))
+  }
   ts_dump(ts, file = ts_file)
   if (!reticulate::is_py_object(tskit_module)) {
     stop("tskit_module must be a Python module/object!")
@@ -244,6 +254,7 @@ ts_r_to_py <- function(ts, tskit_module = get_tskit()) {
 #' @description This function saves a tree sequence from reticulate Python to disk
 #'   and reads it into R so that we can use \code{tskitr} R/C++ API on it.
 #' @param ts tree sequence in reticulate Python.
+#' @param cleanup logical delete the temporary file at the end of the function?
 #' @return Tree sequence as an external pointer to a \code{tsk_treeseq_t} object.
 #' @seealso \code{\link{ts_r_to_py}()} and \code{\link{ts_dump}()}.
 #' @examples
@@ -260,8 +271,11 @@ ts_r_to_py <- function(ts, tskit_module = get_tskit()) {
 #' is(r_ts2)
 #' ts_num_samples(r_ts2) # 4
 #' @export
-ts_py_to_r <- function(ts) {
-  ts_file <- tempfile()
+ts_py_to_r <- function(ts, cleanup = TRUE) {
+  ts_file <- tempfile(fileext = ".trees")
+  if (cleanup) {
+    on.exit(unlink(ts_file))
+  }
   if (!reticulate::is_py_object(ts)) {
     stop("ts must be a Python object!")
   }

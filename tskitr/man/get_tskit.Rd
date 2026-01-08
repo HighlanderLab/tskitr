@@ -8,10 +8,11 @@ get_tskit(obj_name = "tskit")
 }
 \arguments{
 \item{obj_name}{character name of the object holding \code{tskit} reticulate
-Python module. If this object exists in the global R environment, then it
-is returned Otherwise, the function attempts to install and import the
-module before returning it. If \code{NULL}, then the function directly
-attempts to install and import the module before returning it.}
+Python module. If this object exists in the global R environment and is a
+reticulate Python object, then it is returned. Otherwise, the function
+attempts to install and import the module before returning it. If
+\code{NULL}, then the function directly attempts to install and import the
+module before returning it.}
 }
 \value{
 \code{tskit} reticulate Python module.

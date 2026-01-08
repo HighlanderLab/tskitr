@@ -18,8 +18,8 @@ Get the length of metadata in a tree sequence and its tables
 from the tskit C API. See the linked documentation for more details.
 }
 \details{
-This function returns the summary of properties and number of records
-  in a tree sequence, by calling
+This function returns the length of metadata stored on the tree
+  sequence and in each table by calling
   \code{tsk_treeseq_get_metadata_length()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_metadata_length} on tree sequence and
 }
 \examples{
