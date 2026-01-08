@@ -14,3 +14,4 @@ tskitr/src/Makevars
 tskitr/src/Makevars.win
 test.trees
 .DS_Store
+*.html
