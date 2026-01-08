@@ -66,7 +66,7 @@ void treeseq_xptr_finalize(SEXP xptr_sexp) {
     }
 }
 
-// TODO: Rename ts_load() to ts_load_ptr() and create ts_load() returning S3/S4 object #22
+// TODO: Rename ts_load() to ts_load_ptr() and create ts_load() returning S3/S4/R6/... object #22
 //       https://github.com/HighlanderLab/tskitr/issues/22
 // TODO: What would be the best class system I should use for this?
 //       R6 to get pass by reference and ts$func() semantics?

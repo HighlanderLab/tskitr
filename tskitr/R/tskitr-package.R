@@ -65,6 +65,7 @@
 #' is required for linking flags in addition to `depends` for include headers.
 #' @noRd
 .onLoad <- function(libname, pkgname) {
+  # nocov start
   Rcpp::registerPlugin(name = "tskitr", plugin = function() {
     # See ?Rcpp::registerPlugin and ?inline::registerPlugin on what the plugin
     # function should return (a list with additional includes, environment
@@ -84,7 +85,7 @@
     }
     list(env = list(PKG_LIBS = shQuote(libfile)))
   })
-}
+} # nocov end
 
 #' Get the reticulate Python tskit module
 #'
@@ -107,25 +108,31 @@
 #' tskit$ALLELES_01
 #' @export
 get_tskit <- function(obj_name = "tskit") {
-  if (
-    !is.null(obj_name) && exists(obj_name, envir = .GlobalEnv, inherits = FALSE)
-  ) {
+  test <- !is.null(obj_name) &&
+    exists(obj_name, envir = .GlobalEnv, inherits = FALSE)
+  if (test) {
     tskit <- get(obj_name, envir = .GlobalEnv, inherits = FALSE)
-    if (!reticulate::is_py_object(tskit)) {
-      stop(
+    test <- reticulate::is_py_object(tskit) &&
+      is(tskit) == "python.builtin.module"
+    if (test) {
+      cat("We are here!\n")
+      return(tskit)
+    } else {
+      txt <- paste0(
         "Object '",
         obj_name,
         "' exists in the global environment but is not a reticulate Python module"
       )
+      stop(txt)
     }
-    return(tskit)
   }
   # else
   if (!reticulate::py_module_available("tskit")) {
-    warning(
-      "Python module 'tskit' is not available. Attempting to install it ..."
-    )
+    # nocov start
+    txt <- "Python module 'tskit' is not available. Attempting to install it ..."
+    warning(txt)
     reticulate::py_require("tskit")
+    # nocov end
   }
   return(reticulate::import("tskit", delay_load = TRUE))
 }

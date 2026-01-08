@@ -2,7 +2,7 @@ context("test_r_to_py_and_py_to_r")
 
 skip_if_no_tskit <- function() {
   if (!reticulate::py_module_available("tskit")) {
-    skip("tskit not available for testing!")
+    skip("tskit reticulate Python module not available for testing!")
   }
 }
 
@@ -16,6 +16,10 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
   n <- ts_summary(r_ts)
   m <- ts_metadata_length(r_ts)
 
+  expect_error(
+    ts_r_to_py(r_ts, tskit_module = "bla"),
+    regexp = "tskit_module must be a Python module/object!"
+  )
   py_ts <- ts_r_to_py(r_ts)
 
   # Simple comparison of summaries and of the lengths of metadata
@@ -44,6 +48,8 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
 
   # ---- ts_py_to_r() ----
 
+  expect_error(ts_py_to_r(1L), regexp = "ts must be a Python object!")
+  expect_error(ts_py_to_r(r_ts), regexp = "ts must be a Python object!")
   py_ts2 <- py_ts$simplify(samples = c(0L, 1L, 2L, 3L))
   r_ts2 <- ts_py_to_r(py_ts2)
   n2 <- ts_summary(r_ts2)

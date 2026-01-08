@@ -91,11 +91,61 @@ test_that("ts_load(), ts_summary(), and ts_dump(x) work", {
   expect_true(is.character(c))
   expect_equal(c, "generations")
 
+  # ---- ts_print() ----
+
+  # Simple comparison of summaries
+  p <- ts_print(ts)
+  expect_equal(
+    p,
+    list(
+      ts = data.frame(
+        property = c(
+          "num_samples",
+          "sequence_length",
+          "num_trees",
+          "time_units",
+          "has_metadata"
+        ),
+        value = c(160, 10000, 26, "generations", FALSE)
+      ),
+      tables = data.frame(
+        table = c(
+          "provenances",
+          "populations",
+          "migrations",
+          "individuals",
+          "nodes",
+          "edges",
+          "sites",
+          "mutations"
+        ),
+        number = c(2, 1, 0, 80, 344, 414, 2376, 2700),
+        has_metadata = c(
+          NA, # provenances have no metadata
+          TRUE,
+          FALSE,
+          FALSE,
+          FALSE,
+          FALSE,
+          FALSE,
+          FALSE
+        )
+      )
+    )
+  )
+
   # ---- ts_dump() ----
 
   expect_error(ts_dump())
   expect_error(ts_dump(nonexistent_ts))
+  expect_error(ts_dump(file = 1))
+  expect_error(ts_dump(nonexistent_ts, file = 1))
+  expect_error(ts_dump(1, file = 1))
+  expect_error(ts_dump(1, file = "1"))
+  expect_error(ts_dump(1, file = 1))
   expect_error(ts_dump(ts))
+  bad_path <- file.path(tempdir(), "no_such_dir", "out.trees")
+  expect_error(ts_dump(ts, file = bad_path))
 
   # Write ts to disk, read it back, and check that nums are still the same
   dump_file <- tempfile(fileext = ".trees")
@@ -144,6 +194,7 @@ test_that("ts_load(), ts_summary(), and ts_dump(x) work", {
   )
 
   # TODO: Another set of tests for a tree sequence with metadata
+  skip("Skipping tests for tree sequence with metadata for now!")
   ts_file <- system.file("examples/testTODO.trees", package = "tskitr")
   ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
 
