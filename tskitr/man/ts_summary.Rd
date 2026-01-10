@@ -14,7 +14,8 @@
 \alias{ts_num_mutations}
 \alias{ts_sequence_length}
 \alias{ts_time_units}
-\title{Get the summary of properties and number of records in a tree sequence}
+\title{Get the summary of properties and number of records in a tree
+  sequence}
 \usage{
 ts_summary(ts)
 
@@ -43,31 +44,46 @@ ts_sequence_length(ts)
 ts_time_units(ts)
 }
 \arguments{
-\item{ts}{tree sequence as an external pointer to a \code{tsk_treeseq_t} object.}
+\item{ts}{tree sequence as an external pointer to a \code{tsk_treeseq_t}
+object.}
 }
 \value{
-\code{ts_summary} returns a named list with the number/value for all items,
-    while other functions \code{ts_num_x} etc. return the number/value of each item.
+\code{ts_summary} returns a named list with the number/value for
+  all items, while other functions \code{ts_num_x} etc. return the
+  number/value of each item.
 }
 \description{
-Get the summary of properties and number of records in a tree sequence
+Get the summary of properties and number of records in a tree
+  sequence
 }
 \details{
-These functions return the summary of properties and number of records
-  in a tree sequence, by calling
-  \code{tsk_treeseq_get_num_provenances()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_provenances},
-  \code{tsk_treeseq_get_num_populations()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_populations},
-  \code{tsk_treeseq_get_num_migrations()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_migrations},
-  \code{tsk_treeseq_get_num_individuals()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_individuals},
-  \code{tsk_treeseq_get_num_samples()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_samples},
-  \code{tsk_treeseq_get_num_nodes()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_nodes},
-  \code{tsk_treeseq_get_num_edges()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_edges},
-  \code{tsk_treeseq_get_num_trees()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_trees},
-  \code{tsk_treeseq_get_num_sites()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_sites},
-  \code{tsk_treeseq_get_num_mutations()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_mutations},
-  \code{tsk_treeseq_get_sequence_length()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_sequence_length},
+These functions return the summary of properties and number of
+  records in a tree sequence, by calling
+  \code{tsk_treeseq_get_num_provenances()}
+\url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_provenances},
+  \code{tsk_treeseq_get_num_populations()}
+\url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_populations},
+  \code{tsk_treeseq_get_num_migrations()}
+\url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_migrations},
+  \code{tsk_treeseq_get_num_individuals()}
+\url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_individuals},
+  \code{tsk_treeseq_get_num_samples()}
+\url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_samples},
+  \code{tsk_treeseq_get_num_nodes()}
+\url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_nodes},
+  \code{tsk_treeseq_get_num_edges()}
+\url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_edges},
+  \code{tsk_treeseq_get_num_trees()}
+\url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_trees},
+  \code{tsk_treeseq_get_num_sites()}
+\url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_sites},
+  \code{tsk_treeseq_get_num_mutations()}
+\url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_mutations},
+  \code{tsk_treeseq_get_sequence_length()}
+\url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_sequence_length},
   and
-  \code{tsk_treeseq_get_time_units()} \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_time_units}.
+  \code{tsk_treeseq_get_time_units()}
+\url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_time_units}.
   from the tskit C API. See the linked documentation for more details.
 }
 \section{Functions}{
@@ -80,7 +96,8 @@ These functions return the summary of properties and number of records
 
 \item \code{ts_num_individuals()}: Get the number of individuals in a tree sequence
 
-\item \code{ts_num_samples()}: Get the number of samples (of nodes) in a tree sequence
+\item \code{ts_num_samples()}: Get the number of samples (of nodes) in a tree
+sequence
 
 \item \code{ts_num_nodes()}: Get the number of nodes in a tree sequence
 

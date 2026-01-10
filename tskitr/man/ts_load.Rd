@@ -15,15 +15,16 @@ ts_read(file, options = 0L)
 \item{options}{integer bitwise options (see details).}
 }
 \value{
-Tree sequence as an external pointer to a \code{tsk_treeseq_t} object.
+Tree sequence as an external pointer to a \code{tsk_treeseq_t}
+  object.
 }
 \description{
 Load a tree sequence from a file.
 }
 \details{
 This function calls \code{tsk_treeseq_load()} from the tskit C API.
-  See \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_load}
-  for more details.
+  \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_load}
+  provides more details.
 }
 \section{Functions}{
 \itemize{

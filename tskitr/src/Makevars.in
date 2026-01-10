@@ -16,7 +16,7 @@ TSKIT_OBJECTS = $(TSKIT_SOURCES:.c=.o)
 # tskitr C++ sources & objects
 # TSKITR_SOURCES = $(wildcard *.cpp) # wildcard is a GNU extension and not desired on CRAN
 TSKITR_SOURCES = \
-	tskitr_minimal.cpp \
+	tskitr.cpp \
 	RcppExports.cpp
 # $(info TSKITR_SOURCES = $(TSKITR_SOURCES)) # for debugging, info is also a GNU extension
 TSKITR_OBJECTS = $(TSKITR_SOURCES:.cpp=.o)
@@ -33,7 +33,7 @@ PKG_CPPFLAGS = -I../inst/include -I../inst/include/tskit -I../inst/include/tskit
 # TODO: Remove asserts as per Writting R extensions manual #5
 #       https://github.com/HighlanderLab/tskitr/issues/5
 #       Note clang++ uses -DNDEBUG by default (see below output from devtools::install()) #5
-# clang++ -arch arm64 -std=gnu++17 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG -I../inst/include -I../inst/include/tskit -I../inst/include/tskit/tskit -I/opt/homebrew/opt/gettext/include -I'/Users/ggorjanc/Library/R/arm64/4.5/library/Rcpp/include' -I/opt/R/arm64/include    -fPIC  -falign-functions=64 -Wall -g -O2   -c tskitr_minimal.cpp -o tskitr_minimal.o
+# clang++ -arch arm64 -std=gnu++17 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG -I../inst/include -I../inst/include/tskit -I../inst/include/tskit/tskit -I/opt/homebrew/opt/gettext/include -I'/Users/ggorjanc/Library/R/arm64/4.5/library/Rcpp/include' -I/opt/R/arm64/include    -fPIC  -falign-functions=64 -Wall -g -O2   -c tskitr.cpp -o tskitr.o
 # PKG_CFLAGS = -DNDEBUG
 # TODO: Should we port any flags from extern/tskit/c/meson.build to R build system? #6
 #       https://github.com/HighlanderLab/tskitr/issues/6

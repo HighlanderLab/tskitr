@@ -8,7 +8,7 @@ kastore_version()
 }
 \value{
 A named vector with three elements \code{major}, \code{minor}, and
-    \code{patch}.
+  \code{patch}.
 }
 \description{
 Report the version of installed kastore C API

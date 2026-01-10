@@ -10,9 +10,10 @@ ts_dump(ts, file, options = 0L)
 ts_write(ts, file, options = 0L)
 }
 \arguments{
-\item{ts}{tree sequence as an external pointer to a \code{tsk_treeseq_t} object.}
+\item{ts}{tree sequence as an external pointer to a \code{tsk_treeseq_t}
+object.}
 
-\item{file}{a string specifying the full path of the tree sequence file.}
+\item{file}{a string specifying the full path of the tree sequence file}
 
 \item{options}{integer bitwise options (see details).}
 }
@@ -24,8 +25,8 @@ Write a tree sequence to file.
 }
 \details{
 This function calls \code{tsk_treeseq_dump()} from the tskit C API
-  See \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_dump}
-  for more details.
+  \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_dump}
+  provides more details.
 }
 \section{Functions}{
 \itemize{
