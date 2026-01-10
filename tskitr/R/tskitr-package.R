@@ -95,12 +95,12 @@
 #' @param obj_name character name of the object holding \code{tskit} reticulate
 #'   Python module. If this object exists in the global R environment and is a
 #'   reticulate Python object, then it is returned. Otherwise, the function
-#'   attempts to install and import the module before returning it. If
-#'   \code{NULL}, then the function directly attempts to install and import the
-#'   module before returning it.
+#'   attempts to install and import tskit before returning it. If \code{NULL},
+#'   then the function directly attempts to install and import tskit before
+#'   returning it.
 #' @details This function is meant for users running \code{tskit <- get_tskit()}
 #'   or similar, but also by other functions in this package that need the
-#'   \code{tskit} reticulate Python module and we don't want to keep importing
+#'   \code{tskit} reticulate Python module, yet we don't want to keep importing
 #'   it if it already has been imported.
 #' @return \code{tskit} reticulate Python module.
 #' @examples
@@ -116,7 +116,6 @@ get_tskit <- function(obj_name = "tskit") {
     test <- reticulate::is_py_object(tskit) &&
       is(tskit) == "python.builtin.module"
     if (test) {
-      cat("We are here!\n")
       return(tskit)
     } else {
       txt <- paste0(
@@ -129,9 +128,10 @@ get_tskit <- function(obj_name = "tskit") {
   }
   # else
   if (!reticulate::py_module_available("tskit")) {
+    # These lines are hard to hit with tests with cached reticulate Python and modules
     # nocov start
     txt <- "Python module 'tskit' is not available. Attempting to install it ..."
-    warning(txt)
+    cat(txt)
     reticulate::py_require("tskit")
     # nocov end
   }

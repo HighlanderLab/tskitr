@@ -4,8 +4,6 @@
 .RData
 .Ruserdata
 .vscode
-scratch.R
-scratch.py
 tskitr/src/*.o
 tskitr/src/tskit/*.o
 tskitr/src/*.so

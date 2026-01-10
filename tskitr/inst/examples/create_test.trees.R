@@ -49,7 +49,7 @@ builtins$type(ts$metadata) # <class 'bytes'>
 py_len(ts$metadata) # 0
 # ts$metadata$shape # 'bytes' object has no attribute 'shape'
 
-schema = ts$metadata_schema
+schema <- ts$metadata_schema
 # empty
 
 ts$tables$populations$metadata # R vector
@@ -58,7 +58,7 @@ length(ts$tables$populations$metadata) # 33
 # ts$tables$populations$metadata$shape # $ operator is invalid for atomic vectors
 # ts$tables$populations$metadata.shape # AttributeError: 'ImmutablePopulationTable' object has no attribute 'metadata.shape'
 
-schema = ts$tables$populations$metadata_schema
+schema <- ts$tables$populations$metadata_schema
 # {"additionalProperties":true,"codec":"json","properties":{"description":{"type":["string","null"]},"name":{"type":"string"}},"required":["name","description"],"type":"object"}
 schema$asdict()
 # $additionalProperties
@@ -84,11 +84,11 @@ ts$dump("inst/examples/test.trees")
 # ts <- tskit$load("inst/examples/test.trees")
 
 # Create a second tree sequence with metadata in some tables
-# basic_schema = tskit$MetadataSchema("{'codec': 'json'}")
+# basic_schema <- tskit$MetadataSchema("{'codec': 'json'}")
 # Can't get this to work via reticulate :(
 # see create_test.trees.py
 
-ts = tskit$load("inst/examples/test2.trees")
+ts <- tskit$load("inst/examples/test2.trees")
 ts
 ts$num_individuals # 81
 

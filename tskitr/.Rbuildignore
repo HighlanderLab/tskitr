@@ -8,5 +8,8 @@
 ^.*\.so$
 ^\.covrignore$
 ^\.github$
-pkg_dev_notes.md
-^codecov\.yml$
+^pkg_dev_notes\.md
+^codecov\.yaml
+^notes_pkg_dev\.Rmd
+^inst/examples/create_test\.trees\.R
+^inst/examples/create_test\.trees\.py

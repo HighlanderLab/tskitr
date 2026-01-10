@@ -10,9 +10,9 @@ get_tskit(obj_name = "tskit")
 \item{obj_name}{character name of the object holding \code{tskit} reticulate
 Python module. If this object exists in the global R environment and is a
 reticulate Python object, then it is returned. Otherwise, the function
-attempts to install and import the module before returning it. If
-\code{NULL}, then the function directly attempts to install and import the
-module before returning it.}
+attempts to install and import tskit before returning it. If \code{NULL},
+then the function directly attempts to install and import tskit before
+returning it.}
 }
 \value{
 \code{tskit} reticulate Python module.
@@ -24,7 +24,7 @@ This function imports the reticulate Python \code{tskit} module
 \details{
 This function is meant for users running \code{tskit <- get_tskit()}
   or similar, but also by other functions in this package that need the
-  \code{tskit} reticulate Python module and we don't want to keep importing
+  \code{tskit} reticulate Python module, yet we don't want to keep importing
   it if it already has been imported.
 }
 \examples{
