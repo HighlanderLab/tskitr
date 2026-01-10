@@ -11,3 +11,8 @@ test_that("tskit_version() works", {
   expect_true(is.integer(v))
   expect_equal(names(v), c("major", "minor", "patch"))
 })
+
+test_that("tsk_bug_assert() works", {
+  expect_error(test_tsk_bug_assert_c())
+  expect_error(test_tsk_bug_assert_cpp())
+})

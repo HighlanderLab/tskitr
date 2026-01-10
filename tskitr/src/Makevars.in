@@ -13,13 +13,17 @@ TSKIT_SOURCES = \
 TSKIT_OBJECTS = $(TSKIT_SOURCES:.c=.o)
 # $(info TSKIT_OBJECTS = $(TSKIT_OBJECTS)) # for debugging, info is also a GNU extension
 
-# tskitr C++ sources & objects
-# TSKITR_SOURCES = $(wildcard *.cpp) # wildcard is a GNU extension and not desired on CRAN
-TSKITR_SOURCES = \
+# tskitr C/C++ sources & objects
+# TSKITR_CPP_SOURCES = $(wildcard *.cpp) # wildcard is a GNU extension and not desired on CRAN
+TSKITR_CPP_SOURCES = \
 	tskitr.cpp \
+	test_tsk_bug_assert.cpp \
 	RcppExports.cpp
-# $(info TSKITR_SOURCES = $(TSKITR_SOURCES)) # for debugging, info is also a GNU extension
-TSKITR_OBJECTS = $(TSKITR_SOURCES:.cpp=.o)
+# $(info TSKITR_CPP_SOURCES = $(TSKITR_CPP_SOURCES)) # for debugging, info is also a GNU extension
+TSKITR_C_SOURCES = \
+	test_tsk_bug_assert_c.c
+# $(info TSKITR_C_SOURCES = $(TSKITR_C_SOURCES)) # for debugging, info is also a GNU extension
+TSKITR_OBJECTS = $(TSKITR_CPP_SOURCES:.cpp=.o) $(TSKITR_C_SOURCES:.c=.o)
 # $(info TSKITR_OBJECTS = $(TSKITR_OBJECTS)) # for debugging, info is also a GNU extension
 
 # All objects
@@ -27,10 +31,16 @@ OBJECTS = $(TSKIT_OBJECTS) $(TSKITR_OBJECTS)
 # $(info OBJECTS = $(OBJECTS)) # for debugging, info is also a GNU extension
 
 # Include paths and preprocessor defines
-PKG_CPPFLAGS = -I../inst/include -I../inst/include/tskit -I../inst/include/tskit/tskit
+# * A bit complicated include/tskit structure due to how we include tskit headers
+# * $(R_HOME)/include is for <R_ext/Error.h>
+PKG_CPPFLAGS = \
+	-I../inst/include \
+	-I../inst/include/tskit \
+	-I../inst/include/tskit/tskit \
+	-I$(R_HOME)/include
 
 # Compiler flags
-PKG_CFLAGS = -DNDEBUG # to remove calls to assert()
+PKG_CFLAGS = -DNDEBUG # to remove calls to assert() as per the R extensions manual
 # TODO: Should we port any flags from extern/tskit/c/meson.build to R build system? #6
 #       https://github.com/HighlanderLab/tskitr/issues/6
 #       See default flags used by clang  (see below output from devtools::install())

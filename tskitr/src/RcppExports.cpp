@@ -10,6 +10,24 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// test_tsk_bug_assert_c
+void test_tsk_bug_assert_c();
+RcppExport SEXP _tskitr_test_tsk_bug_assert_c() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    test_tsk_bug_assert_c();
+    return R_NilValue;
+END_RCPP
+}
+// test_tsk_bug_assert_cpp
+void test_tsk_bug_assert_cpp();
+RcppExport SEXP _tskitr_test_tsk_bug_assert_cpp() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    test_tsk_bug_assert_cpp();
+    return R_NilValue;
+END_RCPP
+}
 // kastore_version
 Rcpp::IntegerVector kastore_version();
 RcppExport SEXP _tskitr_kastore_version() {
@@ -210,6 +228,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_tskitr_test_tsk_bug_assert_c", (DL_FUNC) &_tskitr_test_tsk_bug_assert_c, 0},
+    {"_tskitr_test_tsk_bug_assert_cpp", (DL_FUNC) &_tskitr_test_tsk_bug_assert_cpp, 0},
     {"_tskitr_kastore_version", (DL_FUNC) &_tskitr_kastore_version, 0},
     {"_tskitr_tskit_version", (DL_FUNC) &_tskitr_tskit_version, 0},
     {"_tskitr_ts_load", (DL_FUNC) &_tskitr_ts_load, 2},
