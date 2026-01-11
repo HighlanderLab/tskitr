@@ -11,6 +11,10 @@ test_that("get_tskit() works", {
     regexp = "Object 'rubbish' exists in the global environment but is not a reticulate Python module"
   )
 
+  # The tests below take quite a bit of time since they pull in installation of
+  # Python modules, hence skipping on CRAN due to time limits on CRAN.
+  skip_on_cran()
+
   # Install (if not already) & import tskit on the first call
   if (exists("tskit", envir = .GlobalEnv)) {
     rm("tskit", envir = .GlobalEnv)
