@@ -2,11 +2,12 @@
 
 ## Overview
 
-Tskit (`tskit`) enables performant storage, manipulation, and analysis of ancestral
-recombination graphs using succinct tree sequence encoding; see https://tskit.dev.
+Tskit enables performant storage, manipulation, and analysis of ancestral
+recombination graphs (ARGs) using succinct tree sequence encoding.
+See https://tskit.dev for project news, documentation, and tutorials.
 Tskit provides Python, C, and Rust APIs. The Python API can be called from R
 via the `reticulate` R package to seamlessly load and analyse a tree sequence,
-see https://tskit.dev/tutorials/tskitr.html.
+as described at https://tskit.dev/tutorials/tskitr.html.
 `tskitr` provides R access to the `tskit` C API for use cases where the
 `reticulate` approach is not optimal. For example, for high-performance and
 low-level work with tree sequences. Currently, `tskitr` provides a very limited
@@ -14,7 +15,11 @@ number of R functions due to the availability of extensive Python API and
 the `reticulate` approach.
 
 See more details on the state of the tree sequence ecosystem and aims for
-`tskitr` in [tskitr/inst/STATE_and_AIMS.md](tskitr/inst/STATE_and_AIMS.md), including examples on how to use it on its own or to develop new R packages.
+`tskitr` in [tskitr/inst/STATE_and_AIMS.md](tskitr/inst/STATE_and_AIMS.md),
+including examples on how to use it on its own or to develop new R packages.
+
+TODO: Think how to best point to use cases. Probably best to point to vignette!?
+      TODO: add vignette issue link here
 
 ## Status
 

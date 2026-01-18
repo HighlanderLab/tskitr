@@ -20,7 +20,7 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
 
   expect_error(
     ts_r_to_py(ts_r, tskit_module = "bla"),
-    regexp = "tskit_module must be a Python module/object!"
+    regexp = "tskit_module must be a reticulate Python module object!"
   )
   ts_py <- ts_r_to_py(ts_r)
 
@@ -50,8 +50,14 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
 
   # ---- ts_py_to_r() ----
 
-  expect_error(ts_py_to_r(1L), regexp = "ts must be a Python object!")
-  expect_error(ts_py_to_r(ts_r), regexp = "ts must be a Python object!")
+  expect_error(
+    ts_py_to_r(1L),
+    regexp = "ts must be a reticulate Python object!"
+  )
+  expect_error(
+    ts_py_to_r(ts_r),
+    regexp = "ts must be a reticulate Python object!"
+  )
   ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
   ts2_r <- ts_py_to_r(ts2_py)
   n2 <- ts_summary(ts2_r)

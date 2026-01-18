@@ -1,11 +1,11 @@
 #' @description
 #' Tskit enables performant storage, manipulation, and analysis of
-#' ancestral recombination graphs using succinct tree sequence encoding.
+#' ancestral recombination graphs (ARGs) using succinct tree sequence encoding.
 #' See https://tskit.dev for project news, documentation, and tutorials.
 #' Tskit provides Python, C, and Rust APIs. The Python API can be called from R
 #' via the `reticulate` R package to seamlessly load and analyse a tree sequence
 #' as described at https://tskit.dev/tutorials/tskitr.html.
-#' `tskitr` provides R access to the tskit C API for use cases where the
+#' `tskitr` provides R access to the `tskit` C API for use cases where the
 #' `reticulate` approach is not optimal. For example, for high-performance
 #' and low-level work with tree sequences. Currently, `tskitr` provides a very
 #' limited number of R functions due to the availability of extensive Python API
@@ -165,14 +165,14 @@ get_tskit_py <- function(obj_name = "tskit") {
     }
   }
   # else
+  # These lines are hard to hit with tests with cached reticulate Python and modules
+  # nocov start
   if (!reticulate::py_module_available("tskit")) {
-    # These lines are hard to hit with tests with cached reticulate Python and modules
-    # nocov start
     txt <- "Python module 'tskit' is not available. Attempting to install it ..."
     cat(txt)
     reticulate::py_require("tskit")
-    # nocov end
   }
+  # nocov end
   return(reticulate::import("tskit", delay_load = TRUE))
 }
 
@@ -289,7 +289,7 @@ ts_r_to_py <- function(ts, tskit_module = get_tskit_py(), cleanup = TRUE) {
   }
   ts_dump(ts, file = ts_file)
   if (!reticulate::is_py_object(tskit_module)) {
-    stop("tskit_module must be a Python module object!")
+    stop("tskit_module must be a reticulate Python module object!")
   }
   ts_py <- tskit_module$load(ts_file)
   return(ts_py)
@@ -323,7 +323,7 @@ ts_py_to_r <- function(ts, cleanup = TRUE) {
     on.exit(unlink(ts_file))
   }
   if (!reticulate::is_py_object(ts)) {
-    stop("ts must be a Python object!")
+    stop("ts must be a reticulate Python object!")
   }
   ts$dump(ts_file)
   ts_r <- ts_load(ts_file)

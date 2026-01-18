@@ -52,7 +52,7 @@ ts_num_individuals(ts2) # 2
 ts_file <- tempfile()
 print(ts_file)
 ts_dump(ts, file = ts_file)
-# ... continue in a Python session ...
+# ... continue in a standard Python session ...
 # import tskit
 # ts = tskit.load("insert_ts_file_path_here")
 # ts.num_individuals # 80
