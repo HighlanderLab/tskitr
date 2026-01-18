@@ -116,7 +116,7 @@ sequence
 }}
 \examples{
 ts_file <- system.file("examples/test.trees", package = "tskitr")
-ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+ts <- ts_load(ts_file)
 ts_summary(ts)
 ts_num_provenances(ts)
 ts_num_populations(ts)

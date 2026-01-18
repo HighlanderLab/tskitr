@@ -6,7 +6,7 @@ test_that("ts_load(), ts_summary(), and ts_dump(x) work", {
   expect_error(ts_load())
   expect_error(ts_load("nonexistent_ts"))
   ts_file <- system.file("examples/test.trees", package = "tskitr")
-  ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+  ts <- ts_load(ts_file)
 
   # ---- ts_summary() ----
 
@@ -151,7 +151,7 @@ test_that("ts_load(), ts_summary(), and ts_dump(x) work", {
   dump_file <- tempfile(fileext = ".trees")
   ts_dump(ts, dump_file)
   rm(ts)
-  ts <- tskitr::ts_load(dump_file) # slendr also has ts_load()!
+  ts <- ts_load(dump_file)
 
   # Simple comparison of summaries
   n <- ts_summary(ts)
@@ -194,7 +194,7 @@ test_that("ts_load(), ts_summary(), and ts_dump(x) work", {
   )
 
   ts_file <- system.file("examples/test2.trees", package = "tskitr")
-  ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+  ts <- ts_load(ts_file)
 
   n <- ts_summary(ts)
   expect_equal(

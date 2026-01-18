@@ -21,16 +21,16 @@ This function saves a tree sequence from reticulate Python to disk
 \examples{
 ts_file <- system.file("examples/test.trees", package = "tskitr")
 # Use the tskit Python API to work with a tree sequence (via reticulate)
-tskit <- get_tskit()
-py_ts <- tskit$load(ts_file)
-is(py_ts)
-py_ts$num_samples # 160
-py_ts2 <- py_ts$simplify(samples = c(0L, 1L, 2L, 3L))
-py_ts2$num_samples # 4
+tskit <- get_tskit_py()
+ts_py <- tskit$load(ts_file)
+is(ts_py)
+ts_py$num_samples # 160
+ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
+ts2_py$num_samples # 4
 # Now transfer the tree sequence to R and use tskitr R/C++ API on it
-r_ts2 <- ts_py_to_r(py_ts2)
-is(r_ts2)
-ts_num_samples(r_ts2) # 4
+ts2_r <- ts_py_to_r(ts2_py)
+is(ts2_r)
+ts_num_samples(ts2_r) # 4
 }
 \seealso{
 \code{\link{ts_r_to_py}()} and \code{\link{ts_dump}()}.

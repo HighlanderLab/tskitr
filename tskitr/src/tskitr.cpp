@@ -80,7 +80,7 @@ int table_collection_num_nodes_zero_check() {
 //'   object.
 //' @examples
 //' ts_file <- system.file("examples/test.trees", package = "tskitr")
-//' ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+//' ts <- ts_load(ts_file)
 //' ts
 //' is(ts)
 //' ts_num_nodes(ts)
@@ -111,7 +111,7 @@ SEXP ts_load(std::string file, int options = 0) {
 //' @return No return value, called for side effects.
 //' @examples
 //' ts_file <- system.file("examples/test.trees", package = "tskitr")
-//' ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+//' ts <- ts_load(ts_file)
 //' ts
 //' dump_file <- tempfile()
 //' ts_dump(ts, dump_file)
@@ -164,7 +164,7 @@ void ts_dump(SEXP ts, std::string file, int options = 0) {
 //'   number/value of each item.
 //' @examples
 //' ts_file <- system.file("examples/test.trees", package = "tskitr")
-//' ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+//' ts <- ts_load(ts_file)
 //' ts_summary(ts)
 //' ts_num_provenances(ts)
 //' ts_num_populations(ts)
@@ -301,7 +301,7 @@ Rcpp::String ts_time_units(SEXP ts) {
 // so would have to work with schema and codes ... but see
 // https://github.com/HighlanderLab/tskitr/issues/36
 // ts_file <- system.file("examples/test.trees", package = "tskitr")
-// ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+// ts <- ts_load(ts_file)
 // ts_metadata(ts)
 // slendr::ts_metadata(slim_ts)
 Rcpp::String ts_metadata(SEXP ts) {
@@ -327,7 +327,7 @@ Rcpp::String ts_metadata(SEXP ts) {
 //' @return A named list with the length of metadata.
 //' @examples
 //' ts_file <- system.file("examples/test.trees", package = "tskitr")
-//' ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+//' ts <- ts_load(ts_file)
 //' ts_metadata_length(ts)
 //' @export
 // [[Rcpp::export]]

@@ -52,7 +52,7 @@ tskit_version <- function() {
 #'   object.
 #' @examples
 #' ts_file <- system.file("examples/test.trees", package = "tskitr")
-#' ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+#' ts <- ts_load(ts_file)
 #' ts
 #' is(ts)
 #' ts_num_nodes(ts)
@@ -73,7 +73,7 @@ ts_load <- function(file, options = 0L) {
 #' @return No return value, called for side effects.
 #' @examples
 #' ts_file <- system.file("examples/test.trees", package = "tskitr")
-#' ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+#' ts <- ts_load(ts_file)
 #' ts
 #' dump_file <- tempfile()
 #' ts_dump(ts, dump_file)
@@ -120,7 +120,7 @@ ts_dump <- function(ts, file, options = 0L) {
 #'   number/value of each item.
 #' @examples
 #' ts_file <- system.file("examples/test.trees", package = "tskitr")
-#' ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+#' ts <- ts_load(ts_file)
 #' ts_summary(ts)
 #' ts_num_provenances(ts)
 #' ts_num_populations(ts)
@@ -227,7 +227,7 @@ ts_time_units <- function(ts) {
 #' @return A named list with the length of metadata.
 #' @examples
 #' ts_file <- system.file("examples/test.trees", package = "tskitr")
-#' ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+#' ts <- ts_load(ts_file)
 #' ts_metadata_length(ts)
 #' @export
 ts_metadata_length <- function(ts) {

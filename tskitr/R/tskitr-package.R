@@ -1,10 +1,10 @@
 #' @description
-#' Tskit (`tskit`)  enables performant storage, manipulation, and analysis of
-#' ancestral recombination graphs using succinct tree sequence encoding; see
-#' https://tskit.dev.
+#' Tskit enables performant storage, manipulation, and analysis of
+#' ancestral recombination graphs using succinct tree sequence encoding.
+#' See https://tskit.dev for project news, documentation, and tutorials.
 #' Tskit provides Python, C, and Rust APIs. The Python API can be called from R
-#' via the `reticulate` R package to seamlessly load and analyse a tree sequence;
-#' see https://tskit.dev/tutorials/tskitr.html.
+#' via the `reticulate` R package to seamlessly load and analyse a tree sequence
+#' as described at https://tskit.dev/tutorials/tskitr.html.
 #' `tskitr` provides R access to the tskit C API for use cases where the
 #' `reticulate` approach is not optimal. For example, for high-performance
 #' and low-level work with tree sequences. Currently, `tskitr` provides a very
@@ -22,12 +22,51 @@
 #' \dontshow{# Providing the examples here so we test them via R CMD check}
 #' # Here are examples showcasing what you can do with tskitr
 #'
-#' # 1) Load a tree sequence into an R session and summarise its contents
+#' # 1) Load a tree sequence into an R session and summarise it
+#' # Load a tree sequence
 #' ts_file <- system.file("examples/test.trees", package = "tskitr")
 #' ts <- ts_load(ts_file)
-#' ts_num_individuals(ts)
 #'
-#' # 2) Call tskit C API in C++ code in an R session
+#' # Print summary of the tree sequence
+#' ts_num_individuals(ts)
+#' ts_print(ts)
+#'
+#' # 2) Pass tree sequence between R and reticulate or standard Python
+#'
+#' # Tree sequence in R
+#' ts_file <- system.file("examples/test.trees", package = "tskitr")
+#' ts <- ts_load(ts_file)
+#'
+#' # If you have a tree sequence in R and you want to use tskit Python API,
+#' # you can write it to disk and load it into a reticulate Python session
+#' ts_py <- ts_r_to_py(ts)
+#' # ... continue in reticulate Python ...
+#' ts_py$num_individuals # 160
+#' ts2_py = ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
+#' ts2_py$num_individuals # 2
+#' # ... and to bring it back to R ...
+#' ts2 <- ts_py_to_r(ts2_py)
+#' ts_num_individuals(ts2) # 2
+#'
+#' # If you prefer a standard (non-reticulate) Python, use this
+#' ts_file <- tempfile()
+#' print(ts_file)
+#' ts_dump(ts, file = ts_file)
+#' # ... continue in a Python session ...
+#' # import tskit
+#' # ts = tskit.load("insert_ts_file_path_here")
+#' # ts.num_individuals # 80
+#' # ts2 = ts.simplify(samples = [0, 1, 2, 3])
+#' # ts2.num_individuals # 2
+#' # ts2.dump("insert_ts_file_path_here")
+#' # ... and to bring it back to R ...
+#' ts2 <- ts_load(ts_file)
+#' ts_num_individuals(ts2) # 2
+#' file.remove(ts_file)
+#'
+#' # 3) Call tskit C API in C++ code in an R session
+#' library(Rcpp)
+#' # Write and compile a C++ function
 #' codeString <- '
 #'   #include <tskit.h>
 #'   int ts_num_individuals(SEXP ts) {
@@ -37,21 +76,20 @@
 #'     return n;
 #'   }'
 #' ts_num_individuals2 <- Rcpp::cppFunction(code=codeString, depends="tskitr", plugins="tskitr")
+#' # We must specify both the `depends` and `plugins` arguments!
+#'
+#' # Load a tree sequence
 #' ts_file <- system.file("examples/test.trees", package="tskitr")
-#' ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+#' ts <- ts_load(ts_file)
+#'
+#' # Apply the compiled function
 #' ts_num_individuals2(ts)
-#' ts_num_individuals(ts) # tskitr implementation of ts_num_individuals2()
 #'
-#' # 3) Call `tskit` C API in C++ code in another R package
-#' state_and_aims_file <- system.file("STATE_and_AIMS.md", package = "tskitr")
-#' browseURL(state_and_aims_file)
+#' # An identical tskitr implementation
+#' ts_num_individuals(ts)
 #'
-#' # 4) Call `tskit` C API in R code in an R session or another R package
-#' # TODO: Write STATE_and_AIMS.md file on what we want to achieve #12
-#' #       https://github.com/HighlanderLab/tskitr/issues/12
-#' state_and_aims_file <- system.file("STATE_and_AIMS.md", package = "tskitr")
-#' browseURL(state_and_aims_file)
-#'
+#' # 4) Call `tskit` C API in C++ code in another R package
+#' # TODO: add vignette issue link here
 "_PACKAGE"
 
 #' Providing an inline plugin so we can call tskit C API with functions like
@@ -98,17 +136,17 @@
 #'   attempts to install and import tskit before returning it. If \code{NULL},
 #'   then the function directly attempts to install and import tskit before
 #'   returning it.
-#' @details This function is meant for users running \code{tskit <- get_tskit()}
+#' @details This function is meant for users running \code{tskit <- get_tskit_py()}
 #'   or similar, but also by other functions in this package that need the
 #'   \code{tskit} reticulate Python module, yet we don't want to keep importing
 #'   it if it already has been imported.
 #' @return \code{tskit} reticulate Python module.
 #' @examples
-#' tskit <- get_tskit()
+#' tskit <- get_tskit_py()
 #' is(tskit)
 #' tskit$ALLELES_01
 #' @export
-get_tskit <- function(obj_name = "tskit") {
+get_tskit_py <- function(obj_name = "tskit") {
   test <- !is.null(obj_name) &&
     exists(obj_name, envir = .GlobalEnv, inherits = FALSE)
   if (test) {
@@ -162,7 +200,7 @@ ts_write <- ts_dump
 #'   tables and the length of their metadata.
 #' @examples
 #' ts_file <- system.file("examples/test.trees", package = "tskitr")
-#' ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+#' ts <- ts_load(ts_file)
 #' ts_print(ts)
 #' ts
 #' @export
@@ -229,32 +267,32 @@ ts_print <- function(ts) {
 #'   reads it into reticulate Python so that we can use \code{tskit} Python API on it.
 #' @param ts tree sequence as an external pointer to a \code{tsk_treeseq_t} object.
 #' @param tskit_module reticulate Python module of \code{tskit}. By default,
-#'   it calls \code{\link{get_tskit}()} to obtain the module.
+#'   it calls \code{\link{get_tskit_py}()} to obtain the module.
 #' @param cleanup logical delete the temporary file at the end of the function?
 #' @return Tree sequence in reticulate Python.
 #' @seealso \code{\link{ts_py_to_r}()} and \code{\link{ts_dump}()}.
 #' @examples
 #' ts_file <- system.file("examples/test.trees", package = "tskitr")
 #' # Use the tskitr R API to work with a tree sequence
-#' r_ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
-#' is(r_ts)
-#' ts_num_samples(r_ts) # 160
+#' ts_r <- ts_load(ts_file)
+#' is(ts_r)
+#' ts_num_samples(ts_r) # 160
 #' # Now transfer the tree sequence to reticulate Python and use tskit Python API on it
-#' py_ts <- ts_r_to_py(r_ts)
-#' is(py_ts)
-#' py_ts$num_samples # 160
+#' ts_py <- ts_r_to_py(ts_r)
+#' is(ts_py)
+#' ts_py$num_samples # 160
 #' @export
-ts_r_to_py <- function(ts, tskit_module = get_tskit(), cleanup = TRUE) {
+ts_r_to_py <- function(ts, tskit_module = get_tskit_py(), cleanup = TRUE) {
   ts_file <- tempfile(fileext = ".trees")
   if (cleanup) {
     on.exit(unlink(ts_file))
   }
   ts_dump(ts, file = ts_file)
   if (!reticulate::is_py_object(tskit_module)) {
-    stop("tskit_module must be a Python module/object!")
+    stop("tskit_module must be a Python module object!")
   }
-  py_ts <- tskit_module$load(ts_file)
-  return(py_ts)
+  ts_py <- tskit_module$load(ts_file)
+  return(ts_py)
 }
 
 #' Transfer a tree sequence from reticulate Python to R
@@ -268,16 +306,16 @@ ts_r_to_py <- function(ts, tskit_module = get_tskit(), cleanup = TRUE) {
 #' @examples
 #' ts_file <- system.file("examples/test.trees", package = "tskitr")
 #' # Use the tskit Python API to work with a tree sequence (via reticulate)
-#' tskit <- get_tskit()
-#' py_ts <- tskit$load(ts_file)
-#' is(py_ts)
-#' py_ts$num_samples # 160
-#' py_ts2 <- py_ts$simplify(samples = c(0L, 1L, 2L, 3L))
-#' py_ts2$num_samples # 4
+#' tskit <- get_tskit_py()
+#' ts_py <- tskit$load(ts_file)
+#' is(ts_py)
+#' ts_py$num_samples # 160
+#' ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
+#' ts2_py$num_samples # 4
 #' # Now transfer the tree sequence to R and use tskitr R/C++ API on it
-#' r_ts2 <- ts_py_to_r(py_ts2)
-#' is(r_ts2)
-#' ts_num_samples(r_ts2) # 4
+#' ts2_r <- ts_py_to_r(ts2_py)
+#' is(ts2_r)
+#' ts_num_samples(ts2_r) # 4
 #' @export
 ts_py_to_r <- function(ts, cleanup = TRUE) {
   ts_file <- tempfile(fileext = ".trees")
@@ -288,6 +326,6 @@ ts_py_to_r <- function(ts, cleanup = TRUE) {
     stop("ts must be a Python object!")
   }
   ts$dump(ts_file)
-  r_ts <- ts_load(ts_file)
-  return(r_ts)
+  ts_r <- ts_load(ts_file)
+  return(ts_r)
 }

@@ -4,13 +4,13 @@
 \alias{ts_r_to_py}
 \title{Transfer a tree sequence from R to reticulate Python}
 \usage{
-ts_r_to_py(ts, tskit_module = get_tskit(), cleanup = TRUE)
+ts_r_to_py(ts, tskit_module = get_tskit_py(), cleanup = TRUE)
 }
 \arguments{
 \item{ts}{tree sequence as an external pointer to a \code{tsk_treeseq_t} object.}
 
 \item{tskit_module}{reticulate Python module of \code{tskit}. By default,
-it calls \code{\link{get_tskit}()} to obtain the module.}
+it calls \code{\link{get_tskit_py}()} to obtain the module.}
 
 \item{cleanup}{logical delete the temporary file at the end of the function?}
 }
@@ -24,13 +24,13 @@ This function saves a tree sequence from R to disk and
 \examples{
 ts_file <- system.file("examples/test.trees", package = "tskitr")
 # Use the tskitr R API to work with a tree sequence
-r_ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
-is(r_ts)
-ts_num_samples(r_ts) # 160
+ts_r <- ts_load(ts_file)
+is(ts_r)
+ts_num_samples(ts_r) # 160
 # Now transfer the tree sequence to reticulate Python and use tskit Python API on it
-py_ts <- ts_r_to_py(r_ts)
-is(py_ts)
-py_ts$num_samples # 160
+ts_py <- ts_r_to_py(ts_r)
+is(ts_py)
+ts_py$num_samples # 160
 }
 \seealso{
 \code{\link{ts_py_to_r}()} and \code{\link{ts_dump}()}.

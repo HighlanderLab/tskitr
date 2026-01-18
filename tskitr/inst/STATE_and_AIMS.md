@@ -173,17 +173,17 @@ TODO: Study what `SLiM` does with metadata #24
 
 ## AIMS for `tskitr`
 
-Given the above state of the tree sequence ecosystem, the aims of the `tskitr` package are to:
+Given the above state of the tree sequence ecosystem, the aims of the `tskitr` package are to provide an easy to install and use R package that enables users to:
   1) Load a tree sequence into an R session and summarise it,
-  2) Call `tskit` C API in C++ code in an R session,
-  3) Call `tskit` C API in C++ code in another R package, and
-  4) Call `tskit` C API in R code in an R session or another R package (TODO). #12 https://github.com/HighlanderLab/tskitr/issues/12
+  2) Pass tree sequence between R and reticulate or standard Python,
+  3) Call `tskit` C API in C++ code in an R session/script,
+  4) Call `tskit` C API in C++ code in another R package, and
 
-The following subsections demonstrate how this functionality looks like.
+You can see examples for all of these in `vignette(TODO)` and
+for 1-3) also in in `?tskitr`.
 
-### 1) Load a tree sequence into an R session and summarise it
-
-Here is an example:
+TODO: Move all these example codes and outputs into vignette
+      TODO: add vignette issue link here
 
 ```
 # Install tskitr
@@ -194,14 +194,23 @@ library(tskitr)
 tskit_version()
 # major minor patch
 #     1     3     0
+```
 
+### 1) Load a tree sequence into an R session and summarise it
+
+Here is an example:
+
+```
 # Load a tree sequence
 ts_file <- system.file("examples/test.trees", package = "tskitr")
-ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+ts <- ts_load(ts_file)
 ts
 # <pointer: 0x1236b4220>
+# TODO: Rename ts_load() to ts_load_ptr() and create ts_load() returning
+#       S3/S4/R6/... object #22
+#       https://github.com/HighlanderLab/tskitr/issues/22
 
-# Print summary of tree sequence and its contents
+# Print summary of the tree sequence
 ts_print(ts)
 # $ts
 #          property       value
@@ -219,20 +228,50 @@ ts_print(ts)
 # ...
 ```
 
-TODO: Do we need/want any other summary functions/methods for ts? #25
-      https://github.com/HighlanderLab/tskitr/issues/25
-
-### 2) Call `tskit` C API in C++ code in an R session
+### 2) Pass tree sequence between R and reticulate or standard Python
 
 Here is an example:
 
 ```
-# Install tskitr
-remotes::install_github(repo = "HighlanderLab/tskitr/tskitr")
+# Tree sequence in R
+ts_file <- system.file("examples/test.trees", package = "tskitr")
+ts <- ts_load(ts_file)
 
+# If you have a tree sequence in R and you want to use tskit Python API,
+# you can write it to disk and load it into a reticulate Python session
+ts_py <- ts_r_to_py(ts)
+# ... continue in reticulate Python ...
+ts_py$num_individuals # 160
+ts2_py = ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
+ts2_py$num_individuals # 2
+# ... and to bring it back to R ...
+ts2 <- ts_py_to_r(ts2_py)
+ts_num_individuals(ts2) # 2
+
+# If you prefer a standard (non-reticulate) Python, use this
+ts_file <- tempfile()
+print(ts_file)
+ts_dump(ts, file = ts_file)
+# ... continue in a Python session ...
+# import tskit
+# ts = tskit.load("insert_ts_file_path_here")
+# ts.num_individuals # 80
+# ts2 = ts.simplify(samples = [0, 1, 2, 3])
+# ts2.num_individuals # 2
+# ts2.dump("insert_ts_file_path_here")
+# ... and to bring it back to R ...
+ts2 <- ts_load(ts_file)
+ts_num_individuals(ts2) # 2
+```
+
+### 3) Call `tskit` C API in C++ code in an R session/script
+
+Here is an example:
+
+```
 # Load packages
-library(Rcpp)
 library(tskitr)
+library(Rcpp)
 
 # Write and compile a C++ function
 codeString <- '
@@ -249,7 +288,7 @@ ts_num_individuals2 <- cppFunction(code = codeString,
 
 # Load a tree sequence
 ts_file <- system.file("examples/test.trees", package = "tskitr")
-ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+ts <- ts_load(ts_file)
 
 # Apply the compiled function
 ts_num_individuals2(ts)
@@ -258,35 +297,12 @@ ts_num_individuals2(ts)
 # An identical tskitr implementation
 ts_num_individuals(ts)
 # [1] 80
-
-# If you have a tree sequence in R and you want to use Python API of tskit,
-# you can write it to disk and load it into a Python session
-ts_file <- tempfile()
-print(ts_file)
-ts_dump(ts, file = ts_file)
-# ... continue in a Python session ...
-# import tskit
-# ts = tskit.load("insert_ts_file_path_here")
-# ts.num_individuals # 80
-# ts2 = ts.simplify(samples = [0, 1, 2, 3])
-# ts2.num_individuals # 2
-# ts2.dump("insert_ts_file_path_here")
-# ... and bring it back to R ...
-ts2 <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
-ts_num_individuals(ts2) # 2
-
-# There are two neat wrappers leveraging reticulate Python
-py_ts <- ts_r_to_py(ts)
-# ... continue in R/Python (via reticulate) ...
-py_ts$num_individuals # 160
-py_ts2 = py_ts$simplify(samples = c(0L, 1L, 2L, 3L))
-py_ts2$num_individuals # 2
-# ... and bring it back to R ...
-ts2 <- ts_py_to_r(py_ts2)
-ts_num_individuals(ts2) # 2
 ```
 
-### 3) Call `tskit` C API in C++ code in another R package
+### 4) Call `tskit` C API in C++ code in another R package
+
+TODO: Move these details to a vignette!?
+      TODO: add vignette issue link here
 
 Follow the steps below in your R package. To see details of each step, see the files in R package `AlphaSimR` at this [commit](https://github.com/HighlanderLab/AlphaSimR/commit/12657b08e7054d88bc214413d13f36c7cde60d95) (that has a proof of concept of using `tskit` C API via `tskitr`).
 
@@ -311,11 +327,6 @@ e) You should now be ready to build, check, and install your package using tools
 Here is an example:
 
 ```
-# Install tskitr
-remotes::install_github(
-  repo = "HighlanderLab/tskitr/tskitr"
-)
-
 # Install AlphaSimR
 # (Commit with a proof of concept of using tskit C API;
 #  study the file contents in there! Can also use later commits.)
@@ -330,42 +341,7 @@ library(AlphaSimR)
 
 # Load tree sequence and count the number of individuals
 ts_file <- system.file("examples/test.trees", package = "tskitr")
-ts <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
+ts <- ts_load(ts_file)
 tskitr::ts_num_individuals(ts)
 AlphaSimR::ts_num_individuals2(ts)
-
-# If you have a tree sequence in R and you want to use Python API of tskit,
-# you can write it to disk and load it into a Python session
-ts_file <- tempfile()
-print(ts_file)
-ts_dump(ts, file = ts_file)
-# ... continue in a Python session ...
-# import tskit
-# ts = tskit.load("insert_ts_file_path_here")
-# ts.num_individuals # 80
-# ts2 = ts.simplify(samples = [0, 1, 2, 3])
-# ts2.num_individuals # 2
-# ts2.dump("insert_ts_file_path_here")
-# ... and bring it back to R
-ts2 <- tskitr::ts_load(ts_file) # slendr also has ts_load()!
-ts_num_individuals(ts2) # 2
-
-# There are two neat wrappers leveraging reticulate Python
-py_ts <- ts_r_to_py(ts)
-# ... continue in R/Python (via reticulate) ...
-py_ts$num_individuals # 160
-py_ts2 = py_ts$simplify(samples = c(0L, 1L, 2L, 3L))
-py_ts2$num_individuals # 2
-# ... and bring it back to R
-ts2 <- ts_py_to_r(py_ts2)
-ts_num_individuals(ts2) # 2
 ```
-
-### 4) Call `tskit` C API in R code in an R session or another R package
-
-Doable, but do we want/need this? - we would have to write Rcpp wrappers for all the functions in tskit C API, which would be a huge amount of work and dillution of effort across the different APIs. Can the wrapping be automated? Would Rcpp module help with the later? Maybe we just state we are not pursuing this goal (at this stage)!?
-
-TODO: Write the STATE_and_AIMS.md file on what we want to achieve with the tskitr package #12
-      https://github.com/HighlanderLab/tskitr/issues/12
-
-Think about how we would like to use the code in practice!
