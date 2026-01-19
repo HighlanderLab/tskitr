@@ -9,6 +9,61 @@ I guess we should create a minimal S4 class and a minimal R6 class
 and then try to load a tree sequence and grow it further and
 time the performance with each class.
 
+* TODO building tree sequence
+extern/tskit/c/tests/testlib.c has lots of examples of constructing a tree sequence using C
+extern/tskit/c/tests/test_minimal_cpp.cpp has some C++ example too
+extern/tskit/c/examples/haploid_wright_fisher.c
+extern/tskit/c/examples/multichrom_wright_fisher_singlethreaded.c
+extern/tskit/c/examples/multichrom_wright_fisher.c
+
+This test nicely shows the required columns:
+
+static void
+test_missing_required_columns(void)
+{
+    int ret;
+    size_t j;
+    tsk_treeseq_t *ts = caterpillar_tree(5, 3, 3);
+    tsk_table_collection_t t;
+    const char *required_cols[] = {
+        "edges/child",
+        "edges/left",
+        "edges/parent",
+        "edges/right",
+        "format/name",
+        "format/version",
+        "individuals/flags",
+        "migrations/dest",
+        "migrations/left",
+        "migrations/node",
+        "migrations/right",
+        "migrations/source",
+        "migrations/time",
+        "mutations/node",
+        "mutations/parent",
+        "mutations/site",
+        "nodes/flags",
+        "nodes/individual",
+        "nodes/population",
+        "nodes/time",
+        "sequence_length",
+        "sites/position",
+        "uuid",
+    };
+    const char *drop_cols[1];
+
+    for (j = 0; j < sizeof(required_cols) / sizeof(*required_cols); j++) {
+        drop_cols[0] = required_cols[j];
+        copy_store_drop_columns(ts, 1, drop_cols, _tmp_file_name);
+        ret = tsk_table_collection_load(&t, _tmp_file_name, 0);
+        CU_ASSERT_EQUAL_FATAL(ret, TSK_ERR_REQUIRED_COL_NOT_FOUND);
+        tsk_table_collection_free(&t);
+    }
+
+    tsk_treeseq_free(ts);
+    free(ts);
+}
+
 ## Setup
 
 ```

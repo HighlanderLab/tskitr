@@ -234,3 +234,7 @@ ts_metadata_length <- function(ts) {
     .Call(`_tskitr_ts_metadata_length`, ts)
 }
 
+ts_grow <- function(ts) {
+    .Call(`_tskitr_ts_grow`, ts)
+}
+

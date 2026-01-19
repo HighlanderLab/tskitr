@@ -57,8 +57,8 @@ lobstr::obj_addr(ts)
 # 0x177073e40
 py_id(ts)
 # [1] "5861550480"
-# --> a complex object exist in a Python session (managed by reticulate)
-#     and is wrapped by an R object in an R session
+# --> a complex object exist in reticulate Python
+#     and is wrapped by an R object in R
 #     https://rstudio.github.io/reticulate/#type-conversions
 
 print(ts$num_samples)
@@ -130,8 +130,8 @@ lobstr::obj_addr(ts)
 # TODO: show R wrapper object address
 reticulate::py_id(ts)
 # [1] "5894401040"
-# --> a complex object lives in a Python session (managed by reticulate)
-#     and is wrapped by an R object in an R session
+# --> a complex object lives in reticulate Python
+#     and is wrapped by an R object in R
 #     https://rstudio.github.io/reticulate/#type-conversions
 
 print(ts$num_samples)
@@ -174,9 +174,9 @@ TODO: Study what `SLiM` does with metadata #24
 ## AIMS for `tskitr`
 
 Given the above state of the tree sequence ecosystem, the aims of the `tskitr` package are to provide an easy to install and use R package that enables users to:
-  1) Load a tree sequence into an R session and summarise it,
+  1) Load a tree sequence into R and summarise it,
   2) Pass tree sequence between R and reticulate or standard Python,
-  3) Call `tskit` C API in C++ code in an R session/script,
+  3) Call `tskit` C API in C++ code in R session or script,
   4) Call `tskit` C API in C++ code in another R package, and
 
 You can see examples for all of these in `vignette(TODO)` and
@@ -196,7 +196,7 @@ tskit_version()
 #     1     3     0
 ```
 
-### 1) Load a tree sequence into an R session and summarise it
+### 1) Load a tree sequence into R and summarise it
 
 Here is an example:
 
@@ -238,7 +238,7 @@ ts_file <- system.file("examples/test.trees", package = "tskitr")
 ts <- ts_load(ts_file)
 
 # If you have a tree sequence in R and you want to use tskit Python API,
-# you can write it to disk and load it into a reticulate Python session
+# you can write it to disk and load it into reticulate Python
 ts_py <- ts_r_to_py(ts)
 # ... continue in reticulate Python ...
 ts_py$num_individuals # 160
@@ -248,11 +248,11 @@ ts2_py$num_individuals # 2
 ts2 <- ts_py_to_r(ts2_py)
 ts_num_individuals(ts2) # 2
 
-# If you prefer a standard (non-reticulate) Python, use this
+# If you prefer standard (non-reticulate) Python, use this
 ts_file <- tempfile()
 print(ts_file)
 ts_dump(ts, file = ts_file)
-# ... continue in a Python session ...
+# ... continue in standard Python ...
 # import tskit
 # ts = tskit.load("insert_ts_file_path_here")
 # ts.num_individuals # 80
@@ -264,7 +264,7 @@ ts2 <- ts_load(ts_file)
 ts_num_individuals(ts2) # 2
 ```
 
-### 3) Call `tskit` C API in C++ code in an R session/script
+### 3) Call `tskit` C API in C++ code in R session or script
 
 Here is an example:
 

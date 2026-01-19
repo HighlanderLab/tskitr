@@ -86,8 +86,9 @@ int table_collection_num_nodes_zero_check() {
 //' ts_num_nodes(ts)
 //' @export
 // [[Rcpp::export]]
-SEXP ts_load(std::string file, int options = 0) {
-  tsk_treeseq_t *ts_ptr = new tsk_treeseq_t();
+SEXP ts_load(const std::string file, const int options = 0) {
+  // tsk_treeseq_t ts; // on stack, destroyed end of func, must free resources
+  tsk_treeseq_t *ts_ptr = new tsk_treeseq_t(); // on heap, persists function
   int ret =
       tsk_treeseq_load(ts_ptr, file.c_str(), static_cast<tsk_flags_t>(options));
   if (ret != 0) {
@@ -95,8 +96,9 @@ SEXP ts_load(std::string file, int options = 0) {
     delete ts_ptr;
     Rcpp::stop(tsk_strerror(ret));
   }
-  tskitr_treeseq_xptr xptr(ts_ptr, true);
-  return xptr;
+  tskitr_treeseq_xptr ts_xptr(ts_ptr, true); // wrap ts_ptr for R as extern ptr
+  // true: R will call finaliser on garbage collection
+  return ts_xptr;
 }
 
 //' Write a tree sequence to file.
@@ -117,7 +119,7 @@ SEXP ts_load(std::string file, int options = 0) {
 //' ts_dump(ts, dump_file)
 //' @export
 // [[Rcpp::export]]
-void ts_dump(SEXP ts, std::string file, int options = 0) {
+void ts_dump(const SEXP ts, const std::string file, const int options = 0) {
   tskitr_treeseq_xptr xptr(ts);
   int ret =
       tsk_treeseq_dump(xptr, file.c_str(), static_cast<tsk_flags_t>(options));
@@ -180,7 +182,7 @@ void ts_dump(SEXP ts, std::string file, int options = 0) {
 //' ts_time_units(ts)
 //' @export
 // [[Rcpp::export]]
-Rcpp::List ts_summary(SEXP ts) {
+Rcpp::List ts_summary(const SEXP ts) {
   tskitr_treeseq_xptr xptr(ts);
   return Rcpp::List::create(
       Rcpp::_["num_provenances"] = tsk_treeseq_get_num_provenances(xptr),
@@ -200,7 +202,7 @@ Rcpp::List ts_summary(SEXP ts) {
 //' @describeIn ts_summary Get the number of provenances in a tree sequence
 //' @export
 // [[Rcpp::export]]
-int ts_num_provenances(SEXP ts) {
+int ts_num_provenances(const SEXP ts) {
   tskitr_treeseq_xptr xptr(ts);
   return static_cast<int>(tsk_treeseq_get_num_provenances(xptr));
 }
@@ -208,7 +210,7 @@ int ts_num_provenances(SEXP ts) {
 //' @describeIn ts_summary Get the number of populations in a tree sequence
 //' @export
 // [[Rcpp::export]]
-int ts_num_populations(SEXP ts) {
+int ts_num_populations(const SEXP ts) {
   tskitr_treeseq_xptr xptr(ts);
   return static_cast<int>(tsk_treeseq_get_num_populations(xptr));
 }
@@ -216,7 +218,7 @@ int ts_num_populations(SEXP ts) {
 //' @describeIn ts_summary Get the number of migrations in a tree sequence
 //' @export
 // [[Rcpp::export]]
-int ts_num_migrations(SEXP ts) {
+int ts_num_migrations(const SEXP ts) {
   tskitr_treeseq_xptr xptr(ts);
   return static_cast<int>(tsk_treeseq_get_num_migrations(xptr));
 }
@@ -224,7 +226,7 @@ int ts_num_migrations(SEXP ts) {
 //' @describeIn ts_summary Get the number of individuals in a tree sequence
 //' @export
 // [[Rcpp::export]]
-int ts_num_individuals(SEXP ts) {
+int ts_num_individuals(const SEXP ts) {
   tskitr_treeseq_xptr xptr(ts);
   return static_cast<int>(tsk_treeseq_get_num_individuals(xptr));
 }
@@ -233,7 +235,7 @@ int ts_num_individuals(SEXP ts) {
 //'   sequence
 //' @export
 // [[Rcpp::export]]
-int ts_num_samples(SEXP ts) {
+int ts_num_samples(const SEXP ts) {
   tskitr_treeseq_xptr xptr(ts);
   return static_cast<int>(tsk_treeseq_get_num_samples(xptr));
 }
@@ -241,7 +243,7 @@ int ts_num_samples(SEXP ts) {
 //' @describeIn ts_summary Get the number of nodes in a tree sequence
 //' @export
 // [[Rcpp::export]]
-int ts_num_nodes(SEXP ts) {
+int ts_num_nodes(const SEXP ts) {
   tskitr_treeseq_xptr xptr(ts);
   return static_cast<int>(tsk_treeseq_get_num_nodes(xptr));
 }
@@ -249,7 +251,7 @@ int ts_num_nodes(SEXP ts) {
 //' @describeIn ts_summary Get the number of edges in a tree sequence
 //' @export
 // [[Rcpp::export]]
-int ts_num_edges(SEXP ts) {
+int ts_num_edges(const SEXP ts) {
   tskitr_treeseq_xptr xptr(ts);
   return static_cast<int>(tsk_treeseq_get_num_edges(xptr));
 }
@@ -257,7 +259,7 @@ int ts_num_edges(SEXP ts) {
 //' @describeIn ts_summary Get the number of trees in a tree sequence
 //' @export
 // [[Rcpp::export]]
-int ts_num_trees(SEXP ts) {
+int ts_num_trees(const SEXP ts) {
   tskitr_treeseq_xptr xptr(ts);
   return static_cast<int>(tsk_treeseq_get_num_trees(xptr));
 }
@@ -265,7 +267,7 @@ int ts_num_trees(SEXP ts) {
 //' @describeIn ts_summary Get the number of sites in a tree sequence
 //' @export
 // [[Rcpp::export]]
-int ts_num_sites(SEXP ts) {
+int ts_num_sites(const SEXP ts) {
   tskitr_treeseq_xptr xptr(ts);
   return static_cast<int>(tsk_treeseq_get_num_sites(xptr));
 }
@@ -273,7 +275,7 @@ int ts_num_sites(SEXP ts) {
 //' @describeIn ts_summary Get the number of mutations in a tree sequence
 //' @export
 // [[Rcpp::export]]
-int ts_num_mutations(SEXP ts) {
+int ts_num_mutations(const SEXP ts) {
   tskitr_treeseq_xptr xptr(ts);
   return static_cast<int>(tsk_treeseq_get_num_mutations(xptr));
 }
@@ -281,7 +283,7 @@ int ts_num_mutations(SEXP ts) {
 //' @describeIn ts_summary Get the sequence length
 //' @export
 // [[Rcpp::export]]
-double ts_sequence_length(SEXP ts) {
+double ts_sequence_length(const SEXP ts) {
   tskitr_treeseq_xptr xptr(ts);
   return tsk_treeseq_get_sequence_length(xptr);
 }
@@ -289,7 +291,7 @@ double ts_sequence_length(SEXP ts) {
 //' @describeIn ts_summary Get the time units string
 //' @export
 // [[Rcpp::export]]
-Rcpp::String ts_time_units(SEXP ts) {
+Rcpp::String ts_time_units(const SEXP ts) {
   tskitr_treeseq_xptr xptr(ts);
   const char *p = tsk_treeseq_get_time_units(xptr);
   tsk_size_t n = tsk_treeseq_get_time_units_length(xptr);
@@ -304,7 +306,7 @@ Rcpp::String ts_time_units(SEXP ts) {
 // ts <- ts_load(ts_file)
 // ts_metadata(ts)
 // slendr::ts_metadata(slim_ts)
-Rcpp::String ts_metadata(SEXP ts) {
+Rcpp::String ts_metadata(const SEXP ts) {
   tskitr_treeseq_xptr xptr(ts);
   const char *p = tsk_treeseq_get_metadata(xptr);
   tsk_size_t n = tsk_treeseq_get_metadata_length(xptr);
@@ -331,14 +333,15 @@ Rcpp::String ts_metadata(SEXP ts) {
 //' ts_metadata_length(ts)
 //' @export
 // [[Rcpp::export]]
-Rcpp::List ts_metadata_length(SEXP ts) {
+Rcpp::List ts_metadata_length(const SEXP ts) {
   tskitr_treeseq_xptr xptr(ts);
   const tsk_table_collection_t *tables = xptr->tables;
   return Rcpp::List::create(
-      Rcpp::_["ts"] = static_cast<int>(tsk_treeseq_get_metadata_length(xptr)),
-      // The tree sequence metadata is the tables metadata since
+      // Rcpp::_["ts"] =
+      //   static_cast<int>(tsk_treeseq_get_metadata_length(xptr))
+      // The tree sequence metadata is the tables metadata and
       // tsk_treeseq_get_metadata_length() returns self->tables->metadata_length
-      // Rcpp::_["tables"] = static_cast<int>(tables->metadata_length),
+      Rcpp::_["ts"] = static_cast<int>(tables->metadata_length),
       Rcpp::_["populations"] =
           static_cast<int>(tables->populations.metadata_length),
       Rcpp::_["migrations"] =
@@ -350,4 +353,26 @@ Rcpp::List ts_metadata_length(SEXP ts) {
       Rcpp::_["sites"] = static_cast<int>(tables->sites.metadata_length),
       Rcpp::_["mutations"] =
           static_cast<int>(tables->mutations.metadata_length));
+}
+
+// TODO: This will go into AlphaSimR
+// [[Rcpp::export]]
+SEXP ts_grow(SEXP ts) {
+  tskitr_treeseq_xptr xptr(ts);
+  int ret;
+  ret = 0;
+  // TODO: What do we need to do here now? How do we grow a tree sequence?
+  //       Look into the simple example in C code online or look into what SLiM
+  //       is doing!?
+  if (ret != 0) {
+    // TODO: What should we do if something goes wrong? We can clearly throw an
+    //       error using Rcpp::stop(), but should we also do something with the
+    //       ts pointer and object? If we delete, we discard/delete past work,
+    //       but if we don't, do we risk of returning a corrupted ts?
+    // tsk_treeseq_free(ts_ptr);
+    // delete ts_ptr;
+    Rcpp::stop(tsk_strerror(ret));
+  }
+  return xptr;
+  // return ret;
 }

@@ -22,7 +22,7 @@
 #' \dontshow{# Providing the examples here so we test them via R CMD check}
 #' # Here are examples showcasing what you can do with tskitr
 #'
-#' # 1) Load a tree sequence into an R session and summarise it
+#' # 1) Load a tree sequence into R and summarise it
 #' # Load a tree sequence
 #' ts_file <- system.file("examples/test.trees", package = "tskitr")
 #' ts <- ts_load(ts_file)
@@ -38,7 +38,7 @@
 #' ts <- ts_load(ts_file)
 #'
 #' # If you have a tree sequence in R and you want to use tskit Python API,
-#' # you can write it to disk and load it into a reticulate Python session
+#' # you can write it to disk and load it into reticulate Python
 #' ts_py <- ts_r_to_py(ts)
 #' # ... continue in reticulate Python ...
 #' ts_py$num_individuals # 160
@@ -48,11 +48,11 @@
 #' ts2 <- ts_py_to_r(ts2_py)
 #' ts_num_individuals(ts2) # 2
 #'
-#' # If you prefer a standard (non-reticulate) Python, use this
+#' # If you prefer standard (non-reticulate) Python, use this
 #' ts_file <- tempfile()
 #' print(ts_file)
 #' ts_dump(ts, file = ts_file)
-#' # ... continue in a Python session ...
+#' # ... continue in standard Python ...
 #' # import tskit
 #' # ts = tskit.load("insert_ts_file_path_here")
 #' # ts.num_individuals # 80
@@ -64,7 +64,7 @@
 #' ts_num_individuals(ts2) # 2
 #' file.remove(ts_file)
 #'
-#' # 3) Call tskit C API in C++ code in an R session
+#' # 3) Call tskit C API in C++ code in R session or script
 #' library(Rcpp)
 #' # Write and compile a C++ function
 #' codeString <- '
