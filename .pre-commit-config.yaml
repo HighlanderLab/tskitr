@@ -1,0 +1,39 @@
+exclude: |
+  (?x)^(
+    extern/
+    | RcppTskit/inst/include/tskit/
+    | RcppTskit/src/tskit/
+    | RcppTskit/R/RcppExports\.R
+    | RcppTskit/src/RcppExports\.cpp
+  )
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+  - repo: https://github.com/benjeffery/pre-commit-clang-format
+    rev: "1.0"
+    hooks:
+      - id: clang-format
+        verbose: true
+  - repo: local
+    hooks:
+      - id: air-format
+        name: air format
+        entry: air format .
+        language: system
+        pass_filenames: false
+        files: '\.(R|Rmd|rmd|qmd|Qmd)$'
+
+      - id: jarl-lint
+        name: jarl lint
+        entry: jarl check .
+        language: system
+        pass_filenames: false
+        files: '\.(R|Rmd|rmd|qmd|Qmd)$'

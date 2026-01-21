@@ -80,34 +80,62 @@ remotes::install_github("HighlanderLab/RcppTskit/RcppTskit")
 
 ## Development
 
+### Clone
+
 First clone the repository:
 
 ```
 git clone https://github.com/HighlanderLab/RcppTskit.git
 ```
 
+### Pre-commit install
+
+We use [pre-commit](https://pre-commit.com) hooks to ensure code quality. Specifically, we use:
+* [air](https://github.com/posit-dev/air) to format R code,
+* [jarl](https://github.com/etiennebacher/jarl) to lint R code, and
+* [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format C/C++ code.
+
+To install the hooks, run:
+
+```
+pre-commit install
+```
+
+### tskit
+
 If you plan to update `tskit`, follow instructions in `extern/README.md`.
 
-Then open `RcppTskit` package directory in your favourite R IDE (Positron, RStudio, text-editor-of-your-choice, etc.), implement your changes and run (in R):
+### RcppTskit
+
+Then open `RcppTskit` package directory in your favourite R IDE (Positron, RStudio, text-editor-of-your-choice, etc.) and implement your changes.
+
+You should routinely check the status of the package (in R):
 
 ```
 # Note that the RcppTskit R package is in the RcppTskit sub-directory
 setwd("path/to/RcppTskit/RcppTskit")
 
-# Run checks of your changes, documentation, etc.
+# Run checks of your changes, documentation, tests, etc.
 devtools::check()
 
 # Install the package
 devtools::install()
+
+# Run just tests
+devtools::test()
+
+# Check code test coverage
+cov <- covr::package_coverage(clean = TRUE)
+covr::report(cov)
 ```
 
-Alternatively you can check and install from command line:
+Alternatively you can check from the command line:
 
 ```
 # Note that the RcppTskit package is in the RcppTskit sub-directory
-cd path/to/RcppTskit
+cd path/to/RcppTskit/RcppTskit
 
-# Run checks of your changes, documentation, etc.
+# Run checks of your changes, documentation, tests, etc.
 R CMD build RcppTskit
 R CMD check RcppTskit_*.tar.gz
 
@@ -116,3 +144,19 @@ R CMD INSTALL RcppTskit_*.tar.gz
 ```
 
 On Windows, replace `tar.gz` with `zip`.
+
+### Pre-commit run
+
+Before committing your changes, run the pre-commit hooks to ensure code quality:
+
+```
+# pre-commit autoupdate # to update the hooks
+pre-commit run --all-files
+# pre-commit run <hook_id>
+```
+
+### Continuous integration
+
+We use Github Actions to run continuous integration (CI) checks on each push and pull request. Specifically, we run:
+* [R CMD check](.github/workflows/R-CMD-check.yaml) on Linux, macOS, and Windows and
+* [covr test coverage](.github/workflows/covr.yaml).
