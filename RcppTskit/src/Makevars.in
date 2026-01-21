@@ -50,6 +50,3 @@ tskit/%.o: tskit/%.c
 
 # Linking
 PKG_LIBS = @RCPPTSKIT_LIB@
-
-# TODO: Create Makevars.win #23
-#       https://github.com/HighlanderLab/RcppTskit/issues/23

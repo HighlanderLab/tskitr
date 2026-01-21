@@ -38,6 +38,7 @@ renderMakevars <- function(template, output) {
 }
 
 # renderMakevars(template = "this_should_fail", output = "before_getting_to_output")
+
 if (.Platform$OS.type == "unix") {
   # readLines(con = "src/Makevars.in")
   success <- renderMakevars(
@@ -47,7 +48,9 @@ if (.Platform$OS.type == "unix") {
 } else {
   # readLines(con = "src/Makevars.win.in")
   success <- renderMakevars(
-    template = "src/Makevars.win.in",
+    # Currently, both Unix and Windows use the same template
+    # template = "src/Makevars.win.in",
+    template = "src/Makevars.in",
     output = "src/Makevars.win"
   )
 }
