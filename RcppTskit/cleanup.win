@@ -4,6 +4,4 @@
 rm -f src/Makevars.win
 
 # Removing compilation files
-rm -f src/*.dll
-# TODO: Add other files to be removed in cleanup.win on Windows #17
-#       https://github.com/HighlanderLab/RcppTskit/issues/17
+rm -f src/*.o src/tskit/*.o src/*.dll
