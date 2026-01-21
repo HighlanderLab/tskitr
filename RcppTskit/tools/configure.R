@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
-# TODO: Make configure.R::setRcppTskitLibAndFlags() portable across Unix/Linux/macOS/Windows platforms #19
-#       https://github.com/HighlanderLab/RcppTskit/issues/19
+# TODO: Check if we can link AlphaSimR against RcppTskit on Windows and Linux #40
+#       https://github.com/HighlanderLab/RcppTskit/issues/40
 
 # Set platform-specific linker flags for RcppTskit
 setRcppTskitLibAndFlags <- function() {

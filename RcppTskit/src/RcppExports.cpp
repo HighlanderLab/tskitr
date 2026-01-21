@@ -54,17 +54,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// ts_summary_ptr
-Rcpp::List ts_summary_ptr(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_summary_ptr(SEXP tsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_summary_ptr(ts));
-    return rcpp_result_gen;
-END_RCPP
-}
 // ts_num_provenances_ptr
 int ts_num_provenances_ptr(const SEXP ts);
 RcppExport SEXP _RcppTskit_ts_num_provenances_ptr(SEXP tsSEXP) {
@@ -197,6 +186,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ts_summary_ptr
+Rcpp::List ts_summary_ptr(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_summary_ptr(SEXP tsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
+    rcpp_result_gen = Rcpp::wrap(ts_summary_ptr(ts));
+    return rcpp_result_gen;
+END_RCPP
+}
 // ts_metadata_length_ptr
 Rcpp::List ts_metadata_length_ptr(const SEXP ts);
 RcppExport SEXP _RcppTskit_ts_metadata_length_ptr(SEXP tsSEXP) {
@@ -261,7 +261,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_tskit_version", (DL_FUNC) &_RcppTskit_tskit_version, 0},
     {"_RcppTskit_ts_load_ptr", (DL_FUNC) &_RcppTskit_ts_load_ptr, 2},
     {"_RcppTskit_ts_dump_ptr", (DL_FUNC) &_RcppTskit_ts_dump_ptr, 3},
-    {"_RcppTskit_ts_summary_ptr", (DL_FUNC) &_RcppTskit_ts_summary_ptr, 1},
     {"_RcppTskit_ts_num_provenances_ptr", (DL_FUNC) &_RcppTskit_ts_num_provenances_ptr, 1},
     {"_RcppTskit_ts_num_populations_ptr", (DL_FUNC) &_RcppTskit_ts_num_populations_ptr, 1},
     {"_RcppTskit_ts_num_migrations_ptr", (DL_FUNC) &_RcppTskit_ts_num_migrations_ptr, 1},
@@ -274,6 +273,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_ts_num_mutations_ptr", (DL_FUNC) &_RcppTskit_ts_num_mutations_ptr, 1},
     {"_RcppTskit_ts_sequence_length_ptr", (DL_FUNC) &_RcppTskit_ts_sequence_length_ptr, 1},
     {"_RcppTskit_ts_time_units_ptr", (DL_FUNC) &_RcppTskit_ts_time_units_ptr, 1},
+    {"_RcppTskit_ts_summary_ptr", (DL_FUNC) &_RcppTskit_ts_summary_ptr, 1},
     {"_RcppTskit_ts_metadata_length_ptr", (DL_FUNC) &_RcppTskit_ts_metadata_length_ptr, 1},
     {"_RcppTskit_ts_grow", (DL_FUNC) &_RcppTskit_ts_grow, 1},
     {"_RcppTskit_test_tsk_bug_assert_c", (DL_FUNC) &_RcppTskit_test_tsk_bug_assert_c, 0},

@@ -81,6 +81,79 @@ ts_dump_ptr <- function(ts, file, options = 0L) {
     invisible(.Call(`_RcppTskit_ts_dump_ptr`, ts, file, options))
 }
 
+#' @describeIn ts_summary_ptr Get the number of provenances in a tree sequence
+#' @export
+ts_num_provenances_ptr <- function(ts) {
+    .Call(`_RcppTskit_ts_num_provenances_ptr`, ts)
+}
+
+#' @describeIn ts_summary_ptr Get the number of populations in a tree sequence
+#' @export
+ts_num_populations_ptr <- function(ts) {
+    .Call(`_RcppTskit_ts_num_populations_ptr`, ts)
+}
+
+#' @describeIn ts_summary_ptr Get the number of migrations in a tree sequence
+#' @export
+ts_num_migrations_ptr <- function(ts) {
+    .Call(`_RcppTskit_ts_num_migrations_ptr`, ts)
+}
+
+#' @describeIn ts_summary_ptr Get the number of individuals in a tree sequence
+#' @export
+ts_num_individuals_ptr <- function(ts) {
+    .Call(`_RcppTskit_ts_num_individuals_ptr`, ts)
+}
+
+#' @describeIn ts_summary_ptr Get the number of samples (of nodes) in a tree
+#'   sequence
+#' @export
+ts_num_samples_ptr <- function(ts) {
+    .Call(`_RcppTskit_ts_num_samples_ptr`, ts)
+}
+
+#' @describeIn ts_summary_ptr Get the number of nodes in a tree sequence
+#' @export
+ts_num_nodes_ptr <- function(ts) {
+    .Call(`_RcppTskit_ts_num_nodes_ptr`, ts)
+}
+
+#' @describeIn ts_summary_ptr Get the number of edges in a tree sequence
+#' @export
+ts_num_edges_ptr <- function(ts) {
+    .Call(`_RcppTskit_ts_num_edges_ptr`, ts)
+}
+
+#' @describeIn ts_summary_ptr Get the number of trees in a tree sequence
+#' @export
+ts_num_trees_ptr <- function(ts) {
+    .Call(`_RcppTskit_ts_num_trees_ptr`, ts)
+}
+
+#' @describeIn ts_summary_ptr Get the number of sites in a tree sequence
+#' @export
+ts_num_sites_ptr <- function(ts) {
+    .Call(`_RcppTskit_ts_num_sites_ptr`, ts)
+}
+
+#' @describeIn ts_summary_ptr Get the number of mutations in a tree sequence
+#' @export
+ts_num_mutations_ptr <- function(ts) {
+    .Call(`_RcppTskit_ts_num_mutations_ptr`, ts)
+}
+
+#' @describeIn ts_summary_ptr Get the sequence length
+#' @export
+ts_sequence_length_ptr <- function(ts) {
+    .Call(`_RcppTskit_ts_sequence_length_ptr`, ts)
+}
+
+#' @describeIn ts_summary_ptr Get the time units string
+#' @export
+ts_time_units_ptr <- function(ts) {
+    .Call(`_RcppTskit_ts_time_units_ptr`, ts)
+}
+
 #' @name ts_summary_ptr
 #' @title Summary of properties and number of records in a tree sequence
 #' @param ts tree sequence as a \code{\link{TreeSequence}} object or
@@ -154,79 +227,6 @@ ts_dump_ptr <- function(ts, file, options = 0L) {
 #' @export
 ts_summary_ptr <- function(ts) {
     .Call(`_RcppTskit_ts_summary_ptr`, ts)
-}
-
-#' @describeIn ts_summary_ptr Get the number of provenances in a tree sequence
-#' @export
-ts_num_provenances_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_provenances_ptr`, ts)
-}
-
-#' @describeIn ts_summary_ptr Get the number of populations in a tree sequence
-#' @export
-ts_num_populations_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_populations_ptr`, ts)
-}
-
-#' @describeIn ts_summary_ptr Get the number of migrations in a tree sequence
-#' @export
-ts_num_migrations_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_migrations_ptr`, ts)
-}
-
-#' @describeIn ts_summary_ptr Get the number of individuals in a tree sequence
-#' @export
-ts_num_individuals_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_individuals_ptr`, ts)
-}
-
-#' @describeIn ts_summary_ptr Get the number of samples (of nodes) in a tree
-#'   sequence
-#' @export
-ts_num_samples_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_samples_ptr`, ts)
-}
-
-#' @describeIn ts_summary_ptr Get the number of nodes in a tree sequence
-#' @export
-ts_num_nodes_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_nodes_ptr`, ts)
-}
-
-#' @describeIn ts_summary_ptr Get the number of edges in a tree sequence
-#' @export
-ts_num_edges_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_edges_ptr`, ts)
-}
-
-#' @describeIn ts_summary_ptr Get the number of trees in a tree sequence
-#' @export
-ts_num_trees_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_trees_ptr`, ts)
-}
-
-#' @describeIn ts_summary_ptr Get the number of sites in a tree sequence
-#' @export
-ts_num_sites_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_sites_ptr`, ts)
-}
-
-#' @describeIn ts_summary_ptr Get the number of mutations in a tree sequence
-#' @export
-ts_num_mutations_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_mutations_ptr`, ts)
-}
-
-#' @describeIn ts_summary_ptr Get the sequence length
-#' @export
-ts_sequence_length_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_sequence_length_ptr`, ts)
-}
-
-#' @describeIn ts_summary_ptr Get the time units string
-#' @export
-ts_time_units_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_time_units_ptr`, ts)
 }
 
 #' @name ts_metadata_length
