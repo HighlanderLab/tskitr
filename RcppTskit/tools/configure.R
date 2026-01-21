@@ -1,21 +1,29 @@
 #!/usr/bin/env Rscript
 
-# Set platform specific name of RcppTskit library and add appropriate flags
+# TODO: Make configure.R::setRcppTskitLibAndFlags() portable across Unix/Linux/macOS/Windows platforms #19
+#       https://github.com/HighlanderLab/RcppTskit/issues/19
+
+# Set platform-specific linker flags for RcppTskit
 setRcppTskitLibAndFlags <- function() {
-  if (.Platform$OS.type == "unix") {
-    # Unix/Linux & macOS
+  sysname <- Sys.info()[["sysname"]]
+  os_type <- .Platform$OS.type
+  if (os_type == "unix") {
     libname <- "RcppTskit.so"
-  } else if (.Platform$OS.type == "windows") {
-    libname <- "RcppTskit.dll.a" # MinGW/Rtools (default)
-    # "RcppTskit.lib" # MSVC (backup to MinGW/Rtools)
-    # "RcppTskit.dll" # DLL (backup to MinGW/Rtools)
+    if (sysname == "Darwin") {
+      # macOS: Use -install_name with @rpath for better portability
+      return(paste0("-Wl,-install_name,@rpath/", libname))
+    } else {
+      # Linux/Solaris/FreeBSD: Use -soname for shared library versioning
+      return(paste0("-Wl,-soname,", libname))
+    }
+  } else if (os_type == "windows") {
+    # Windows: Rtools 4.x/5.x uses --out-implib for import libraries
+    # libname should typically be the import library .dll.a
+    libname <- "RcppTskit.dll.a"
+    return(paste0("-Wl,--out-implib,", libname))
   } else {
-    stop("Unknown .Platform$OS.type!")
+    stop(sprintf("Unsupported platform: %s (%s)", sysname, os_type))
   }
-  # TODO: Make configure.R::setRcppTskitLibAndFlags() portable across Unix/Linux/macOS/Windows platforms #19
-  #       https://github.com/HighlanderLab/RcppTskit/issues/19
-  ret <- paste0("-Wl,-install_name,@rpath/", libname)
-  return(ret)
 }
 
 # Render a Makevars file from a template by replacing placeholders.
