@@ -14,9 +14,9 @@
 #'
 #' @useDynLib RcppTskit, .registration = TRUE
 #' @importFrom methods is
+#' @importFrom R6 R6Class
 #' @importFrom Rcpp registerPlugin cppFunction
 #' @importFrom reticulate is_py_object import py_module_available py_require
-#' @importFrom Rdpack reprompt
 #'
 #' @examples
 #' \dontshow{# Providing the examples here so we test them via R CMD check}

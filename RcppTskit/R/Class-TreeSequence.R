@@ -5,7 +5,7 @@
 #' The pointer does not provide direct view for users and currently there is
 #' only a limited number of methods available to summarise the tree sequence.
 #' @export
-TreeSequence <- R6::R6Class(
+TreeSequence <- R6Class(
   classname = "TreeSequence",
   public = list(
     #' @field pointer external pointer to the tree sequence

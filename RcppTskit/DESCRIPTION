@@ -21,10 +21,9 @@ Description: Tskit enables performant storage, manipulation, and analysis
   and the `reticulate` approach.
 URL: https://github.com/highlanderlab/RcppTskit
 License: MIT + file LICENSE
-Imports: methods, Rcpp (>= 1.1.0), Rdpack, reticulate
+Imports: methods, R6, Rcpp (>= 1.1.0), reticulate
 LinkingTo: Rcpp
 Suggests: covr, spelling, testthat
-RdMacros: Rdpack
 RoxygenNote: 7.3.3
 Encoding: UTF-8
 Language: en-GB
