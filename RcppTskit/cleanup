@@ -5,6 +5,3 @@ rm -f src/Makevars
 
 # Removing compilation files
 rm -f src/*.o src/tskit/*.o src/*.so
-
-# Removing other files not needed for distribution
-rm -f WORDLIST
