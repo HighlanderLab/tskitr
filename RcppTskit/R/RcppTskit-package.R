@@ -152,9 +152,9 @@
 #'   then the function directly attempts to install and import tskit before
 #'   returning it.
 #' @details This function is meant for users running \code{tskit <- get_tskit_py()}
-#'   or similar, but also by other functions in this package that need the
-#'   \code{tskit} reticulate Python module, yet we don't want to keep importing
-#'   it if it already has been imported.
+#'   or similar code, but also by other functions in this package that need the
+#'   \code{tskit} reticulate Python module. The point of \code{get_tskit_py} is
+#'   to avoid importing the module repeatedly, if it already has been imported.
 #' @return \code{tskit} reticulate Python module.
 #' @examples
 #' tskit <- get_tskit_py()
