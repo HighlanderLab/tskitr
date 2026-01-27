@@ -13,6 +13,7 @@
 ^cran-comments\.md$
 ^inst/examples/create_test\.trees\.R$
 ^inst/examples/create_test\.trees\.py$
+^LICENSE.md$
 ^notes_pkg_dev\.Rmd$
 ^pkg_dev_notes\.md$
 ^tests/testthat/_snaps$

@@ -30,7 +30,7 @@ get_tskit_py <- function(object_name = "tskit") {
   if (test) {
     tskit <- get(object_name, envir = .GlobalEnv, inherits = FALSE)
     test <- reticulate::is_py_object(tskit) &&
-      is(tskit) == "python.builtin.module"
+      is(tskit, "python.builtin.module")
     if (test) {
       return(tskit)
     } else {
@@ -43,22 +43,36 @@ get_tskit_py <- function(object_name = "tskit") {
     }
   }
   # else
-  # These lines are hard to hit with tests with cached reticulate Python and modules
+  # These lines are hard to hit with tests and cached reticulate Python and modules
   # nocov start
+  msgSuccess <- 'reticulate::py_require("tskit") succeded!'
+  msgFail <- 'reticulate::py_require("tskit") failed!'
+  e <- simpleError(msgFail)
   if (!reticulate::py_module_available("tskit")) {
     txt <- "Python module 'tskit' is not available. Attempting to install it ..."
     message(txt)
-    reticulate::py_require("tskit")
+    out <- tryCatch(
+      reticulate::py_require("tskit"),
+      error = function(s) e
+    )
+    if (is(out, "simpleError")) {
+      return(msgFail)
+    }
   }
-  # nocov end
-  return(reticulate::import("tskit", delay_load = TRUE))
+  msgFail <- 'reticulate::import("tskit") failed!'
+  e <- simpleError(msgFail)
+  out <- tryCatch(
+    reticulate::import("tskit", delay_load = TRUE),
+    error = function(e) e
+  )
+  return(out)
 }
 
 #' @describeIn get_tskit_py Test if \code{get_tskit_py} returned a reticulate Python module object
 #' @export
 check_tskit_py <- function(object, stop = FALSE) {
   test <- reticulate::is_py_object(object) &&
-    ("python.builtin.module" %in% is(object))
+    (is(object, "python.builtin.module"))
   if (test) {
     return(TRUE)
   } else {

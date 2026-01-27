@@ -26,7 +26,7 @@ test_that("get_tskit_py() works", {
   # lobstr::obj_addr(tskit)
   # "0x12218b910"
   expect_true(is_py_object(tskit))
-  expect_true(is(tskit) == "python.builtin.module")
+  expect_true(is(tskit, "python.builtin.module"))
   expect_equal(tskit$`__name__`, "tskit")
 
   # Testing that get_tskit_py() returns the same tskit object if it already exists
