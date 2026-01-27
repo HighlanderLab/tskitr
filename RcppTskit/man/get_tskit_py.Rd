@@ -24,7 +24,7 @@ reticulate Python module.}
 }
 \value{
 \code{get_tskit_py} returns \code{tskit} a reticulate Python module
-  if succesful or otherwise throws an error (when \code{object_name} exists
+  if successful or otherwise throws an error (when \code{object_name} exists
   but is not a reticulate Python module) or returns \code{simpleError}
   (when installation or import failed). \code{check_tskit_py} returns
   \code{TRUE} if \code{object} is a reticulate Python module or \code{FALSE}
@@ -41,7 +41,7 @@ This function is meant for users running \code{tskit <- get_tskit_py()}
   to avoid importing the module repeatedly, if it has been imported already
   in which case we use that imported module. Since this process can be
   finicky (it depends on the availability of reticulate Python, module already
-  instaled, internet access, etc.)
+  installed, internet access, etc.)
 }
 \section{Functions}{
 \itemize{

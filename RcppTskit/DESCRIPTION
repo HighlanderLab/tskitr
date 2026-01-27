@@ -30,8 +30,8 @@ Depends:
 Imports:
     methods,
     R6,
-    Rcpp (>= 1.1.0),
-    reticulate
+    Rcpp (>= 0.12.10),
+    reticulate (>= 1.41.0)
 Suggests:
     covr,
     knitr,
@@ -39,7 +39,7 @@ Suggests:
     spelling,
     testthat (>= 3.0.0)
 LinkingTo:
-    Rcpp (>= 1.1.0)
+    Rcpp (>= 0.12.10)
 VignetteBuilder:
     quarto
 Config/testthat/edition: 3

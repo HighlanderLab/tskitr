@@ -157,16 +157,20 @@ after we describe the implemented data and class model.
 
 ## Data and class model
 
-`RcppTskit` represents a tree sequence as a lightweight R object of R6 class `TreeSequence`.
-R6 class was partially chosen so the R code calls resemble Python code.
-`TreeSequence` wraps an external pointer (`externalptr`) to the `tskit`
-C data structure (`tsk_treeseq_t`).
-Most methods (for example, `ts$num_individuals()`, `ts$dump()`, etc.)
+`RcppTskit` represents a tree sequence as a lightweight R6 object of class `TreeSequence`.
+The R6 class was chosen in part so that `TreeSequence` method calls in R
+resemble the tskit Python API.
+`TreeSequence` wraps an external pointer (`externalptr`) to
+the `tskit` C object structure `tsk_treeseq_t`.
+Most methods (for example, `ts$num_individuals()` and `ts$dump()`)
 call the `tskit` C API via `Rcpp`,
-so the calls are fast and the object is not copied
-unless you explicitly write/read or change it.
+so calls are fast and the object is not copied
+unless you explicitly modify it.
 The underlying pointer is exposed as `TreeSequence$pointer`
-for developers and advanced users that can write C++ code.
+for developers and advanced users who work with C++.
+In C++, the pointer has type `RcppTskit_treeseq_xptr`,
+and the tree sequence memory is released by the `Rcpp::XPtr`
+finaliser when the pointer is garbage-collected in R.
 
 ## For typical use cases
 
@@ -256,9 +260,9 @@ ts$num_individuals() # 2 (if you have ran the above Python code)
 #| label: use_case_3
 # Write a C++ function as multi-line character string
 codeString <- '
-  #include <tskit.h>
+  #include <RcppTskit.hpp>
   int ts_num_individuals(SEXP ts) {
-    Rcpp::XPtr<tsk_treeseq_t> ts_xptr(ts);
+      RcppTskit_treeseq_xptr ts_xptr(ts);
     return (int) tsk_treeseq_get_num_individuals(ts_xptr);
   }'
 
@@ -285,28 +289,33 @@ ts$num_individuals()
 
 ### 4) Call `tskit` C API in C++ code in another R package
 
-To call the `tskit` C API in your own R package via `Rcpp` you can leverage `RcppTskit`.
-Just follow the steps below and check how these were implemented in
-the test R package `RcppTskitTestPkgLinkingTo` at TODO.
+To call the `tskit` C API in your own R package via `Rcpp`
+you can leverage `RcppTskit`, which will simplify your installation
+and enable you to quickly call
+To do this, follow the steps below and check how these were implemented in
+the test R package `RcppTskitTestLinkingTo` at https://github.com/HighlanderLab/RcppTskitTestLinking.
 
-a) Open `DESCRIPTION` file and add `RcppTskit` to the `LinkingTo:` field,
-  TODO: likely also `Imports:` field.
+a) Open `DESCRIPTION` file and
+  add `RcppTskit` to the `Imports:` and `LinkingTo:` field, and further
+  add `Rcpp` to `LinkingTo:` field as a minimum.
 
-  TODO: And Rcpp too?
+b) Create `R/YourPackage-package.R` file and add to it at a minimum:
+  `#' @import RcppTskit` in one line and `"_PACKAGE"` in another line,
+  so that `devtools` will manage your package `NAMESPACE` imports.
 
-b) Add `#include <tskit.h>` as needed to your C++ header files in `src` directory.
+c) Add `#include <RcppTskit.hpp>` as needed to your C++ header files in `src` directory.
 
-c) Add `// [[Rcpp::depends(RcppTskit)]]` to your C++ files in `src` directory.
+d) Add `// [[Rcpp::depends(RcppTskit)]]` to your C++ files in `src` directory.
 
-d) Add `// [[Rcpp::plugins(RcppTskit)]]` to your C++ files in `src` directory.
+e) Add `// [[Rcpp::plugins(RcppTskit)]]` to your C++ files in `src` directory.
 
-e) Call `tskit` C API as needed in your C++ code in `src` directory.
+f) Call `RcppTskit` C++ API and `tskit` C API as needed in your C++ files in `src` directory.
 
-f) Configure your package build to use the `RcppTskit` library file
+g) Configure your package build to use the `RcppTskit` library file
   with the following steps:
 
   - Add `src/Makevars.in` and `src/Makevars.win.in` files with
-    `PKG_LIB = @RCPPTSKIT_LIB@` flag, in addition to other flags.
+    `PKG_LIBS = @RCPPTSKIT_LIB@` flag, in addition to other flags.
 
   - Add `tools/configure.R` file,
     which will replace `@RCPPTSKIT_LIB@` in `src/Makevars.in` and `src/Makevars.win.in`
@@ -319,7 +328,7 @@ f) Configure your package build to use the `RcppTskit` library file
   - Add `cleanup` and `cleanup.win` scripts (and make them executable)
     to remove `src/Makevars` and `src/Makevars.win` as well as compilation files.
 
-g) You should now be ready to build, check, and install your package using
+h) You should now be ready to build, check, and install your package using
   `devtools::build()`, `devtools::check()`, and `devtools::install()`
   or their `R CMD` equivalents.
 
