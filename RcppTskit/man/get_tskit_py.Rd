@@ -5,7 +5,7 @@
 \alias{check_tskit_py}
 \title{Get the reticulate Python tskit module}
 \usage{
-get_tskit_py(object_name = "tskit")
+get_tskit_py(object_name = "tskit", force = FALSE)
 
 check_tskit_py(object, stop = FALSE)
 }
@@ -13,17 +13,22 @@ check_tskit_py(object, stop = FALSE)
 \item{object_name}{character name of the object holding \code{tskit} reticulate
 Python module. If this object exists in the global R environment and is a
 reticulate Python object, then it is returned. Otherwise, the function
-attempts to install and import tskit before returning it. If \code{NULL},
-then the function directly attempts to install and import tskit before
-returning it.}
+attempts to install and import tskit before returning it.}
+
+\item{force}{logical force installation and/or import before returning the
+reticulate Python module.}
 
 \item{object}{reticulate Python module object, hopefully.}
 
 \item{stop}{logical for throwing an error in \code{check_tskit_py}.}
 }
 \value{
-\code{get_tskit_py} returns \code{tskit} reticulate Python module.
-  \code{check_tskit_py} returns \code{TRUE} if
+\code{get_tskit_py} returns \code{tskit} a reticulate Python module
+  if succesful or otherwise throws an error (when \code{object_name} exists
+  but is not a reticulate Python module) or returns \code{simpleError}
+  (when installation or import failed). \code{check_tskit_py} returns
+  \code{TRUE} if \code{object} is a reticulate Python module or \code{FALSE}
+  otherwise.
 }
 \description{
 This function imports the reticulate Python \code{tskit} module
@@ -33,7 +38,10 @@ This function imports the reticulate Python \code{tskit} module
 This function is meant for users running \code{tskit <- get_tskit_py()}
   or similar code, but also by other functions in this package that need the
   \code{tskit} reticulate Python module. The point of \code{get_tskit_py} is
-  to avoid importing the module repeatedly, if it has been imported already.
+  to avoid importing the module repeatedly, if it has been imported already
+  in which case we use that imported module. Since this process can be
+  finicky (it depends on the availability of reticulate Python, module already
+  instaled, internet access, etc.)
 }
 \section{Functions}{
 \itemize{

@@ -14,10 +14,17 @@ test_that("get_tskit_py() works", {
     skip_if_offline()
 
     # The tests below take quite a bit of time since they pull in installation of
-    # Python modules, hence skipping on CRAN due to time limits on CRAN.
+    # Python modules, hence skipping on CRAN due to time limits on CRAN
     skip_on_cran()
   }
 
+  # Uncomment the below to explore test behaviour, but note that the removal
+  # doesn't work when you try to run the tests multiple times in the same session!
+  # Hence we are commenting this next line out.
+  # try(reticulate::py_require("tskit", action = "remove"))
+  if (!reticulate::py_available(initialize = TRUE)) {
+    skip("Python not available for get_tskit_py tests.")
+  }
   # Install (if not already installed) & import tskit on the first call
   if (exists("tskit", envir = .GlobalEnv)) {
     rm("tskit", envir = .GlobalEnv)
@@ -40,14 +47,18 @@ test_that("get_tskit_py() works", {
   expect_equal(tskit$`__name__`, tskit2$`__name__`)
 
   # Re-importing
-  tskit3 <- get_tskit_py(object_name = NULL)
+  tskit3 <- get_tskit_py(force = TRUE)
   # lobstr::obj_addr(tskit3)
   # "0x161ec00f0" --> different address because we are obtaining a new object
   # but it is still the same module
   expect_equal(tskit$`__name__`, tskit3$`__name__`)
+
+  # Installing a non-existent module
+  out <- get_tskit_py(object_name = "havent_seen_such_a_python_module")
+  expect_false(is(out, "python.builtin.module"))
 })
 
-test_that("check_tskit_py() validates python module objects", {
+test_that("check_tskit_py() validates reticulate Python module objects", {
   expect_message(
     expect_false(check_tskit_py(1)),
     "object must be a reticulate Python module object!"
@@ -57,8 +68,8 @@ test_that("check_tskit_py() validates python module objects", {
     "object must be a reticulate Python module object!"
   )
 
-  if (!reticulate::py_available(initialize = FALSE)) {
-    skip("Python not available for reticulate tests.")
+  if (!reticulate::py_available(initialize = TRUE)) {
+    skip("Python not available for check_tskit_py tests.")
   }
 
   obj <- reticulate::py_eval("1")
@@ -74,6 +85,6 @@ test_that("check_tskit_py() validates python module objects", {
     tskit <- get_tskit_py()
     expect_true(check_tskit_py(tskit))
   } else {
-    skip("tskit module not available for reticulate tests.")
+    skip("tskit module not available for check_tskit_py tests.")
   }
 })

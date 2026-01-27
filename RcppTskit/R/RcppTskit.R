@@ -6,17 +6,24 @@
 #' @param object_name character name of the object holding \code{tskit} reticulate
 #'   Python module. If this object exists in the global R environment and is a
 #'   reticulate Python object, then it is returned. Otherwise, the function
-#'   attempts to install and import tskit before returning it. If \code{NULL},
-#'   then the function directly attempts to install and import tskit before
-#'   returning it.
+#'   attempts to install and import tskit before returning it.
+#' @param force logical force installation and/or import before returning the
+#'   reticulate Python module.
 #' @param object reticulate Python module object, hopefully.
 #' @param stop logical for throwing an error in \code{check_tskit_py}.
 #' @details This function is meant for users running \code{tskit <- get_tskit_py()}
 #'   or similar code, but also by other functions in this package that need the
 #'   \code{tskit} reticulate Python module. The point of \code{get_tskit_py} is
-#'   to avoid importing the module repeatedly, if it has been imported already.
-#' @return \code{get_tskit_py} returns \code{tskit} reticulate Python module.
-#'   \code{check_tskit_py} returns \code{TRUE} if
+#'   to avoid importing the module repeatedly, if it has been imported already
+#'   in which case we use that imported module. Since this process can be
+#'   finicky (it depends on the availability of reticulate Python, module already
+#'   instaled, internet access, etc.)
+#' @return \code{get_tskit_py} returns \code{tskit} a reticulate Python module
+#'   if succesful or otherwise throws an error (when \code{object_name} exists
+#'   but is not a reticulate Python module) or returns \code{simpleError}
+#'   (when installation or import failed). \code{check_tskit_py} returns
+#'   \code{TRUE} if \code{object} is a reticulate Python module or \code{FALSE}
+#'   otherwise.
 #' @examples
 #' tskit <- get_tskit_py()
 #' is(tskit)
@@ -24,45 +31,49 @@
 #'   tskit$ALLELES_01
 #' }
 #' @export
-get_tskit_py <- function(object_name = "tskit") {
-  test <- !is.null(object_name) &&
-    exists(object_name, envir = .GlobalEnv, inherits = FALSE)
-  if (test) {
-    tskit <- get(object_name, envir = .GlobalEnv, inherits = FALSE)
-    test <- reticulate::is_py_object(tskit) &&
-      is(tskit, "python.builtin.module")
+get_tskit_py <- function(object_name = "tskit", force = FALSE) {
+  if (!force) {
+    test <- !is.null(object_name) &&
+      exists(object_name, envir = .GlobalEnv, inherits = FALSE)
     if (test) {
-      return(tskit)
-    } else {
-      txt <- paste0(
-        "Object '",
-        object_name,
-        "' exists in the global environment but is not a reticulate Python module!"
-      )
-      stop(txt)
+      tskit <- get(object_name, envir = .GlobalEnv, inherits = FALSE)
+      test <- reticulate::is_py_object(tskit) &&
+        is(tskit, "python.builtin.module")
+      if (test) {
+        return(tskit)
+      } else {
+        txt <- paste0(
+          "Object '",
+          object_name,
+          "' exists in the global environment but is not a reticulate Python module!"
+        )
+        stop(txt)
+      }
     }
   }
-  # else
-  # These lines are hard to hit with tests and cached reticulate Python and modules
-  # nocov start
-  msgSuccess <- 'reticulate::py_require("tskit") succeded!'
-  msgFail <- 'reticulate::py_require("tskit") failed!'
+
+  msgSuccess <- paste0('reticulate::py_require("', object_name, '") succeded!')
+  msgFail <- paste0('reticulate::py_require("', object_name, '") failed!')
   e <- simpleError(msgFail)
-  if (!reticulate::py_module_available("tskit")) {
-    txt <- "Python module 'tskit' is not available. Attempting to install it ..."
+  if (!reticulate::py_module_available(object_name)) {
+    txt <- paste0(
+      'Python module ',
+      object_name,
+      ' is not available. Attempting to install it ...'
+    )
     message(txt)
     out <- tryCatch(
-      reticulate::py_require("tskit"),
+      reticulate::py_require(object_name),
       error = function(s) e
     )
     if (is(out, "simpleError")) {
-      return(msgFail)
+      return(out) # hard to hit with tests!
     }
   }
-  msgFail <- 'reticulate::import("tskit") failed!'
+  msgFail <- paste0('reticulate::import("', object_name, '") failed!')
   e <- simpleError(msgFail)
   out <- tryCatch(
-    reticulate::import("tskit", delay_load = TRUE),
+    reticulate::import(object_name, delay_load = TRUE),
     error = function(e) e
   )
   return(out)
