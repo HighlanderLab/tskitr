@@ -9,8 +9,12 @@
 ^\.clang-format$
 ^\.covrignore$
 ^\.github$
-^pkg_dev_notes\.md$
 ^codecov\.yaml$
-^notes_pkg_dev\.Rmd$
 ^inst/examples/create_test\.trees\.R$
 ^inst/examples/create_test\.trees\.py$
+^notes_pkg_dev\.Rmd$
+^pkg_dev_notes\.md$
+^tests/testthat/_snaps$
+^vignettes/\.quarto$
+^vignettes/*_files$
+^\.\.$

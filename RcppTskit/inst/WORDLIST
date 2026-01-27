@@ -1,10 +1,12 @@
 ARGs
 ORCID
 Rcpp
+SLiM
 TreeSequence
 Tskit
 etc
 kastore
+msprime
 num
 ts
 tskit

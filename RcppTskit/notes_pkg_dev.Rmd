@@ -2,8 +2,20 @@
 
 ## Next TODOs
 
-* TODO: Add R package badges (build status, CRAN version, etc.) to README.md #1
-      https://github.com/HighlanderLab/RcppTskit/issues/1
+# Release (TODO)
+# TODO: Tag a release #15
+#       https://github.com/HighlanderLab/RcppTskit/issues/15
+# remotes::install_github("HighlanderLab/RcppTskit/RcppTskit")
+
+# Main branch
+remotes::install_github("HighlanderLab/RcppTskit/RcppTskit")
+
+# TODO: Create a devel branch #16
+#       https://github.com/HighlanderLab/RcppTskit/issues/16
+# remotes::install_github("HighlanderLab/RcppTskit/RcppTskit@devel")
+
+# TODO: Publish on CRAN #14
+#       https://github.com/HighlanderLab/RcppTskit/issues/14
 
 * This PR nicely shows how slendr is dealing with ts objects
   (it saves various ts information as attributes)
