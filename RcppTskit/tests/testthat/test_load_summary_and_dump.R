@@ -1,5 +1,3 @@
-context("ts_load(), ts_summary*(), and ts_dump()")
-
 test_that("ts_load(), ts_summary*(), and ts_dump(x) work", {
   # ---- ts_load() ----
 

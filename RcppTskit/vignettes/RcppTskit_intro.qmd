@@ -201,7 +201,7 @@ if (!test) {
 # Load a tree sequence
 ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 ts <- ts_load(ts_file)
-is(ts)
+methods::is(ts)
 
 # Print the summary of the tree sequence
 ts$print()
@@ -222,14 +222,17 @@ ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 ts <- ts_load(ts_file)
 
 # If you now want to use tskit Python API in reticulate Python, use
-ts_py <- ts$r_to_py()
-# ... continue in reticulate Python ...
-ts_py$num_individuals # 80
-ts2_py = ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
-ts2_py$num_individuals # 2
-# ... and to bring it back to R, use ...
-ts2 <- ts_py_to_r(ts2_py)
-ts2$num_individuals() # 2
+tskit <- get_tskit_py()
+if (check_tskit_py(tskit)) {
+  ts_py <- ts$r_to_py()
+  # ... continue in reticulate Python ...
+  ts_py$num_individuals # 80
+  ts2_py = ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
+  ts2_py$num_individuals # 2
+  # ... and to bring it back to R, use ...
+  ts2 <- ts_py_to_r(ts2_py)
+  ts2$num_individuals() # 2
+}
 
 # If you prefer standard (non-reticulate) Python, use
 ts_file <- tempfile()

@@ -3,27 +3,32 @@
 #' @title Get the reticulate Python tskit module
 #' @description This function imports the reticulate Python \code{tskit} module
 #'   and if it is not yet installed, then it attempts to install it first.
-#' @param obj_name character name of the object holding \code{tskit} reticulate
+#' @param object_name character name of the object holding \code{tskit} reticulate
 #'   Python module. If this object exists in the global R environment and is a
 #'   reticulate Python object, then it is returned. Otherwise, the function
 #'   attempts to install and import tskit before returning it. If \code{NULL},
 #'   then the function directly attempts to install and import tskit before
 #'   returning it.
+#' @param object reticulate Python module object, hopefully.
+#' @param stop logical for throwing an error in \code{check_tskit_py}.
 #' @details This function is meant for users running \code{tskit <- get_tskit_py()}
 #'   or similar code, but also by other functions in this package that need the
 #'   \code{tskit} reticulate Python module. The point of \code{get_tskit_py} is
 #'   to avoid importing the module repeatedly, if it has been imported already.
-#' @return \code{tskit} reticulate Python module.
+#' @return \code{get_tskit_py} returns \code{tskit} reticulate Python module.
+#'   \code{check_tskit_py} returns \code{TRUE} if
 #' @examples
 #' tskit <- get_tskit_py()
 #' is(tskit)
-#' tskit$ALLELES_01
+#' if (check_tskit_py(tskit)) {
+#'   tskit$ALLELES_01
+#' }
 #' @export
-get_tskit_py <- function(obj_name = "tskit") {
-  test <- !is.null(obj_name) &&
-    exists(obj_name, envir = .GlobalEnv, inherits = FALSE)
+get_tskit_py <- function(object_name = "tskit") {
+  test <- !is.null(object_name) &&
+    exists(object_name, envir = .GlobalEnv, inherits = FALSE)
   if (test) {
-    tskit <- get(obj_name, envir = .GlobalEnv, inherits = FALSE)
+    tskit <- get(object_name, envir = .GlobalEnv, inherits = FALSE)
     test <- reticulate::is_py_object(tskit) &&
       is(tskit) == "python.builtin.module"
     if (test) {
@@ -31,8 +36,8 @@ get_tskit_py <- function(obj_name = "tskit") {
     } else {
       txt <- paste0(
         "Object '",
-        obj_name,
-        "' exists in the global environment but is not a reticulate Python module"
+        object_name,
+        "' exists in the global environment but is not a reticulate Python module!"
       )
       stop(txt)
     }
@@ -42,11 +47,29 @@ get_tskit_py <- function(obj_name = "tskit") {
   # nocov start
   if (!reticulate::py_module_available("tskit")) {
     txt <- "Python module 'tskit' is not available. Attempting to install it ..."
-    cat(txt)
+    message(txt)
     reticulate::py_require("tskit")
   }
   # nocov end
   return(reticulate::import("tskit", delay_load = TRUE))
+}
+
+#' @describeIn get_tskit_py Test if \code{get_tskit_py} returned a reticulate Python module object
+#' @export
+check_tskit_py <- function(object, stop = FALSE) {
+  test <- reticulate::is_py_object(object) &&
+    ("python.builtin.module" %in% is(object))
+  if (test) {
+    return(TRUE)
+  } else {
+    msg <- "object must be a reticulate Python module object!"
+    if (stop) {
+      stop(msg)
+    } else {
+      message(msg)
+    }
+    return(FALSE)
+  }
 }
 
 #' @title Load a tree sequence from a file
@@ -182,9 +205,7 @@ ts_r_to_py_ptr <- function(ts, tskit_module = get_tskit_py(), cleanup = TRUE) {
   if (!is(ts, "externalptr")) {
     stop("ts must be an object of externalptr class!")
   }
-  if (!reticulate::is_py_object(tskit_module)) {
-    stop("tskit_module must be a reticulate Python module object!")
-  }
+  check_tskit_py(tskit_module, stop = TRUE)
   ts_file <- tempfile(fileext = ".trees")
   if (cleanup) {
     on.exit(file.remove(ts_file))
@@ -247,16 +268,18 @@ ts_py_to_r_ptr <- function(ts, cleanup = TRUE) {
 #'
 #' # Use the tskit Python API to work with a tree sequence (via reticulate)
 #' tskit <- get_tskit_py()
-#' ts_py <- tskit$load(ts_file)
-#' is(ts_py)
-#' ts_py$num_samples # 160
-#' ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
-#' ts2_py$num_samples # 4
+#' if (check_tskit_py(tskit)) {
+#'   ts_py <- tskit$load(ts_file)
+#'   is(ts_py)
+#'   ts_py$num_samples # 160
+#'   ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
+#'   ts2_py$num_samples # 4
 #'
-#' # Transfer the tree sequence to R and use RcppTskit
-#' ts2_r <- ts_py_to_r(ts2_py)
-#' is(ts2_r)
-#' ts2_r$num_samples() # 4
+#'   # Transfer the tree sequence to R and use RcppTskit
+#'   ts2_r <- ts_py_to_r(ts2_py)
+#'   is(ts2_r)
+#'   ts2_r$num_samples() # 4
+#' }
 #' @export
 ts_py_to_r <- function(ts, cleanup = TRUE) {
   ptr <- ts_py_to_r_ptr(ts = ts, cleanup = cleanup)

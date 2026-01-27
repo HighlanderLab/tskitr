@@ -2,10 +2,13 @@
 
 ## Next TODOs
 
+# TODO: Create a minimal package to demonstrate how to link against RcppTskit and call tskit C API
+        https://github.com/HighlanderLab/RcppTskit/issues/48
+
+
+
 TODO: Add citation for tskit to DESCRIPTION file #46
       https://github.com/HighlanderLab/RcppTskit/issues/46
-
-# TODO: Create a minimal package to demonstrate how to link against RcppTskit and call tskit C API
 
 # Release (TODO)
 # TODO: Tag a release #15

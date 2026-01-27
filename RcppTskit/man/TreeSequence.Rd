@@ -54,11 +54,14 @@ is(ts_r)
 ts_r$num_samples() # 160
 
 # Transfer the tree sequence to reticulate Python and use tskit Python API
-ts_py <- ts_r$r_to_py()
-is(ts_py)
-ts_py$num_samples # 160
-ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
-ts2_py$num_samples # 4
+tskit <- get_tskit_py()
+if (check_tskit_py(tskit)) {
+  ts_py <- ts_r$r_to_py()
+  is(ts_py)
+  ts_py$num_samples # 160
+  ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
+  ts2_py$num_samples # 4
+}
 
 ## ------------------------------------------------
 ## Method `TreeSequence$num_provenances`
@@ -371,11 +374,14 @@ is(ts_r)
 ts_r$num_samples() # 160
 
 # Transfer the tree sequence to reticulate Python and use tskit Python API
-ts_py <- ts_r$r_to_py()
-is(ts_py)
-ts_py$num_samples # 160
-ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
-ts2_py$num_samples # 4
+tskit <- get_tskit_py()
+if (check_tskit_py(tskit)) {
+  ts_py <- ts_r$r_to_py()
+  is(ts_py)
+  ts_py$num_samples # 160
+  ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
+  ts2_py$num_samples # 4
+}
 }
 \if{html}{\out{</div>}}
 

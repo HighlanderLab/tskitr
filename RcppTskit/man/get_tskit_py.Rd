@@ -2,20 +2,28 @@
 % Please edit documentation in R/RcppTskit.R
 \name{get_tskit_py}
 \alias{get_tskit_py}
+\alias{check_tskit_py}
 \title{Get the reticulate Python tskit module}
 \usage{
-get_tskit_py(obj_name = "tskit")
+get_tskit_py(object_name = "tskit")
+
+check_tskit_py(object, stop = FALSE)
 }
 \arguments{
-\item{obj_name}{character name of the object holding \code{tskit} reticulate
+\item{object_name}{character name of the object holding \code{tskit} reticulate
 Python module. If this object exists in the global R environment and is a
 reticulate Python object, then it is returned. Otherwise, the function
 attempts to install and import tskit before returning it. If \code{NULL},
 then the function directly attempts to install and import tskit before
 returning it.}
+
+\item{object}{reticulate Python module object, hopefully.}
+
+\item{stop}{logical for throwing an error in \code{check_tskit_py}.}
 }
 \value{
-\code{tskit} reticulate Python module.
+\code{get_tskit_py} returns \code{tskit} reticulate Python module.
+  \code{check_tskit_py} returns \code{TRUE} if
 }
 \description{
 This function imports the reticulate Python \code{tskit} module
@@ -27,8 +35,15 @@ This function is meant for users running \code{tskit <- get_tskit_py()}
   \code{tskit} reticulate Python module. The point of \code{get_tskit_py} is
   to avoid importing the module repeatedly, if it has been imported already.
 }
+\section{Functions}{
+\itemize{
+\item \code{check_tskit_py()}: Test if \code{get_tskit_py} returned a reticulate Python module object
+
+}}
 \examples{
 tskit <- get_tskit_py()
 is(tskit)
-tskit$ALLELES_01
+if (check_tskit_py(tskit)) {
+  tskit$ALLELES_01
+}
 }

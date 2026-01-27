@@ -1,5 +1,3 @@
-context("get_tskit_py()")
-
 test_that("get_tskit_py() works", {
   # Testing that get_tskit_py() fails with a non-module object
   # Next two lines ensure that testthat is looking into the global environment
@@ -7,7 +5,7 @@ test_that("get_tskit_py() works", {
   assign("rubbish", "something_else_than_a_py_module", envir = .GlobalEnv)
   on.exit(rm("rubbish", envir = .GlobalEnv), add = TRUE)
   expect_error(
-    get_tskit_py(obj_name = "rubbish"),
+    get_tskit_py(object_name = "rubbish"),
     regexp = "Object 'rubbish' exists in the global environment but is not a reticulate Python module"
   )
 
@@ -42,9 +40,40 @@ test_that("get_tskit_py() works", {
   expect_equal(tskit$`__name__`, tskit2$`__name__`)
 
   # Re-importing
-  tskit3 <- get_tskit_py(obj_name = NULL)
+  tskit3 <- get_tskit_py(object_name = NULL)
   # lobstr::obj_addr(tskit3)
   # "0x161ec00f0" --> different address because we are obtaining a new object
   # but it is still the same module
   expect_equal(tskit$`__name__`, tskit3$`__name__`)
+})
+
+test_that("check_tskit_py() validates python module objects", {
+  expect_message(
+    expect_false(check_tskit_py(1)),
+    "object must be a reticulate Python module object!"
+  )
+  expect_error(
+    check_tskit_py(1, stop = TRUE),
+    "object must be a reticulate Python module object!"
+  )
+
+  if (!reticulate::py_available(initialize = FALSE)) {
+    skip("Python not available for reticulate tests.")
+  }
+
+  obj <- reticulate::py_eval("1")
+  expect_message(
+    expect_false(check_tskit_py(obj)),
+    "object must be a reticulate Python module object"
+  )
+
+  sys <- reticulate::import("sys")
+  expect_silent(expect_true(check_tskit_py(sys)))
+
+  if (reticulate::py_module_available("tskit")) {
+    tskit <- get_tskit_py()
+    expect_true(check_tskit_py(tskit))
+  } else {
+    skip("tskit module not available for reticulate tests.")
+  }
 })
