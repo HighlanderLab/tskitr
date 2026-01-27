@@ -286,24 +286,23 @@ ts$num_individuals()
 ### 4) Call `tskit` C API in C++ code in another R package
 
 To call the `tskit` C API in your own R package via `Rcpp` you can leverage `RcppTskit`.
-Just follow the steps below.
-To see details of each step, see the files in the R package `AlphaSimR`
-at this commit (proof of concept of using `tskit` C API via `tskitr`[^1]):
-https://github.com/HighlanderLab/AlphaSimR/commit/12657b08e7054d88bc214413d13f36c7cde60d95
-(with time this implementation might require changes).
+Just follow the steps below and check how these were implemented in
+the test R package `RcppTskitTestPkgLinkingTo` at TODO.
 
-[^1]: At that time we named the package as `tskitr`.
-Simply replace `tskitr` with `RcppTskit`,
-respecting the lower and upper case depending on the file.
+a) Open `DESCRIPTION` file and add `RcppTskit` to the `LinkingTo:` field,
+  TODO: likely also `Imports:` field.
 
-a) Open `DESCRIPTION` file and add `RcppTskit` to the `LinkingTo:` field.
+  TODO: And Rcpp too?
 
 b) Add `#include <tskit.h>` as needed to your C++ header files in `src` directory.
 
-c) Call `tskit` C API as needed in your C++ code in `src` directory
-  (see examples in `RcppTskit`).
+c) Add `// [[Rcpp::depends(RcppTskit)]]` to your C++ files in `src` directory.
 
-d) Configure your package build to use the `RcppTskit` library file
+d) Add `// [[Rcpp::plugins(RcppTskit)]]` to your C++ files in `src` directory.
+
+e) Call `tskit` C API as needed in your C++ code in `src` directory.
+
+f) Configure your package build to use the `RcppTskit` library file
   with the following steps:
 
   - Add `src/Makevars.in` and `src/Makevars.win.in` files with
@@ -320,7 +319,7 @@ d) Configure your package build to use the `RcppTskit` library file
   - Add `cleanup` and `cleanup.win` scripts (and make them executable)
     to remove `src/Makevars` and `src/Makevars.win` as well as compilation files.
 
-e) You should now be ready to build, check, and install your package using
+g) You should now be ready to build, check, and install your package using
   `devtools::build()`, `devtools::check()`, and `devtools::install()`
   or their `R CMD` equivalents.
 
