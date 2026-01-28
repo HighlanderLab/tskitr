@@ -4,6 +4,8 @@
 
 `Tskit` enables performant storage, manipulation, and analysis of ancestral
 recombination graphs (ARGs) using succinct tree sequence encoding.
+The tree sequence encoding of an ARG is
+described in Wong et al. (2024) <doi:10.1093/genetics/iyae100>.
 See https://tskit.dev for project news, documentation, and tutorials.
 `Tskit` provides Python, C, and Rust application programming interfaces (APIs).
 The Python API can be called from R via the `reticulate` R package to
