@@ -293,7 +293,8 @@ To call the `tskit` C API in your own R package via `Rcpp`
 you can leverage `RcppTskit`, which will simplify your installation
 and enable you to quickly call
 To do this, follow the steps below and check how these were implemented in
-the test R package `RcppTskitTestLinkingTo` at https://github.com/HighlanderLab/RcppTskitTestLinking.
+the demo R package `RcppTskitTestLinkingTo` at
+https://github.com/HighlanderLab/RcppTskitTestLinking.
 
 a) Open `DESCRIPTION` file and
   add `RcppTskit` to the `Imports:` and `LinkingTo:` field, and further
@@ -332,31 +333,27 @@ h) You should now be ready to build, check, and install your package using
   `devtools::build()`, `devtools::check()`, and `devtools::install()`
   or their `R CMD` equivalents.
 
+Here is code you can run to check out `RcppTskitTestLinkingTo`:
+
 ```{r}
 #| label: use_case_4
 #| eval: false
-#| echo: false
+# Install and load the demo package
+remotes::install_github("HighlanderLab/RcppTskitTestLinking")
+library(RcppTskitTestLinking)
 
-# This code will not work atm because we used tskitr!
-# TODO: Create a minimal package to demonstrate how to link against RcppTskit and call tskit C API
+# Check the demo function
+print(ts_num_individuals_ptr2)
 
-# Install AlphaSimR
-# (Commit with a proof of concept of using tskit C API;
-#  study the file contents in there! Can also use later commits.)
-remotes::install_github(
-  repo = "HighlanderLab/AlphaSimR",
-  ref = "12657b08e7054d88bc214413d13f36c7cde60d95"
-)
-
-# Load packages
-library(RcppTskit)
-library(AlphaSimR)
-
-# Load tree sequence and count the number of individuals
-ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+# Example tree sequence
+ts_file <- system.file("examples", "test.trees", package = "RcppTskit")
 ts <- ts_load(ts_file)
-RcppTskit::ts_num_individuals(ts)
-AlphaSimR::ts_num_individuals2(ts)
+
+# Function from RcppTskit (working with TreeSequence R6 class)
+ts$num_individuals()
+
+# Function from RcppTskitTestLinking (working with externalptr)
+ts_num_individuals_ptr2(ts$pointer)
 ```
 
 ## Conclusion
