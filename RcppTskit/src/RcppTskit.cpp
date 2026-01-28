@@ -1,21 +1,4 @@
-#include <Rcpp.h>
-#include <tskit.h>
-
-// using namespace Rcpp; // to omit Rcpp:: prefix for whole Rcpp API
-// using Rcpp::IntegerVector; // to omit Rcpp:: prefix for IntegerVector
-
-// Finaliser to free tsk_treeseq_t when it is garbage collected
-// See \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_free}
-// for more details.
-static void RcppTskit_treeseq_xptr_delete(tsk_treeseq_t *ptr) {
-  if (ptr != NULL) {
-    tsk_treeseq_free(ptr);
-    delete ptr;
-  }
-}
-// Define the external pointer type for tsk_treeseq_t with the finaliser
-using RcppTskit_treeseq_xptr = Rcpp::XPtr<tsk_treeseq_t, Rcpp::PreserveStorage,
-                                          RcppTskit_treeseq_xptr_delete, true>;
+#include <RcppTskit.hpp>
 
 //' @title Report the version of installed kastore C API
 //' @details The version is stored in the installed header \code{kastore.h}.
@@ -341,39 +324,3 @@ Rcpp::String ts_metadata_ptr(const SEXP ts) {
   return Rcpp::String(metadata);
 }
 // # nocov end
-
-// # nocov start
-int table_collection_num_nodes_zero_check() {
-  tsk_table_collection_t tables;
-  int ret = tsk_table_collection_init(&tables, 0);
-  if (ret != 0) {
-    tsk_table_collection_free(&tables);
-    Rcpp::stop(tsk_strerror(ret));
-  }
-  int n = static_cast<int>(tables.nodes.num_rows);
-  tsk_table_collection_free(&tables);
-  return n;
-}
-// # nocov end
-
-// TODO: This will go into AlphaSimR
-// [[Rcpp::export]]
-SEXP ts_grow(SEXP ts) {
-  RcppTskit_treeseq_xptr ts_xptr(ts);
-  int ret;
-  ret = 0;
-  // TODO: What do we need to do here now? How do we grow a tree sequence?
-  //       Look into the simple example in C code online or look into what SLiM
-  //       is doing!?
-  if (ret != 0) {
-    // TODO: What should we do if something goes wrong? We can clearly throw an
-    //       error using Rcpp::stop(), but should we also do something with the
-    //       ts pointer and object? If we delete, we discard/delete past work,
-    //       but if we don't, do we risk of returning a corrupted ts?
-    // tsk_treeseq_free(ts_ptr);
-    // delete ts_ptr;
-    Rcpp::stop(tsk_strerror(ret));
-  }
-  return ts_xptr;
-  // return ret;
-}

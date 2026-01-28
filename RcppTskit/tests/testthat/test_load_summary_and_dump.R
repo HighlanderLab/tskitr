@@ -1,5 +1,3 @@
-context("ts_load(), ts_summary*(), and ts_dump()")
-
 test_that("ts_load(), ts_summary*(), and ts_dump(x) work", {
   # ---- ts_load() ----
 
@@ -42,84 +40,98 @@ test_that("ts_load(), ts_summary*(), and ts_dump(x) work", {
   n_ptr <- ts_num_provenances_ptr(ts_ptr)
   expect_true(is.integer(n_ptr))
   expect_equal(n_ptr, 2L)
+  expect_equal(ts$num_provenances(), 2L)
 
   expect_error(ts_num_populations_ptr())
   expect_error(ts_num_populations_ptr(ts))
   n_ptr <- ts_num_populations_ptr(ts_ptr)
   expect_true(is.integer(n_ptr))
   expect_equal(n_ptr, 1L)
+  expect_equal(ts$num_populations(), 1L)
 
   expect_error(ts_num_migrations_ptr())
   expect_error(ts_num_migrations_ptr(ts))
   n_ptr <- ts_num_migrations_ptr(ts_ptr)
   expect_true(is.integer(n_ptr))
   expect_equal(n_ptr, 0L)
+  expect_equal(ts$num_migrations(), 0L)
 
   expect_error(ts_num_individuals_ptr())
   expect_error(ts_num_individuals_ptr(ts))
   n_ptr <- ts_num_individuals_ptr(ts_ptr)
   expect_true(is.integer(n_ptr))
   expect_equal(n_ptr, 80L)
+  expect_equal(ts$num_individuals(), 80L)
 
   expect_error(ts_num_samples_ptr())
   expect_error(ts_num_samples_ptr(ts))
   n_ptr <- ts_num_samples_ptr(ts_ptr)
   expect_true(is.integer(n_ptr))
   expect_equal(n_ptr, 160L)
+  expect_equal(ts$num_samples(), 160L)
 
   expect_error(ts_num_nodes_ptr())
   expect_error(ts_num_nodes_ptr(ts))
   n_ptr <- ts_num_nodes_ptr(ts_ptr)
   expect_true(is.integer(n_ptr))
   expect_equal(n_ptr, 344L)
+  expect_equal(ts$num_nodes(), 344L)
 
   expect_error(ts_num_edges_ptr())
   expect_error(ts_num_edges_ptr(ts))
   n_ptr <- ts_num_edges_ptr(ts_ptr)
   expect_true(is.integer(n_ptr))
   expect_equal(n_ptr, 414L)
+  expect_equal(ts$num_edges(), 414L)
 
   expect_error(ts_num_trees_ptr())
   expect_error(ts_num_trees_ptr(ts))
   n_ptr <- ts_num_trees_ptr(ts_ptr)
   expect_true(is.integer(n_ptr))
   expect_equal(n_ptr, 26L)
+  expect_equal(ts$num_trees(), 26L)
 
   expect_error(ts_num_sites_ptr())
   expect_error(ts_num_sites_ptr(ts))
   n_ptr <- ts_num_sites_ptr(ts_ptr)
   expect_true(is.integer(n_ptr))
   expect_equal(n_ptr, 2376L)
+  expect_equal(ts$num_sites(), 2376L)
 
   expect_error(ts_num_mutations_ptr())
   expect_error(ts_num_mutations_ptr(ts))
   n_ptr <- ts_num_mutations_ptr(ts_ptr)
   expect_true(is.integer(n_ptr))
   expect_equal(n_ptr, 2700L)
+  expect_equal(ts$num_mutations(), 2700L)
 
   expect_error(ts_sequence_length_ptr())
   expect_error(ts_sequence_length_ptr(ts))
   n_ptr <- ts_sequence_length_ptr(ts_ptr)
   expect_true(is.numeric(n_ptr))
   expect_equal(n_ptr, 10000)
+  expect_equal(ts$sequence_length(), 10000)
 
   expect_error(ts_time_units_ptr())
   expect_error(ts_time_units_ptr(ts))
   c_ptr <- ts_time_units_ptr(ts_ptr)
   expect_true(is.character(c_ptr))
   expect_equal(c_ptr, "generations")
+  expect_equal(ts$time_units(), "generations")
 
   expect_error(ts_min_time_ptr())
   expect_error(ts_min_time_ptr(ts))
   d_ptr <- ts_min_time_ptr(ts_ptr)
   expect_true(is.numeric(d_ptr))
   expect_equal(d_ptr, 0.0)
+  expect_equal(ts$min_time(), 0.0)
 
   expect_error(ts_max_time_ptr())
   expect_error(ts_max_time_ptr(ts))
   d_ptr <- ts_max_time_ptr(ts_ptr)
   expect_true(is.numeric(d_ptr))
   expect_equal(d_ptr, 7.470281689748594)
+  expect_equal(ts$max_time(), 7.470281689748594)
 
   # ---- ts_print_ptr() and ts$print() ----
 

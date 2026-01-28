@@ -2,12 +2,13 @@
 
 ## Overview
 
-Tskit enables performant storage, manipulation, and analysis of ancestral
+`Tskit` enables performant storage, manipulation, and analysis of ancestral
 recombination graphs (ARGs) using succinct tree sequence encoding.
 See https://tskit.dev for project news, documentation, and tutorials.
-Tskit provides Python, C, and Rust APIs. The Python API can be called from R
-via the `reticulate` R package to seamlessly load and analyse a tree sequence,
-as described at https://tskit.dev/tutorials/RcppTskit.html.
+`Tskit` provides Python, C, and Rust application programming interfaces (APIs).
+The Python API can be called from R via the `reticulate` R package to
+seamlessly load and analyse a tree sequence, as described at
+https://tskit.dev/tutorials/RcppTskit.html.
 `RcppTskit` provides R access to the `tskit` C API for use cases where the
 `reticulate` option is not optimal. For example, for high-performance and
 low-level work with tree sequences. Currently, `RcppTskit` provides a limited
@@ -91,10 +92,11 @@ By contributing to this project, you agree to abide by its terms.
 
 ### Clone
 
-First clone the repository:
+First clone the repository and step into the directory:
 
 ```
 git clone https://github.com/HighlanderLab/RcppTskit.git
+cd RcppTskit
 ```
 
 ### Pre-commit install

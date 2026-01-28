@@ -4,14 +4,15 @@
 \name{RcppTskit-package}
 \alias{RcppTskit}
 \alias{RcppTskit-package}
-\title{RcppTskit: R access to the tskit C API}
+\title{RcppTskit: R Access to the Tskit C API}
 \description{
-Tskit enables performant storage, manipulation, and analysis of
+`Tskit` enables performant storage, manipulation, and analysis of
 ancestral recombination graphs (ARGs) using succinct tree sequence encoding.
 See https://tskit.dev for project news, documentation, and tutorials.
-Tskit provides Python, C, and Rust APIs. The Python API can be called from R
-via the `reticulate` R package to seamlessly load and analyse a tree sequence
-as described at https://tskit.dev/tutorials/tskitr.html.
+`Tskit` provides Python, C, and Rust application programming interfaces (APIs).
+The Python API can be called from R via the `reticulate` R package to
+seamlessly load and analyse a tree sequence as described at
+https://tskit.dev/tutorials/tskitr.html.
 `RcppTskit` provides R access to the `tskit` C API for use cases where the
 `reticulate` option is not optimal. For example, for high-performance
 and low-level work with tree sequences. Currently, `RcppTskit` provides a
@@ -24,12 +25,18 @@ vignette(package="RcppTskit")
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/highlanderlab/RcppTskit}
+  \item \url{https://github.com/HighlanderLab/RcppTskit}
+  \item Report bugs at \url{https://github.com/HighlanderLab/RcppTskit/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Gregor Gorjanc \email{gregor.gorjanc@gmail.com} (\href{https://orcid.org/0000-0001-8008-2787}{ORCID})
+\strong{Maintainer}: Gregor Gorjanc \email{gregor.gorjanc@gmail.com} (\href{https://orcid.org/0000-0001-8008-2787}{ORCID}) [copyright holder]
+
+Other contributors:
+\itemize{
+  \item Tskit Developers (Authors of included tskit C library) [copyright holder]
+}
 
 }
 \keyword{internal}

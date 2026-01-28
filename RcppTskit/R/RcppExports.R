@@ -95,10 +95,6 @@ ts_metadata_length_ptr <- function(ts) {
     .Call(`_RcppTskit_ts_metadata_length_ptr`, ts)
 }
 
-ts_grow <- function(ts) {
-    .Call(`_RcppTskit_ts_grow`, ts)
-}
-
 test_tsk_bug_assert_c <- function() {
     invisible(.Call(`_RcppTskit_test_tsk_bug_assert_c`))
 }

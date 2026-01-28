@@ -230,17 +230,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_grow
-SEXP ts_grow(SEXP ts);
-RcppExport SEXP _RcppTskit_ts_grow(SEXP tsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_grow(ts));
-    return rcpp_result_gen;
-END_RCPP
-}
 // test_tsk_bug_assert_c
 void test_tsk_bug_assert_c();
 RcppExport SEXP _RcppTskit_test_tsk_bug_assert_c() {
@@ -299,7 +288,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_ts_max_time_ptr", (DL_FUNC) &_RcppTskit_ts_max_time_ptr, 1},
     {"_RcppTskit_ts_summary_ptr", (DL_FUNC) &_RcppTskit_ts_summary_ptr, 1},
     {"_RcppTskit_ts_metadata_length_ptr", (DL_FUNC) &_RcppTskit_ts_metadata_length_ptr, 1},
-    {"_RcppTskit_ts_grow", (DL_FUNC) &_RcppTskit_ts_grow, 1},
     {"_RcppTskit_test_tsk_bug_assert_c", (DL_FUNC) &_RcppTskit_test_tsk_bug_assert_c, 0},
     {"_RcppTskit_test_tsk_bug_assert_cpp", (DL_FUNC) &_RcppTskit_test_tsk_bug_assert_cpp, 0},
     {"_RcppTskit_test_tsk_trace_error_c", (DL_FUNC) &_RcppTskit_test_tsk_trace_error_c, 0},

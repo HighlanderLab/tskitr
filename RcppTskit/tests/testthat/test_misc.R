@@ -1,5 +1,3 @@
-context("misc")
-
 test_that("kastore_version() works", {
   v <- kastore_version()
   expect_true(is.integer(v))

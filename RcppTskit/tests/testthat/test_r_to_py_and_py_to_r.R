@@ -1,5 +1,3 @@
-context("r_to_py() and py_to_r()")
-
 skip_if_no_tskit_py <- function() {
   if (!covr::in_covr()) {
     # To get_tskit_py() we need internet connection
@@ -22,7 +20,7 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
 
   expect_error(
     ts_r$r_to_py(tskit_module = "bla"),
-    regexp = "tskit_module must be a reticulate Python module object!"
+    regexp = "object must be a reticulate Python module object!"
   )
   ts_py <- ts_r$r_to_py()
 
@@ -68,7 +66,7 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
   )
   expect_error(
     ts_r_to_py_ptr(ts_r$pointer, tskit_module = "not_a_module"),
-    regexp = "tskit_module must be a reticulate Python module object!"
+    regexp = "object must be a reticulate Python module object!"
   )
   ts_py <- ts_r_to_py_ptr(ts_r$pointer)
 
