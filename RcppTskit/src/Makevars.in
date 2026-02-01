@@ -32,12 +32,12 @@ OBJECTS = $(TSKIT_OBJECTS) $(RCPPTSKIT_OBJECTS)
 
 # Include paths and preprocessor defines
 # * A bit complicated include/tskit structure due to how we include tskit headers
-# * $(R_HOME)/include is for <R_ext/Error.h>
+# * $(R_INCLUDE_DIR) is for <R_ext/Error.h>
 PKG_CPPFLAGS = \
 	-I../inst/include \
 	-I../inst/include/tskit \
 	-I../inst/include/tskit/tskit \
-	-I$(R_HOME)/include
+	-I$(R_INCLUDE_DIR)
 
 # Compiler flags
 PKG_CFLAGS = -DNDEBUG # to remove calls to assert() as per the R extensions manual
@@ -46,7 +46,7 @@ PKG_CFLAGS = -DNDEBUG # to remove calls to assert() as per the R extensions manu
 
 # Explicit compile rule for tskit C files
 tskit/%.o: tskit/%.c
-	$(CC) $(PKG_CPPFLAGS) $(PKG_CFLAGS) $(CFLAGS) $(CPICFLAGS) -c $< -o $@
+	$(CC) $(ALL_CPPFLAGS) $(PKG_CFLAGS) $(CFLAGS) $(CPICFLAGS) -c $< -o $@
 
 # Linking
 PKG_LIBS = @RCPPTSKIT_LIB@
