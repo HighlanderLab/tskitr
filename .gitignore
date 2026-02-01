@@ -5,8 +5,8 @@
 .Ruserdata
 .vscode
 *.Rproj
-cran-comments.html
-cran-comments_files/
+RcppTskit/cran-comments.html
+RcppTskit/cran-comments_files/
 RcppTskit/**/.quarto/
 RcppTskit/inst/doc
 RcppTskit/src/*.o
@@ -18,4 +18,6 @@ RcppTskit/src/Makevars.win
 RcppTskit/vignettes/*.html
 RcppTskit/vignettes/*.R
 RcppTskit/vignettes/*_files/
+README.html
+README_files/
 test.trees
