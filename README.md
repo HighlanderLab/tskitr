@@ -26,15 +26,16 @@ to develop new R packages.
 
 <!-- badges: start -->
 
+<!-- line 1 -->
 General: [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) <!-- Row 1, Col 1 --> [![Development](https://img.shields.io/badge/development-active-blue.svg)](https://img.shields.io/badge/development-active-blue.svg) <!-- Row 1, Col 2 --> [![Licence](https://img.shields.io/badge/licence-MIT-blue.svg)](https://opensource.org/licenses/MIT) <!-- Row 1, Col 3 -->
 
-<!-- line break 1 -->
-Release: [![CRAN version](https://www.r-pkg.org/badges/version/RcppTskit)](https://CRAN.R-project.org/package=RcppTskit) <!-- Row 2, Col 1 --> ![GitHub version (main)](https://img.shields.io/github/r-package/v/HighlanderLab/RcppTskit/main?filename=RcppTskit%2FDESCRIPTION&label=Github) <!-- Row 2, Col 2 --> [![Downloads - total](https://cranlogs.r-pkg.org/badges/grand-total/RcppTskit)](https://cranlogs.r-pkg.org/badges/grand-total/RcppTskit) <!-- Row 2, Col 3 -->
+<!-- line 2 -->
+Release: [![CRAN version](https://www.r-pkg.org/badges/version/RcppTskit)](https://CRAN.R-project.org/package=RcppTskit) <!-- Row 2, Col 1 --> [![Downloads - total](https://cranlogs.r-pkg.org/badges/grand-total/RcppTskit)](https://cranlogs.r-pkg.org/badges/grand-total/RcppTskit) <!-- Row 2, Col 2 --> ![GitHub version (main)](https://img.shields.io/github/r-package/v/HighlanderLab/RcppTskit/main?filename=RcppTskit%2FDESCRIPTION&label=Github) <!-- Row 2, Col 3 -->
 
-<!-- line break 2 -->
-R CMD checks: [![CRAN R CMD checks](https://cranchecks.info/badges/summary/RcppTskit)](https://cran.r-project.org/web/checks/check_results_RcppTskit.html) <!-- Row 3, Col 1 --> [![R universe R CMD checks](https://highlanderlab.r-universe.dev/RcppTskit/badges/checks)](https://highlanderlab.r-universe.dev/RcppTskit) <!-- Row 3, Col 2 --> [![GitHub R CMD checks](https://img.shields.io/github/actions/workflow/status/HighlanderLab/RcppTskit/R-CMD-check.yaml?label=GitHub%20R%20CMD%20check)](https://github.com/HighlanderLab/RcppTskit/actions/workflows/R-CMD-check.yaml)
+<!-- line 3 -->
+R CMD checks: [![CRAN](https://cranchecks.info/badges/summary/RcppTskit?label=CRAN)](https://cran.r-project.org/web/checks/check_results_RcppTskit.html) <!-- Row 3, Col 1 --> [![R universe](https://highlanderlab.r-universe.dev/RcppTskit/badges/checks?label=R-universe)](https://highlanderlab.r-universe.dev/RcppTskit) <!-- Row 3, Col 2 --> [![GitHub](https://img.shields.io/github/actions/workflow/status/HighlanderLab/RcppTskit/R-CMD-check.yaml?label=GitHub)](https://github.com/HighlanderLab/RcppTskit/actions/workflows/R-CMD-check.yaml)
 
-<!-- line break 2 -->
+<!-- line 4 -->
 Code quality: [![Codecov test coverage](https://codecov.io/gh/HighlanderLab/RcppTskit/graph/badge.svg)](https://app.codecov.io/gh/HighlanderLab/RcppTskit) <!-- Row 4, Col 1 -->
 
 <!-- badges: end -->
@@ -45,7 +46,7 @@ Code quality: [![Codecov test coverage](https://codecov.io/gh/HighlanderLab/Rcpp
     obtaining the latest version and copying the `tskit` C code into
     `RcppTskit` directory.
     `extern` is saved outside of the `RcppTskit` directory
-    because `R CMD CHECK` complains otherwise.
+    because `R CMD CHECK` complains otherwise (even with `.Rbuildignore`).
 
   * `RcppTskit` - R package `RcppTskit`.
 
