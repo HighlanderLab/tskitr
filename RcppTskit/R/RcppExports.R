@@ -111,3 +111,7 @@ test_tsk_trace_error_cpp <- function() {
     invisible(.Call(`_RcppTskit_test_tsk_trace_error_cpp`))
 }
 
+tsk_trace_errors_defined <- function() {
+    .Call(`_RcppTskit_tsk_trace_errors_defined`)
+}
+
