@@ -41,16 +41,20 @@ PKG_CPPFLAGS = \
 
 # *Compiler (C/CXX)* flags
 # Uncomment for local debugging
+# SAN_FLAGS enables ASan/UBSan to catch memory/UB errors in dev builds (only run R in terminal!)
 # TSK_TRACE_ERRORS enables tskit C error tracing
-SAN_FLAGS = -g -O1 -fno-omit-frame-pointer -fsanitize=address,undefined -fno-common
-RCPPTSKIT_CFLAGS = $(SAN_FLAGS) -DTSK_TRACE_ERRORS
-RCPPTSKIT_CXXFLAGS = $(SAN_FLAGS) -DTSK_TRACE_ERRORS
-RCPPTSKIT_LDFLAGS = -fsanitize=address,undefined
+# DEBUG_OPT = -g -O1 # -O1 is needed for many of the below flags
+# WARN_FLAGS = $(DEBUG_OPT) -Wall -Wextra -Wpedantic -Wuninitialized
+# SAN_FLAGS = $(DEBUG_OPT) -fno-omit-frame-pointer -fsanitize=address,undefined -fno-common
+# DEV_FLAGS = $(SAN_FLAGS) $(WARN_FLAGS) -DTSK_TRACE_ERRORS
+# RCPPTSKIT_CFLAGS = $(DEV_FLAGS)
+# RCPPTSKIT_CXXFLAGS = $(DEV_FLAGS)
+# RCPPTSKIT_LDFLAGS = -fsanitize=address,undefined
 # Uncomment for release builds
 # NDEBUG removes calls to assert()
-# RCPPTSKIT_CFLAGS = -DNDEBUG
-# RCPPTSKIT_CXXFLAGS = -DNDEBUG
-# RCPPTSKIT_LDFLAGS =
+RCPPTSKIT_CFLAGS = -DNDEBUG
+RCPPTSKIT_CXXFLAGS = -DNDEBUG
+RCPPTSKIT_LDFLAGS =
 # Use the above choices
 PKG_CFLAGS = $(RCPPTSKIT_CFLAGS)
 PKG_CXXFLAGS = $(RCPPTSKIT_CXXFLAGS)
