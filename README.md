@@ -18,7 +18,7 @@ number of R functions due to the availability of extensive Python API and
 the `reticulate` option.
 
 See more details on the state of the tree sequence ecosystem and aims of
-`RcppTskit` in [RcppTskit/vignettes/RcppTskit_intro.qmd](RcppTskit/vignettes/RcppTskit_intro.qmd).
+`RcppTskit` in [the introduction vignette](https://highlanderlab.r-universe.dev/articles/RcppTskit/RcppTskit_intro.html) ([source](RcppTskit/vignettes/RcppTskit_intro.qmd)).
 The vignette also shows examples on how to use `RcppTskit` on its own or
 to develop new R packages.
 
