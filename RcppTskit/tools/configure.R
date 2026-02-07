@@ -1,8 +1,5 @@
 #!/usr/bin/env Rscript
 
-# TODO: Check if we can link AlphaSimR against RcppTskit on Windows and Linux #40
-#       https://github.com/HighlanderLab/RcppTskit/issues/40
-
 # Set platform-specific linker flags for RcppTskit
 setRcppTskitLibAndFlags <- function() {
   sysname <- Sys.info()[["sysname"]]
@@ -53,7 +50,7 @@ if (.Platform$OS.type == "unix") {
     template = "src/Makevars.in",
     output = "src/Makevars"
   )
-} else {
+} else if (.Platform$OS.type == "windows") {
   # readLines(con = "src/Makevars.win.in")
   success <- renderMakevars(
     # Currently, both Unix and Windows use the same template
@@ -61,6 +58,8 @@ if (.Platform$OS.type == "unix") {
     template = "src/Makevars.in",
     output = "src/Makevars.win"
   )
+} else {
+  stop("Unknown .Platform$OS.type!")
 }
 if (!success) {
   stop("renderMakevars() failed!")

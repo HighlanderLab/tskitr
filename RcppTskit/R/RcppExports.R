@@ -95,10 +95,6 @@ ts_metadata_length_ptr <- function(ts) {
     .Call(`_RcppTskit_ts_metadata_length_ptr`, ts)
 }
 
-ts_grow <- function(ts) {
-    .Call(`_RcppTskit_ts_grow`, ts)
-}
-
 test_tsk_bug_assert_c <- function() {
     invisible(.Call(`_RcppTskit_test_tsk_bug_assert_c`))
 }
@@ -113,5 +109,9 @@ test_tsk_trace_error_c <- function() {
 
 test_tsk_trace_error_cpp <- function() {
     invisible(.Call(`_RcppTskit_test_tsk_trace_error_cpp`))
+}
+
+tsk_trace_errors_defined <- function() {
+    .Call(`_RcppTskit_tsk_trace_errors_defined`)
 }
 

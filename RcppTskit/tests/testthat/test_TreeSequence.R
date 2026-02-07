@@ -1,5 +1,3 @@
-context("TreeSequence$new()")
-
 test_that("TreeSequence$new() works", {
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
   expect_error(TreeSequence$new(), regexp = "Provide a file name or a pointer!")

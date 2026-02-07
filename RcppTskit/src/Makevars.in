@@ -30,23 +30,38 @@ RCPPTSKIT_OBJECTS = $(RCPPTSKIT_C_SOURCES:.c=.o) $(RCPPTSKIT_CPP_SOURCES:.cpp=.o
 OBJECTS = $(TSKIT_OBJECTS) $(RCPPTSKIT_OBJECTS)
 # $(info OBJECTS = $(OBJECTS)) # for debugging, info is also a GNU extension
 
-# Include paths and preprocessor defines
+# *Preprocessor (CPP)* flags for include paths and defines
 # * A bit complicated include/tskit structure due to how we include tskit headers
-# * $(R_HOME)/include is for <R_ext/Error.h>
+# * $(R_INCLUDE_DIR) is for <R_ext/Error.h>
 PKG_CPPFLAGS = \
 	-I../inst/include \
 	-I../inst/include/tskit \
 	-I../inst/include/tskit/tskit \
-	-I$(R_HOME)/include
+	-I$(R_INCLUDE_DIR)
 
-# Compiler flags
-PKG_CFLAGS = -DNDEBUG # to remove calls to assert() as per the R extensions manual
-# PKG_CFLAGS = -DNDEBUG -DTSK_TRACE_ERRORS # to also enable error tracing in tskit C
-# PKG_CXXFLAGS = -DTSK_TRACE_ERRORS # to also enable error tracing in tskit C as called from Rcpp
+# *Compiler (C/CXX)* flags
+# Uncomment for local debugging
+# SAN_FLAGS enables ASan/UBSan to catch memory/UB errors in dev builds (only run R in terminal!)
+# TSK_TRACE_ERRORS enables tskit C error tracing
+# DEBUG_OPT = -g -O1 # -O1 is needed for many of the below flags
+# WARN_FLAGS = $(DEBUG_OPT) -Wall -Wextra -Wpedantic -Wuninitialized
+# SAN_FLAGS = $(DEBUG_OPT) -fno-omit-frame-pointer -fsanitize=address,undefined -fno-common
+# DEV_FLAGS = $(SAN_FLAGS) $(WARN_FLAGS) -DTSK_TRACE_ERRORS
+# RCPPTSKIT_CFLAGS = $(DEV_FLAGS)
+# RCPPTSKIT_CXXFLAGS = $(DEV_FLAGS)
+# RCPPTSKIT_LDFLAGS = -fsanitize=address,undefined
+# Uncomment for release builds
+# NDEBUG removes calls to assert()
+RCPPTSKIT_CFLAGS = -DNDEBUG
+RCPPTSKIT_CXXFLAGS = -DNDEBUG
+RCPPTSKIT_LDFLAGS =
+# Use the above choices
+PKG_CFLAGS = $(RCPPTSKIT_CFLAGS)
+PKG_CXXFLAGS = $(RCPPTSKIT_CXXFLAGS)
 
 # Explicit compile rule for tskit C files
 tskit/%.o: tskit/%.c
-	$(CC) $(PKG_CPPFLAGS) $(PKG_CFLAGS) $(CFLAGS) $(CPICFLAGS) -c $< -o $@
+	$(CC) $(ALL_CPPFLAGS) $(PKG_CFLAGS) $(CFLAGS) $(CPICFLAGS) -c $< -o $@
 
 # Linking
-PKG_LIBS = @RCPPTSKIT_LIB@
+PKG_LIBS = @RCPPTSKIT_LIB@ $(RCPPTSKIT_LDFLAGS)

@@ -9,7 +9,7 @@ ts_py_to_r(ts, cleanup = TRUE)
 \arguments{
 \item{ts}{tree sequence in reticulate Python.}
 
-\item{cleanup}{logical delete the temporary file at the end of the function?}
+\item{cleanup}{logical; delete the temporary file at the end of the function?}
 }
 \value{
 A \code{\link{TreeSequence}} object.
@@ -23,16 +23,18 @@ ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 
 # Use the tskit Python API to work with a tree sequence (via reticulate)
 tskit <- get_tskit_py()
-ts_py <- tskit$load(ts_file)
-is(ts_py)
-ts_py$num_samples # 160
-ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
-ts2_py$num_samples # 4
+if (check_tskit_py(tskit)) {
+  ts_py <- tskit$load(ts_file)
+  is(ts_py)
+  ts_py$num_samples # 160
+  ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
+  ts2_py$num_samples # 4
 
-# Transfer the tree sequence to R and use RcppTskit
-ts2_r <- ts_py_to_r(ts2_py)
-is(ts2_r)
-ts2_r$num_samples() # 4
+  # Transfer the tree sequence to R and use RcppTskit
+  ts2_r <- ts_py_to_r(ts2_py)
+  is(ts2_r)
+  ts2_r$num_samples() # 4
+}
 }
 \seealso{
 \code{\link[=TreeSequence]{TreeSequence$r_to_py}}

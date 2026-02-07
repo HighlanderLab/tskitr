@@ -5,4 +5,4 @@
 rm -f src/Makevars.win
 
 # Removing compilation files
-rm -f src/*.o src/tskit/*.o src/*.dll
+rm -f src/*.o src/tskit/*.o src/*.dll src/*.dll.a

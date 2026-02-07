@@ -1,0 +1,2 @@
+The tskit C library is distributed under the MIT license.
+Full copies of the license are included in `inst/include/tskit/LICENSE` and `src/tskit/LICENSE.

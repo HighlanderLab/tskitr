@@ -2,42 +2,57 @@
 
 ## Overview
 
-Tskit enables performant storage, manipulation, and analysis of ancestral
+`Tskit` enables performant storage, manipulation, and analysis of ancestral
 recombination graphs (ARGs) using succinct tree sequence encoding.
+The tree sequence encoding of an ARG is
+described in Wong et al. (2024) <doi:10.1093/genetics/iyae100>.
 See https://tskit.dev for project news, documentation, and tutorials.
-Tskit provides Python, C, and Rust APIs. The Python API can be called from R
-via the `reticulate` R package to seamlessly load and analyse a tree sequence,
-as described at https://tskit.dev/tutorials/RcppTskit.html.
+`Tskit` provides Python, C, and Rust application programming interfaces (APIs).
+The Python API can be called from R via the `reticulate` R package to
+seamlessly load and analyse a tree sequence, as described at
+https://tskit.dev/tutorials/RcppTskit.html.
 `RcppTskit` provides R access to the `tskit` C API for use cases where the
-`reticulate` approach is not optimal. For example, for high-performance and
-low-level work with tree sequences. Currently, `RcppTskit` provides a very limited
+`reticulate` option is not optimal. For example, for high-performance and
+low-level work with tree sequences. Currently, `RcppTskit` provides a limited
 number of R functions due to the availability of extensive Python API and
-the `reticulate` approach.
+the `reticulate` option.
 
-See more details on the state of the tree sequence ecosystem and aims for
-`RcppTskit` in [RcppTskit/inst/STATE_and_AIMS.md](RcppTskit/inst/STATE_and_AIMS.md),
-including examples on how to use it on its own or to develop new R packages.
-
-TODO: Think how to best point to use cases. Probably best to point to vignette and pkgdown!?
-      https://github.com/HighlanderLab/RcppTskit/issues/10
+See more details on the state of the tree sequence ecosystem and aims of
+`RcppTskit` in [the introduction vignette](https://highlanderlab.r-universe.dev/articles/RcppTskit/RcppTskit_intro.html) ([source](RcppTskit/vignettes/RcppTskit_intro.qmd)).
+The vignette also shows examples on how to use `RcppTskit` on its own or
+to develop new R packages.
 
 ## Status
 
 <!-- badges: start -->
 
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) <!-- Row 1, Col 1 --> [![Development](https://img.shields.io/badge/development-active-blue.svg)](https://img.shields.io/badge/development-active-blue.svg) <!-- Row 1, Col 2 --> [![Licence](https://img.shields.io/badge/licence-MIT-blue.svg)](https://opensource.org/licenses/MIT) <!-- Row 1, Col 3 -->
+<!-- Row 1 -->
+General: [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) <!-- Col-1-End -->
+[![Development](https://img.shields.io/badge/development-active-blue.svg)](https://img.shields.io/badge/development-active-blue.svg) <!-- Col-2-End -->
+[![Licence](https://img.shields.io/badge/licence-MIT-blue.svg)](https://opensource.org/licenses/MIT) <!-- Col-3-End -->
 
-<!-- line break 1 -->
-[![CRAN version](https://www.r-pkg.org/badges/version/RcppTskit)](https://CRAN.R-project.org/package=RcppTskit) <!-- Row 2, Col 1 --> ![GitHub version (main)](https://img.shields.io/github/r-package/v/HighlanderLab/RcppTskit/main?filename=RcppTskit%2FDESCRIPTION&label=Github) <!-- Row 2, Col 2 --> [![Downloads - total](https://cranlogs.r-pkg.org/badges/grand-total/RcppTskit)](https://cranlogs.r-pkg.org/badges/grand-total/RcppTskit) <!-- Row 2, Col 3 -->
+<!-- Row 2 -->
+Release: [![CRAN version](https://www.r-pkg.org/badges/version/RcppTskit)](https://CRAN.R-project.org/package=RcppTskit) <!-- Col-1-End -->
+[![Downloads - total](https://cranlogs.r-pkg.org/badges/grand-total/RcppTskit)](https://cranlogs.r-pkg.org/badges/grand-total/RcppTskit) <!-- Col-2-End -->
+![GitHub version (main)](https://img.shields.io/github/r-package/v/HighlanderLab/RcppTskit/main?filename=RcppTskit%2FDESCRIPTION&label=Github) <!-- Col-3-End -->
 
-<!-- line break 2 -->
-[![CRAN R CMD check](https://cranchecks.info/badges/summary/RcppTskit)](https://cran.r-project.org/web/checks/check_results_RcppTskit.html) <!-- Row 3, Col 1 --> ![GitHub R CMD check](https://img.shields.io/github/actions/workflow/status/HighlanderLab/RcppTskit/R-CMD-check.yaml?label=GitHub%20R%20CMD%20check) <!-- Row 3, Col 2 --> [![Codecov test coverage](https://codecov.io/gh/HighlanderLab/RcppTskit/graph/badge.svg)](https://app.codecov.io/gh/HighlanderLab/RcppTskit) <!-- Row 3, Col 3 -->
+<!-- Row 3 -->
+R CMD checks: [![CRAN](https://cranchecks.info/badges/summary/RcppTskit?label=CRAN)](https://cran.r-project.org/web/checks/check_results_RcppTskit.html) <!-- Col-1-End -->
+[![R universe](https://highlanderlab.r-universe.dev/RcppTskit/badges/checks?label=R-universe)](https://highlanderlab.r-universe.dev/RcppTskit) <!-- Col-2-End -->
+[![GitHub](https://img.shields.io/github/actions/workflow/status/HighlanderLab/RcppTskit/R-CMD-check.yaml?label=GitHub)](https://github.com/HighlanderLab/RcppTskit/actions/workflows/R-CMD-check.yaml) <!-- Col-3-End -->
+
+<!-- Row 4 -->
+Code quality: [![Codecov test coverage](https://codecov.io/gh/HighlanderLab/RcppTskit/graph/badge.svg)](https://app.codecov.io/gh/HighlanderLab/RcppTskit) <!-- Col-1-End -->
 
 <!-- badges: end -->
 
 ## Contents
 
-  * `extern` - Git submodule for `tskit` and instructions on obtaining the latest version and copying the `tskit` C code into `RcppTskit` directory. `extern` is saved outside of the `RcppTskit` directory because `R CMD CHECK` complains otherwise.
+  * `extern` - Git submodule for `tskit` and instructions on
+    obtaining the latest version and copying the `tskit` C code into
+    `RcppTskit` directory.
+    `extern` is saved outside of the `RcppTskit` directory
+    because `R CMD CHECK` complains otherwise (even with `.Rbuildignore`).
 
   * `RcppTskit` - R package `RcppTskit`.
 
@@ -67,33 +82,39 @@ https://mac.r-project.org/tools for macOS tools.
 ```
 # install.packages("remotes") # If you don't have it already
 
-# Release (TODO)
+# Release
 # TODO: Tag a release #15
 #       https://github.com/HighlanderLab/RcppTskit/issues/15
 # remotes::install_github("HighlanderLab/RcppTskit/RcppTskit")
 
 # Main branch
-remotes::install_github("HighlanderLab/RcppTskit/RcppTskit")
+remotes::install_github("HighlanderLab/RcppTskit/RcppTskit@main")
 
 # Development branch
-# TODO: Create a devel branch #16
-#       https://github.com/HighlanderLab/RcppTskit/issues/16
-# remotes::install_github("HighlanderLab/RcppTskit/RcppTskit@devel")
+remotes::install_github("HighlanderLab/RcppTskit/RcppTskit@devel")
 ```
 
 ## Development
 
+### Code of Conduct
+
+Please note that the `RcppTskit` project is released with a
+[Contributor Code of Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.
+
 ### Clone
 
-First clone the repository:
+First clone the repository and step into the directory:
 
 ```
 git clone https://github.com/HighlanderLab/RcppTskit.git
+cd RcppTskit
 ```
 
 ### Pre-commit install
 
-We use [pre-commit](https://pre-commit.com) hooks to ensure code quality. Specifically, we use:
+We use [pre-commit](https://pre-commit.com) hooks to ensure code quality.
+Specifically, we use:
 * [air](https://github.com/posit-dev/air) to format R code,
 * [jarl](https://github.com/etiennebacher/jarl) to lint R code,
 * [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format C/C++ code, and
@@ -111,7 +132,8 @@ If you plan to update `tskit`, follow instructions in `extern/README.md`.
 
 ### RcppTskit
 
-Then open `RcppTskit` package directory in your favourite R IDE (Positron, RStudio, text-editor-of-your-choice, etc.) and implement your changes.
+Then open `RcppTskit` package directory in your favourite R IDE
+(Positron, RStudio, text-editor-of-your-choice, etc.) and implement your changes.
 
 You should routinely check your changes (in R):
 
@@ -161,6 +183,8 @@ pre-commit run --all-files
 
 ### Continuous integration
 
-We use Github Actions to run continuous integration (CI) checks on each push and pull request. Specifically, we run:
+We use Github Actions to run continuous integration (CI) checks
+on each push and pull request.
+Specifically, we run:
 * [R CMD check](.github/workflows/R-CMD-check.yaml) on multiple platforms and
 * [covr test coverage](.github/workflows/covr.yaml).

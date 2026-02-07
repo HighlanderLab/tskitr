@@ -10,7 +10,7 @@ ts_load(file, options = 0L)
 ts_read(file, options = 0L)
 }
 \arguments{
-\item{file}{a string specifying the full path of the tree sequence file.}
+\item{file}{a string specifying the full path to a tree sequence file.}
 
 \item{options}{integer bitwise options (see details at
 \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_load}).}
