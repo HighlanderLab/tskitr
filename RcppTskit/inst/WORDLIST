@@ -3,13 +3,17 @@ ARGs
 ORCID
 Rcpp
 SLiM
+TableCollection
 TreeSequence
 Tskit
+bitmask
 doi
 etc
 finaliser
 iyae
 kastore
 msprime
+tc
+ts
 tskit
 tskitr

@@ -15,12 +15,12 @@ TSKIT_OBJECTS = $(TSKIT_SOURCES:.c=.o)
 
 # RcppTskit C/C++ sources & objects
 RCPPTSKIT_C_SOURCES = \
-	test_tsk_abort_stderr_c.c
+	tests_c.c
 # $(info RCPPTSKIT_C_SOURCES = $(RCPPTSKIT_C_SOURCES)) # for debugging, info is also a GNU extension
 # RCPPTSKIT_CPP_SOURCES = $(wildcard *.cpp) # wildcard is a GNU extension and not desired on CRAN
 RCPPTSKIT_CPP_SOURCES = \
 	RcppTskit.cpp \
-	test_tsk_abort_stderr.cpp \
+	tests.cpp \
 	RcppExports.cpp
 # $(info RCPPTSKIT_CPP_SOURCES = $(RCPPTSKIT_CPP_SOURCES)) # for debugging, info is also a GNU extension
 RCPPTSKIT_OBJECTS = $(RCPPTSKIT_C_SOURCES:.c=.o) $(RCPPTSKIT_CPP_SOURCES:.cpp=.o)

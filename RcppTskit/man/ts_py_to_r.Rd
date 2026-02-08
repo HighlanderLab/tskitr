@@ -26,14 +26,17 @@ tskit <- get_tskit_py()
 if (check_tskit_py(tskit)) {
   ts_py <- tskit$load(ts_file)
   is(ts_py)
-  ts_py$num_samples # 160
+  ts_py$num_individuals # 80
   ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
-  ts2_py$num_samples # 4
+  ts_py$num_individuals # 80
+  ts2_py$num_individuals # 2
+  ts2_py$num_nodes # 10
+  ts2_py$tables$nodes$time # 0.0 ... 7.4702817
 
   # Transfer the tree sequence to R and use RcppTskit
   ts2_r <- ts_py_to_r(ts2_py)
   is(ts2_r)
-  ts2_r$num_samples() # 4
+  ts2_r$num_individuals() # 2
 }
 }
 \seealso{

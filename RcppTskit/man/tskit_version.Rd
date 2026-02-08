@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{tskit_version}
 \alias{tskit_version}
-\title{Report the version of installed tskit C API}
+\title{Report the version of installed \code{tskit} C API}
 \usage{
 tskit_version()
 }
@@ -11,7 +11,7 @@ A named vector with three elements \code{major}, \code{minor}, and
   \code{patch}.
 }
 \description{
-Report the version of installed tskit C API
+Report the version of installed \code{tskit} C API
 }
 \details{
 The version is defined in the installed header \code{tskit/core.h}.

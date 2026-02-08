@@ -7,7 +7,7 @@
 An R6 class holding an external pointer to a tree sequence
 object. As an R6 class, its methods look Pythonic and therefore resemble the
 tskit Python API. Since the class only holds the pointer, it is lightweight.
-Currently there is a limited set of methods for summarising the tree sequence.
+Currently there is a limited set of R methods for working with the tree sequence.
 }
 \examples{
 
@@ -35,6 +35,15 @@ ts$dump(dump_file)
 ts$write(dump_file) # alias
 
 ## ------------------------------------------------
+## Method `TreeSequence$dump_tables`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+ts <- ts_load(ts_file)
+tc <- ts$dump_tables()
+is(tc)
+
+## ------------------------------------------------
 ## Method `TreeSequence$print`
 ## ------------------------------------------------
 
@@ -50,16 +59,19 @@ ts
 ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 ts_r <- ts_load(ts_file)
 is(ts_r)
-ts_r$num_samples() # 160
+ts_r$num_individuals() # 80
 
 # Transfer the tree sequence to reticulate Python and use tskit Python API
 tskit <- get_tskit_py()
 if (check_tskit_py(tskit)) {
   ts_py <- ts_r$r_to_py()
   is(ts_py)
-  ts_py$num_samples # 160
+  ts_py$num_individuals # 80
   ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
-  ts2_py$num_samples # 4
+  ts_py$num_individuals # 80
+  ts2_py$num_individuals # 2
+  ts2_py$num_nodes # 10
+  ts2_py$tables$nodes$time # 0.0 ... 7.4702817
 }
 
 ## ------------------------------------------------
@@ -201,6 +213,7 @@ ts$metadata_length()
 \item \href{#method-TreeSequence-new}{\code{TreeSequence$new()}}
 \item \href{#method-TreeSequence-dump}{\code{TreeSequence$dump()}}
 \item \href{#method-TreeSequence-write}{\code{TreeSequence$write()}}
+\item \href{#method-TreeSequence-dump_tables}{\code{TreeSequence$dump_tables()}}
 \item \href{#method-TreeSequence-print}{\code{TreeSequence$print()}}
 \item \href{#method-TreeSequence-r_to_py}{\code{TreeSequence$r_to_py()}}
 \item \href{#method-TreeSequence-num_provenances}{\code{TreeSequence$num_provenances()}}
@@ -228,7 +241,12 @@ ts$metadata_length()
 Create a \code{\link{TreeSequence}} from a file or a pointer.
   See \code{\link{ts_load}} for details and examples.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TreeSequence$new(file, options = 0L, pointer = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TreeSequence$new(
+  file,
+  skip_tables = FALSE,
+  skip_reference_sequence = FALSE,
+  pointer = NULL
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -236,13 +254,20 @@ Create a \code{\link{TreeSequence}} from a file or a pointer.
 \describe{
 \item{\code{file}}{a string specifying the full path of the tree sequence file.}
 
-\item{\code{options}}{integer bitwise options (see details at
-\url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_load}).}
+\item{\code{skip_tables}}{logical; if \code{TRUE}, load only non-table information.}
+
+\item{\code{skip_reference_sequence}}{logical; if \code{TRUE}, skip loading
+reference sequence information.}
 
 \item{\code{pointer}}{an external pointer (\code{externalptr}) to a tree sequence.}
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Details}{
+See the corresponding Python function at
+  \url{https://tskit.dev/tskit/docs/latest/python-api.html#tskit.load}.
+}
+
 \subsection{Returns}{
 A \code{\link{TreeSequence}} object.
 }
@@ -268,19 +293,21 @@ is(ts)
 \subsection{Method \code{dump()}}{
 Write a tree sequence to a file.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TreeSequence$dump(file, options = 0L)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TreeSequence$dump(file)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{file}}{a string specifying the full path of the tree sequence file.}
-
-\item{\code{options}}{integer bitwise options (see details at
-\url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_dump}).}
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Details}{
+See the corresponding Python function at
+  \url{https://tskit.dev/tskit/docs/latest/python-api.html#tskit.TreeSequence.dump}.
+}
+
 \subsection{Returns}{
 No return value; called for side effects.
 }
@@ -303,18 +330,45 @@ ts$write(dump_file) # alias
 \subsection{Method \code{write()}}{
 Alias for \code{\link[=TreeSequence]{TreeSequence$dump}}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TreeSequence$write(file, options = 0L)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TreeSequence$write(file)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{file}}{see \code{\link[=TreeSequence]{TreeSequence$dump}}.}
-
-\item{\code{options}}{see \code{\link[=TreeSequence]{TreeSequence$dump}}.}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TreeSequence-dump_tables"></a>}}
+\if{latex}{\out{\hypertarget{method-TreeSequence-dump_tables}{}}}
+\subsection{Method \code{dump_tables()}}{
+Copy the tables into a \code{\link{TableCollection}}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TreeSequence$dump_tables()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+See the corresponding Python function at
+  \url{https://tskit.dev/tskit/docs/latest/python-api.html#tskit.TreeSequence.dump_tables}.
+}
+
+\subsection{Returns}{
+A \code{\link{TableCollection}} object.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+ts <- ts_load(ts_file)
+tc <- ts$dump_tables()
+is(tc)
+}
+\if{html}{\out{</div>}}
+
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TreeSequence-print"></a>}}
@@ -326,7 +380,7 @@ Print a summary of a tree sequence and its contents.
 }
 
 \subsection{Returns}{
-list with two data.frames; the first contains tree sequence
+A list with two data.frames; the first contains tree sequence
   properties and their values; the second contains the number of rows in
   each table and the length of their metadata.
 }
@@ -370,16 +424,19 @@ Tree sequence in reticulate Python.
 \preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 ts_r <- ts_load(ts_file)
 is(ts_r)
-ts_r$num_samples() # 160
+ts_r$num_individuals() # 80
 
 # Transfer the tree sequence to reticulate Python and use tskit Python API
 tskit <- get_tskit_py()
 if (check_tskit_py(tskit)) {
   ts_py <- ts_r$r_to_py()
   is(ts_py)
-  ts_py$num_samples # 160
+  ts_py$num_individuals # 80
   ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
-  ts2_py$num_samples # 4
+  ts_py$num_individuals # 80
+  ts2_py$num_individuals # 2
+  ts2_py$num_nodes # 10
+  ts2_py$tables$nodes$time # 0.0 ... 7.4702817
 }
 }
 \if{html}{\out{</div>}}
