@@ -2,11 +2,24 @@
 
 ## Next TODOs
 
-# TODO: Create a minimal package to demonstrate how to link against RcppTskit and call tskit C API
-        https://github.com/HighlanderLab/RcppTskit/issues/48
+* TODO: Should we also use https://tskit.dev/tskit/docs/stable/c-api.html#c.TSK_TS_INIT_COMPUTE_MUTATION_PARENTS?
+  in TableCollection$tree_sequence()?
 
-TODO: Add citation for tskit to DESCRIPTION file #46
-      https://github.com/HighlanderLab/RcppTskit/issues/46
+* Test how skip_ref_seq works?
+
+* Test building indexes?
+
+* Will we need tc$sort() and stuff or is the default in tc$tree_sequence() OK?
+
+* Do we want to expose ts discrete_time or discrete_genome properties?
+  Also we have this comment in RcppTskit.cpp
+
+// See tsk_treeseq_t inst/include/tskit/tskit/trees.h on what it contains. Here
+// is Python summary
+// https://tskit.dev/tskit/docs/stable/python-api.html#trees-and-tree-sequences
+// See tsk_table_collection_t inst/include/tskit/tskit/tables.h on what it
+// contains. Here is Python summary
+// https://tskit.dev/tskit/docs/stable/python-api.html#sec-tables-api-table-collection
 
 # Release (TODO)
 # TODO: Tag a release #15
@@ -16,24 +29,10 @@ TODO: Add citation for tskit to DESCRIPTION file #46
 # TODO: Publish on CRAN #14
 #       https://github.com/HighlanderLab/RcppTskit/issues/14
 
-// # nocov start
-int table_collection_num_nodes_zero_check() {
-  tsk_table_collection_t tables;
-  int ret = tsk_table_collection_init(&tables, 0);
-  if (ret != 0) {
-    tsk_table_collection_free(&tables);
-    Rcpp::stop(tsk_strerror(ret));
-  }
-  int n = static_cast<int>(tables.nodes.num_rows);
-  tsk_table_collection_free(&tables);
-  return n;
-}
-// # nocov end
-
 // TODO: This will go into AlphaSimR
 // [[Rcpp::export]]
-SEXP ts_grow(SEXP ts) {
-  RcppTskit_treeseq_xptr ts_xptr(ts);
+SEXP tc_grow(SEXP tc) {
+  RcppTskit_table_collection_xptr tc_xptr(tc);
   int ret;
   ret = 0;
   // TODO: What do we need to do here now? How do we grow a tree sequence?
@@ -44,12 +43,12 @@ SEXP ts_grow(SEXP ts) {
     //       error using Rcpp::stop(), but should we also do something with the
     //       ts pointer and object? If we delete, we discard/delete past work,
     //       but if we don't, do we risk of returning a corrupted ts?
-    // tsk_treeseq_free(ts_ptr);
-    // delete ts_ptr;
+    // tsk_table_collection_free(tc_ptr);
+    // delete tc_ptr;
     Rcpp::stop(tsk_strerror(ret));
   }
-  return ts_xptr;
-  // return ret;
+  return tc_xptr;
+  // or do we want to return ts?
 }
 
 * This PR nicely shows how slendr is dealing with ts objects

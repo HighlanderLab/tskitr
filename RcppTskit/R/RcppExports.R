@@ -12,7 +12,7 @@ kastore_version <- function() {
     .Call(`_RcppTskit_kastore_version`)
 }
 
-#' @title Report the version of installed tskit C API
+#' @title Report the version of installed \code{tskit} C API
 #' @details The version is defined in the installed header \code{tskit/core.h}.
 #' @return A named vector with three elements \code{major}, \code{minor}, and
 #'   \code{patch}.
@@ -23,76 +23,100 @@ tskit_version <- function() {
     .Call(`_RcppTskit_tskit_version`)
 }
 
-ts_load_ptr <- function(file, options = 0L) {
-    .Call(`_RcppTskit_ts_load_ptr`, file, options)
+ts_ptr_load <- function(file, options = 0L) {
+    .Call(`_RcppTskit_ts_ptr_load`, file, options)
 }
 
-ts_dump_ptr <- function(ts, file, options = 0L) {
-    invisible(.Call(`_RcppTskit_ts_dump_ptr`, ts, file, options))
+tc_ptr_load <- function(file, options = 0L) {
+    .Call(`_RcppTskit_tc_ptr_load`, file, options)
 }
 
-ts_num_provenances_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_provenances_ptr`, ts)
+ts_ptr_dump <- function(ts, file, options = 0L) {
+    invisible(.Call(`_RcppTskit_ts_ptr_dump`, ts, file, options))
 }
 
-ts_num_populations_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_populations_ptr`, ts)
+tc_ptr_dump <- function(tc, file, options = 0L) {
+    invisible(.Call(`_RcppTskit_tc_ptr_dump`, tc, file, options))
 }
 
-ts_num_migrations_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_migrations_ptr`, ts)
+ts_ptr_to_tc_ptr <- function(ts, options = 0L) {
+    .Call(`_RcppTskit_ts_ptr_to_tc_ptr`, ts, options)
 }
 
-ts_num_individuals_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_individuals_ptr`, ts)
+tc_ptr_to_ts_ptr <- function(tc, options = 0L) {
+    .Call(`_RcppTskit_tc_ptr_to_ts_ptr`, tc, options)
 }
 
-ts_num_samples_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_samples_ptr`, ts)
+ts_ptr_num_provenances <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_num_provenances`, ts)
 }
 
-ts_num_nodes_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_nodes_ptr`, ts)
+ts_ptr_num_populations <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_num_populations`, ts)
 }
 
-ts_num_edges_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_edges_ptr`, ts)
+ts_ptr_num_migrations <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_num_migrations`, ts)
 }
 
-ts_num_trees_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_trees_ptr`, ts)
+ts_ptr_num_individuals <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_num_individuals`, ts)
 }
 
-ts_num_sites_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_sites_ptr`, ts)
+ts_ptr_num_samples <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_num_samples`, ts)
 }
 
-ts_num_mutations_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_num_mutations_ptr`, ts)
+ts_ptr_num_nodes <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_num_nodes`, ts)
 }
 
-ts_sequence_length_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_sequence_length_ptr`, ts)
+ts_ptr_num_edges <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_num_edges`, ts)
 }
 
-ts_time_units_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_time_units_ptr`, ts)
+ts_ptr_num_trees <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_num_trees`, ts)
 }
 
-ts_min_time_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_min_time_ptr`, ts)
+ts_ptr_num_sites <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_num_sites`, ts)
 }
 
-ts_max_time_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_max_time_ptr`, ts)
+ts_ptr_num_mutations <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_num_mutations`, ts)
 }
 
-ts_summary_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_summary_ptr`, ts)
+ts_ptr_sequence_length <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_sequence_length`, ts)
 }
 
-ts_metadata_length_ptr <- function(ts) {
-    .Call(`_RcppTskit_ts_metadata_length_ptr`, ts)
+ts_ptr_time_units <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_time_units`, ts)
+}
+
+ts_ptr_min_time <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_min_time`, ts)
+}
+
+ts_ptr_max_time <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_max_time`, ts)
+}
+
+ts_ptr_summary <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_summary`, ts)
+}
+
+tc_ptr_summary <- function(tc) {
+    .Call(`_RcppTskit_tc_ptr_summary`, tc)
+}
+
+ts_ptr_metadata_length <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_metadata_length`, ts)
+}
+
+tc_ptr_metadata_length <- function(tc) {
+    .Call(`_RcppTskit_tc_ptr_metadata_length`, tc)
 }
 
 test_tsk_bug_assert_c <- function() {
@@ -113,5 +137,13 @@ test_tsk_trace_error_cpp <- function() {
 
 tsk_trace_errors_defined <- function() {
     .Call(`_RcppTskit_tsk_trace_errors_defined`)
+}
+
+test_ts_ptr_to_tc_ptr_forced_error <- function(ts) {
+    .Call(`_RcppTskit_test_ts_ptr_to_tc_ptr_forced_error`, ts)
+}
+
+test_tc_ptr_to_ts_ptr_forced_error <- function(tc) {
+    .Call(`_RcppTskit_test_tc_ptr_to_ts_ptr_forced_error`, tc)
 }
 
