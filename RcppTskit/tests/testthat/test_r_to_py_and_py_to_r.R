@@ -1,6 +1,6 @@
 skip_if_no_tskit_py <- function() {
-  if (!covr::in_covr()) {
-    # To get_tskit_py() we need internet connection
+  if (!(requireNamespace("covr", quietly = TRUE) && covr::in_covr())) {
+    # We need internet connection for get_tskit_py()
     skip_if_offline()
   }
   if (!reticulate::py_module_available("tskit")) {
@@ -142,8 +142,9 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
   expect_equal(length(ts2_py$tables$mutations$metadata), m2$mutations)
 
   expect_true(is(ts2_r, "TreeSequence"))
-  expect_output(ts2_r$print(), NA) # non-interactive mode
-  expect_equal(ts2_r$print(), ts_ptr_print(ts_ptr2_r))
+  tmp <- capture.output(ts2_r_print <- ts2_r$print())
+  tmp <- capture.output(ts_ptr2_r_print <- ts_ptr_print(ts_ptr2_r))
+  expect_equal(ts2_r_print, ts_ptr2_r_print)
 })
 
 test_that("tc_r_to_py() and tc_py_to_r() work", {
@@ -263,6 +264,7 @@ test_that("tc_r_to_py() and tc_py_to_r() work", {
   expect_equal(length(tc2_py$mutations$metadata), m2$mutations)
 
   expect_true(is(tc2_r, "TableCollection"))
-  expect_output(tc2_r$print(), NA) # non-interactive mode
-  expect_equal(tc2_r$print(), tc_ptr_print(tc_ptr2_r))
+  tmp <- capture.output(tc2_r_print <- tc2_r$print())
+  tmp <- capture.output(tc_ptr2_r <- tc_ptr_print(tc_ptr2_r))
+  expect_equal(tc2_r_print, tc_ptr2_r)
 })

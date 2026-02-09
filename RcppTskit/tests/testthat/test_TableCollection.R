@@ -131,8 +131,7 @@ test_that("TableCollection and TreeSequence round-trip works", {
 
   tc <- ts$dump_tables()
   expect_true(is(tc, "TableCollection"))
-  expect_output(tc$print(), NA) # non-interactive mode
-  p <- tc$print()
+  tmp <- capture.output(p <- tc$print())
   expect_equal(
     p,
     list(
@@ -178,8 +177,9 @@ test_that("TableCollection and TreeSequence round-trip works", {
 
   ts2 <- tc$tree_sequence()
   expect_true(is(ts2, "TreeSequence"))
-  expect_output(ts$print(), NA) # non-interactive mode
-  expect_equal(ts$print(), ts2$print())
+  tmp <- capture.output(ts_print <- ts$print())
+  tmp <- capture.output(ts2_print <- ts2$print())
+  expect_equal(ts_print, ts2_print)
 
   # Edge cases
   expect_error(
