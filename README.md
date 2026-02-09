@@ -64,15 +64,24 @@ Code quality: [![Codecov test coverage](https://codecov.io/gh/HighlanderLab/Rcpp
 
 ## Installation
 
-To install the published release from CRAN use:
+To install the published release from [CRAN](https://cran.r-project.org) use:
 
 ```
 # TODO: Publish on CRAN #14
 #       https://github.com/HighlanderLab/RcppTskit/issues/14
+#       https://github.com/HighlanderLab/RcppTskit/issues/45
 # install.packages("RcppTskit")
 ```
 
-To install a published release or specific branches from Github use the
+To install the latest development version (possibly unstable!) from
+[R universe](https://r-universe.dev) use:
+
+```
+RUniverseAndCRAN <- c('https://highlanderlab.r-universe.dev', 'https://cloud.r-project.org')
+install.packages('RcppTskit', repos = RUniverseAndCRAN)
+```
+
+To install the latest development version (possibly unstable!) from Github use the
 following code. Note that you will have to compile the C/C++ code and will
 hence require the complete R build toolchain, including compilers. See
 https://r-pkgs.org/setup.html#setup-tools for introduction to this topic,
@@ -135,7 +144,7 @@ If you plan to update `tskit`, follow instructions in `extern/README.md`.
 Then open `RcppTskit` package directory in your favourite R IDE
 (Positron, RStudio, text-editor-of-your-choice, etc.) and implement your changes.
 
-You should routinely check your changes (in R):
+You should routinely `R CMD check` your changes (in R):
 
 ```
 # Note that the RcppTskit R package is in the RcppTskit sub-directory
@@ -173,7 +182,7 @@ On Windows, replace `tar.gz` with `zip`.
 
 ### Pre-commit run
 
-Before committing your changes, run the pre-commit hooks to ensure code quality:
+Before committing your changes, run the `pre-commit` hooks to ensure code quality:
 
 ```
 # pre-commit autoupdate # to update the hooks
@@ -186,5 +195,13 @@ pre-commit run --all-files
 We use Github Actions to run continuous integration (CI) checks
 on each push and pull request.
 Specifically, we run:
-* [R CMD check](.github/workflows/R-CMD-check.yaml) on multiple platforms and
-* [covr test coverage](.github/workflows/covr.yaml).
+* [R CMD check](.github/workflows/R-CMD-check.yaml) on multiple platforms
+  (see curent status [here](https://github.com/HighlanderLab/RcppTskit/actions/workflows/R-CMD-check.yaml)),
+* [covr test coverage](.github/workflows/covr.yaml)
+  (see current status [here](https://github.com/HighlanderLab/RcppTskit/actions/workflows/test-coverage.yaml)), and
+* [Roxygen documentation generation](.github/workflows/document.yaml)
+  (see current status [here](https://github.com/HighlanderLab/RcppTskit/actions/workflows/document.yaml)).
+
+[R universe for RcppTskit](https://highlanderlab.r-universe.dev/RcppTskit)
+also provides another set of checks - see [here](https://highlanderlab.r-universe.dev/RcppTskit#checktable).
+These are provided once the code is merged into this repository.
