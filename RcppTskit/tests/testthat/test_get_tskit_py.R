@@ -1,4 +1,16 @@
+skip_if_offline_or_on_cran <- function() {
+  if (!(requireNamespace("covr", quietly = TRUE) && covr::in_covr())) {
+    # We need internet connection for get_tskit_py()
+    skip_if_offline()
+
+    # The tests below take quite a bit of time since they pull in installation of
+    # Python modules, hence skipping on CRAN due to time limits on CRAN
+    skip_on_cran()
+  }
+}
+
 test_that("get_tskit_py() works", {
+  skip_if_offline_or_on_cran()
   # Testing that get_tskit_py() fails with a non-module object
   # Next two lines ensure that testthat is looking into the global environment
   # as is get_tskit_py()
@@ -8,15 +20,6 @@ test_that("get_tskit_py() works", {
     get_tskit_py(object_name = "rubbish"),
     regexp = "Object 'rubbish' exists in the global environment but is not a reticulate Python module"
   )
-
-  if (!covr::in_covr()) {
-    # To get_tskit_py() we need internet connection
-    skip_if_offline()
-
-    # The tests below take quite a bit of time since they pull in installation of
-    # Python modules, hence skipping on CRAN due to time limits on CRAN
-    skip_on_cran()
-  }
 
   # Uncomment the below to explore test behaviour, but note that the removal
   # doesn't work when you try to run the tests multiple times in the same session!
@@ -59,6 +62,7 @@ test_that("get_tskit_py() works", {
 })
 
 test_that("check_tskit_py() validates reticulate Python module objects", {
+  skip_if_offline_or_on_cran()
   expect_message(
     expect_false(check_tskit_py(1)),
     "object must be a reticulate Python module object!"
