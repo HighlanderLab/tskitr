@@ -59,6 +59,9 @@ RCPPTSKIT_LDFLAGS =
 PKG_CFLAGS = $(RCPPTSKIT_CFLAGS)
 PKG_CXXFLAGS = $(RCPPTSKIT_CXXFLAGS)
 
+# core.h:__tsk_nan_f requires C++20 on CRAN/Windows, but see #63
+CXX_STD = CXX20
+
 # Explicit compile rule for tskit C files
 tskit/%.o: tskit/%.c
 	$(CC) $(ALL_CPPFLAGS) $(PKG_CFLAGS) $(CFLAGS) $(CPICFLAGS) -c $< -o $@
