@@ -2,33 +2,6 @@
 
 ## Next TODOs
 
-* TODO: Should we also use https://tskit.dev/tskit/docs/stable/c-api.html#c.TSK_TS_INIT_COMPUTE_MUTATION_PARENTS?
-  in TableCollection$tree_sequence()?
-
-* Test how skip_ref_seq works?
-
-* Test building indexes?
-
-* Will we need tc$sort() and stuff or is the default in tc$tree_sequence() OK?
-
-* Do we want to expose ts discrete_time or discrete_genome properties?
-  Also we have this comment in RcppTskit.cpp
-
-// See tsk_treeseq_t inst/include/tskit/tskit/trees.h on what it contains. Here
-// is Python summary
-// https://tskit.dev/tskit/docs/stable/python-api.html#trees-and-tree-sequences
-// See tsk_table_collection_t inst/include/tskit/tskit/tables.h on what it
-// contains. Here is Python summary
-// https://tskit.dev/tskit/docs/stable/python-api.html#sec-tables-api-table-collection
-
-# Release (TODO)
-# TODO: Tag a release #15
-#       https://github.com/HighlanderLab/RcppTskit/issues/15
-# remotes::install_github("HighlanderLab/RcppTskit/RcppTskit")
-
-# TODO: Publish on CRAN #14
-#       https://github.com/HighlanderLab/RcppTskit/issues/14
-
 // TODO: This will go into AlphaSimR
 // [[Rcpp::export]]
 SEXP tc_grow(SEXP tc) {
