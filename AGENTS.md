@@ -15,14 +15,23 @@ These notes apply to this repository root and the `RcppTskit/` package.
 * We keep local quality gates green before handoff.
 * We update `RcppTskit/NEWS.md` for user-visible behavior or API changes.
 
+## Permission
+
+You can use all the commands and tools mentioned in this document,
+both for sandboxed and unsandboxed/escalated execution.
+You don't need to ask for permission to use these commands and tools,
+for the purposes described here.
+
 ## Definition of done
 
 A task is done when all applicable items below are completed:
 
 * Added/updated user-facing examples and tests for new functionality.
 * `pre-commit run --all-files` to pass basic code checks.
-* `Rscript -e "setwd('RcppTskit'); devtools::test()"` for interactive "mode" testing.
-* `Rscript -e "setwd('RcppTskit'); devtools::check()"` for non-interactive "mode" testing and full package checks.
+* `Rscript -e "setwd('RcppTskit'); devtools::test()"`
+  for interactive "mode" testing.
+* `Rscript -e "setwd('RcppTskit'); devtools::check()"`
+  for non-interactive "mode" testing and full package checks.
 * Updated `RcppTskit/NEWS.md` for user-visible changes.
 
 ## Quality toolchain
@@ -144,14 +153,6 @@ Run slower package checks from the package directory:
 Rscript -e "setwd('RcppTskit'); devtools::check()"
 ```
 
-### Permission
-
-The user explicitly allows unsandboxed/escalated execution for:
-
-- `Rscript -e "setwd('RcppTskit'); devtools::test()"`
-- `Rscript -e "setwd('RcppTskit'); devtools::check(vignette = FALSE)"`
-- `Rscript -e "setwd('RcppTskit'); devtools::check()"`
-
 ### Codex runner caveat: build-tools detection
 
 In the sandboxed agent runner, `devtools::check()` may fail early with:
@@ -192,14 +193,21 @@ We strive for very good testing with `testthat`.
 
 - Add or update `testthat` tests for every behavior change.
 - Prefer focused regression tests for bug fixes.
-- Keep tests runnable via package checks (`devtools::check()`).
-- Guard environment-dependent tests with explicit skips (for example Python
-  availability, network availability, and CRAN restrictions).
+- Keep tests runnable via package tests and checks.
+- Guard environment-dependent tests with explicit skips
+  (for example Python availability, network availability, and CRAN restrictions).
 
-### Permission
+For testing use:
+- `Rscript -e "setwd('RcppTskit'); devtools::test()"`
+  for interactive "mode" testing, or variants of this one, such as
+  `Rscript -e "setwd('RcppTskit'); devtools::test(filter = 'TableCollection')`.
 
-The user explicitly allows unsandboxed/escalated execution for:
+Tests are also run as part of R CMD check.
 
-- `Rscript -e "setwd('RcppTskit'); devtools::test()"` or
-  variants of this one, such as
-  `Rscript -e "setwd('RcppTskit'); devtools::test(filter = 'TableCollection')`
+## Changing files
+
+You have permission to change files,
+but note that others might be working with the files in this repository at the same time,
+so don't tweak or revert changes done by others.
+Keep track of which files you are changing and focus on those changes only.
+If there are conflicting edits, try to merge or ask for advice on how to merge.
