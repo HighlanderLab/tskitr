@@ -19,10 +19,10 @@ These notes apply to this repository root and the `RcppTskit/` package.
 
 A task is done when all applicable items below are completed:
 
-* Added/updated user-facing examples for new functionality.
-* `pre-commit run --all-files`
-* `Rscript -e "setwd('RcppTskit'); devtools::test()"`
-* `Rscript -e "setwd('RcppTskit'); devtools::check()"`
+* Added/updated user-facing examples and tests for new functionality.
+* `pre-commit run --all-files` to pass basic code checks.
+* `Rscript -e "setwd('RcppTskit'); devtools::test()"` for interactive "mode" testing.
+* `Rscript -e "setwd('RcppTskit'); devtools::check()"` for non-interactive "mode" testing and full package checks.
 * Updated `RcppTskit/NEWS.md` for user-visible changes.
 
 ## Quality toolchain
@@ -49,11 +49,13 @@ Hook responsibilities:
 * `jarl check .`: lint R, Rmd, and qmd files.
 * `clang-format -i --style=file`: format C/C++ sources and headers.
 * `python RcppTskit/tools/clang-tidy.py`: run clang-tidy checks for C/C++.
-* Standard pre-commit hygiene hooks: whitespace, line endings, YAML checks,
+* Standard pre-commit hygiene hooks:
+  whitespace, line endings, YAML checks,
   merge-conflict markers, and large-file checks.
 
-If a required tool is not found system-wide on `PATH`, also check user-local
-bin directories before assuming it is missing:
+If a required tool is not found system-wide on `PATH`,
+also check user-local bin directories
+before assuming it is missing:
 
 ```sh
 which <tool> || PATH="$HOME/.local/bin:$HOME/bin:$PATH" which <tool>
@@ -128,19 +130,26 @@ Rscript -e "setwd('RcppTskit'); devtools::document()"
 
 ### Preferred way to R CMD Check
 
-Run package checks from the package directory:
+Run faster package checks from the package directory:
+
+```sh
+Rscript -e "setwd('RcppTskit'); devtools::check(vignette = FALSE)"
+```
+Run this for every code change so changes are evaluated
+in the same package context (build, docs, and tests).
+
+Run slower package checks from the package directory:
 
 ```sh
 Rscript -e "setwd('RcppTskit'); devtools::check()"
 ```
 
-Run this for every code change so changes are evaluated in the same package
-context (build, docs, vignettes, and tests).
-
 ### Permission
 
 The user explicitly allows unsandboxed/escalated execution for:
 
+- `Rscript -e "setwd('RcppTskit'); devtools::test()"`
+- `Rscript -e "setwd('RcppTskit'); devtools::check(vignette = FALSE)"`
 - `Rscript -e "setwd('RcppTskit'); devtools::check()"`
 
 ### Codex runner caveat: build-tools detection
@@ -149,22 +158,25 @@ In the sandboxed agent runner, `devtools::check()` may fail early with:
 
 - `Could not find tools necessary to compile a package`
 
-even when compilers are installed. This is caused by sandbox restrictions around
-`callr`/`processx` compiler probing, not by a missing local toolchain.
+even when compilers are installed. This is caused by sandbox
+restrictions around `callr`/`processx` compiler probing,
+not by a missing local toolchain.
 
 Use unsandboxed/escalated execution for full package checks.
 
 ### Quarto caveat (why it can work interactively but fail in agent runs)
 
-`which quarto` can return `quarto not found`, yet `devtools::check()` may still
-work in interactive Positron/R sessions.
+`which quarto` can return `quarto not found`,
+yet `devtools::check()` may still work
+in interactive Positron/R sessions.
 
 On a Mac, Positron bundles Quarto at:
 
 `/Applications/Positron.app/Contents/Resources/app/quarto/bin/quarto`
 
-Interactive IDE sessions may discover this automatically; non-IDE agent runs
-usually do not. For reliable agent checks, prepend this directory to `PATH`:
+Interactive IDE sessions may discover this automatically;
+non-IDE agent runs usually do not.
+For reliable agent checks, prepend this directory to `PATH`:
 
 ```sh
 Rscript -e "Sys.setenv(PATH=paste('/Applications/Positron.app/Contents/Resources/app/quarto/bin', Sys.getenv('PATH'), sep=':')); setwd('RcppTskit'); devtools::check()"
@@ -188,4 +200,6 @@ We strive for very good testing with `testthat`.
 
 The user explicitly allows unsandboxed/escalated execution for:
 
-- `Rscript -e "setwd('RcppTskit'); devtools::test()"` or variants of this one, such as `Rscript -e "setwd('RcppTskit'); devtools::test(filter = 'TableCollection')`
+- `Rscript -e "setwd('RcppTskit'); devtools::test()"` or
+  variants of this one, such as
+  `Rscript -e "setwd('RcppTskit'); devtools::test(filter = 'TableCollection')`
