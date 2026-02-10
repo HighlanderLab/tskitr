@@ -13,6 +13,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   )
   expect_no_error(tc_load(ts_file, skip_tables = TRUE))
   check_empty_tables <- function(ts) {
+    # jarl-ignore implicit_assignment: it's just a test
     tmp <- capture.output(p <- ts$print())
     expect_true(all(p$tables$number == 0))
   }
@@ -50,6 +51,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   )
   expect_no_error(tc_load(ts_file, skip_tables = TRUE))
   check_empty_tables <- function(tc) {
+    # jarl-ignore implicit_assignment:  it's just a test
     tmp <- capture.output(p <- tc$print())
     expect_true(all(p$tables$number == 0))
   }
@@ -225,6 +227,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
     regexp = "ts must be an object of externalptr class!"
   )
   p_ptr <- ts_ptr_print(ts_ptr)
+  # jarl-ignore implicit_assignment: it's just a test
   tmp <- capture.output(p <- ts$print())
   expect_equal(
     p,
@@ -276,6 +279,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
     regexp = "tc must be an object of externalptr class!"
   )
   p_ptr <- tc_ptr_print(tc_ptr)
+  # jarl-ignore implicit_assignment: it's just a test
   tmp <- capture.output(p <- tc$print())
   expect_equal(
     p,
@@ -549,6 +553,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   expect_equal(m_ptr, m)
 
   p_ptr <- ts_ptr_print(ts_ptr)
+  # jarl-ignore implicit_assignment: it's just a test
   tmp <- capture.output(p <- ts$print())
   expect_equal(
     p_ptr,
@@ -630,6 +635,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   expect_equal(m_ptr_tc, m_ptr_ts)
 
   p_ptr <- tc_ptr_print(tc_ptr)
+  # jarl-ignore implicit_assignment: it's just a test
   tmp <- capture.output(p <- tc$print())
   expect_equal(
     p_ptr,

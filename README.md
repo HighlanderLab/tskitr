@@ -197,11 +197,13 @@ on each push and pull request.
 Specifically, we run:
 * [R CMD check](.github/workflows/R-CMD-check.yaml) on multiple platforms
   (see curent status [here](https://github.com/HighlanderLab/RcppTskit/actions/workflows/R-CMD-check.yaml)),
-* [covr test coverage](.github/workflows/covr.yaml)
-  (see current status [here](https://github.com/HighlanderLab/RcppTskit/actions/workflows/test-coverage.yaml)), and
-* [Roxygen documentation generation](.github/workflows/document.yaml)
-  (see current status [here](https://github.com/HighlanderLab/RcppTskit/actions/workflows/document.yaml)).
+* [documentation generation](.github/workflows/document.yaml)
+  (see current status [here](https://github.com/HighlanderLab/RcppTskit/actions/workflows/document.yaml)),
+* [pre-commit hooks](.github/workflows/pre-commit.yaml)
+  (see current status [here](https://github.com/HighlanderLab/RcppTskit/actions/workflows/pre-commit.yaml)), and
+* [test coverage](.github/workflows/test-coverage.yaml)
+  (see current status [here](https://github.com/HighlanderLab/RcppTskit/actions/workflows/test-coverage.yaml)).
 
 [R universe for RcppTskit](https://highlanderlab.r-universe.dev/RcppTskit)
 also provides another set of checks - see [here](https://highlanderlab.r-universe.dev/RcppTskit#checktable).
-These are provided once the code is merged into this repository.
+These are provided after new code is pushed or merged into this repository.

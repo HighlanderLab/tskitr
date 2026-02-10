@@ -131,6 +131,7 @@ test_that("TableCollection and TreeSequence round-trip works", {
 
   tc <- ts$dump_tables()
   expect_true(is(tc, "TableCollection"))
+  # jarl-ignore implicit_assignment:  it's just a test
   tmp <- capture.output(p <- tc$print())
   expect_equal(
     p,
@@ -177,7 +178,9 @@ test_that("TableCollection and TreeSequence round-trip works", {
 
   ts2 <- tc$tree_sequence()
   expect_true(is(ts2, "TreeSequence"))
+  # jarl-ignore implicit_assignment: it's just a test
   tmp <- capture.output(ts_print <- ts$print())
+  # jarl-ignore implicit_assignment: it's just a test
   tmp <- capture.output(ts2_print <- ts2$print())
   expect_equal(ts_print, ts2_print)
 

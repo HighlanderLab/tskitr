@@ -142,7 +142,9 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
   expect_equal(length(ts2_py$tables$mutations$metadata), m2$mutations)
 
   expect_true(is(ts2_r, "TreeSequence"))
+  # jarl-ignore implicit_assignment:  it's just a test
   tmp <- capture.output(ts2_r_print <- ts2_r$print())
+  # jarl-ignore implicit_assignment:  it's just a test
   tmp <- capture.output(ts_ptr2_r_print <- ts_ptr_print(ts_ptr2_r))
   expect_equal(ts2_r_print, ts_ptr2_r_print)
 })
@@ -264,7 +266,9 @@ test_that("tc_r_to_py() and tc_py_to_r() work", {
   expect_equal(length(tc2_py$mutations$metadata), m2$mutations)
 
   expect_true(is(tc2_r, "TableCollection"))
+  # jarl-ignore implicit_assignment: it's just a test
   tmp <- capture.output(tc2_r_print <- tc2_r$print())
+  # jarl-ignore implicit_assignment: it's just a test
   tmp <- capture.output(tc_ptr2_r <- tc_ptr_print(tc_ptr2_r))
   expect_equal(tc2_r_print, tc_ptr2_r)
 })
