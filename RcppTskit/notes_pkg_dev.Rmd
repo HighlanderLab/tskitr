@@ -2,6 +2,196 @@
 
 ## Next TODOs
 
+Zero copy ideas based on ALTREP:
+
+-------------------------------------------------------------------------------
+A simpler? one:
+
+1) Put ts_ptr in data1 (owner/lifetime anchor).
+2) Leave data2 as R_NilValue.
+3) In each ALTREP method, read pointer/length directly from ts_ptr.
+
+This looks ugly since it uses ALTREP methods (Length, Elt, Dataptr, Duplicate);
+low-level C callbacks called directly by R internals.
+
+Length: returns vector size (R_xlen_t).
+Called for length(x), bounds checks, loops.
+
+Elt: returns one element at index i. Called for element-wise access like x[i]
+when R is not using a raw pointer path.
+
+Dataptr: returns a contiguous memory pointer (void*) to the vector data.
+Used when code asks for direct buffer access (like REAL(x) in C code).
+If writeable = TRUE, you must either provide mutable memory or error.
+
+Dataptr_or_null: same idea, but allowed to return NULL if no direct pointer is available.
+
+Duplicate defines what happens when R duplicates an ALTREP object
+(duplicate(), some copy-on-modify paths, internal cloning).
+
+For zero-copy nodes.time ALTREP:
+* Length = number of nodes,
+* Elt = nodes.time[i],
+* Dataptr_or_null = pointer to tskit nodes.time buffer if direct access is available;
+  otherwise NULL (in our case, return the real pointer).
+* Dataptr = pointer to tskit nodes.time buffer (read-only).
+* Duplicate = allocate a regular R double vector and copy nodes.time into it
+  (materialize a standalone R-owned copy).
+
+#include <R_ext/Altrep.h>
+#include <Rinternals.h>
+#include <RcppTskit.hpp>
+#include <cstring>
+
+namespace {
+R_altrep_class_t nodes_time_cls = nullptr;
+
+inline tsk_treeseq_t *get_ts(SEXP x) {
+  auto *ts = static_cast<tsk_treeseq_t *>(R_ExternalPtrAddr(R_altrep_data1(x)));
+  if (ts == nullptr) Rf_error("Invalid tree-sequence pointer");
+  return ts;
+}
+inline const double *get_ptr(SEXP x) { return get_ts(x)->tables->nodes.time; }
+inline R_xlen_t get_n(SEXP x) {
+  return static_cast<R_xlen_t>(tsk_treeseq_get_num_nodes(get_ts(x)));
+}
+
+R_xlen_t len(SEXP x) { return get_n(x); }
+double elt(SEXP x, R_xlen_t i) { return get_ptr(x)[i]; }
+const void *dataptr_or_null(SEXP x) { return get_ptr(x); }
+void *dataptr(SEXP x, Rboolean writeable) {
+  if (writeable) Rf_error("nodes.time ALTREP is read-only");
+  return const_cast<double *>(get_ptr(x));
+}
+SEXP duplicate(SEXP x, Rboolean) {
+  const auto n = get_n(x);
+  SEXP out = PROTECT(Rf_allocVector(REALSXP, n));
+  std::memcpy(REAL(out), get_ptr(x), static_cast<size_t>(n) * sizeof(double));
+  UNPROTECT(1);
+  return out;
+}
+} // namespace
+
+extern "C" void RcppTskit_init_altrep(DllInfo *dll) {
+  nodes_time_cls = R_make_altreal_class("rcppts_nodes_time_altrep", "RcppTskit", dll);
+  R_set_altrep_Length_method(nodes_time_cls, len);
+  R_set_altreal_Elt_method(nodes_time_cls, elt);
+  R_set_altvec_Dataptr_or_null_method(nodes_time_cls, dataptr_or_null);
+  R_set_altvec_Dataptr_method(nodes_time_cls, dataptr);
+  R_set_altrep_Duplicate_method(nodes_time_cls, duplicate);
+}
+
+SEXP ts_ptr_nodes_time_altrep(SEXP ts_ptr) {
+  if (nodes_time_cls == nullptr) Rf_error("ALTREP class not initialized");
+  return R_new_altrep(nodes_time_cls, ts_ptr, R_NilValue);
+}
+
+-------------------------------------------------------------------------------
+
+A complicated one:
+
+// src/altrep_nodes_time.cpp
+#include <Rinternals.h>
+#include <R_ext/Altrep.h>
+#include <R_ext/Rdynload.h>
+#include <RcppTskit.hpp>
+#include <cstring>
+
+namespace {
+R_altrep_class_t nodes_time_altrep_class = nullptr;
+
+struct DblView {
+  const double *ptr;
+  R_xlen_t n;
+};
+
+void view_finalizer(SEXP ext) {
+  auto *view = static_cast<DblView *>(R_ExternalPtrAddr(ext));
+  delete view;
+  R_ClearExternalPtr(ext);
+}
+
+R_xlen_t nodes_time_length(SEXP x) {
+  auto *view = static_cast<DblView *>(R_ExternalPtrAddr(R_altrep_data2(x)));
+  return view->n;
+}
+
+double nodes_time_elt(SEXP x, R_xlen_t i) {
+  auto *view = static_cast<DblView *>(R_ExternalPtrAddr(R_altrep_data2(x)));
+  return view->ptr[i];
+}
+
+const void *nodes_time_dataptr_or_null(SEXP x) {
+  auto *view = static_cast<DblView *>(R_ExternalPtrAddr(R_altrep_data2(x)));
+  return view->ptr; // points to tskit C memory (zero-copy)
+}
+
+void *nodes_time_dataptr(SEXP x, Rboolean writeable) {
+  if (writeable) {
+    Rf_error("nodes.time ALTREP is read-only");
+  }
+  return const_cast<void *>(nodes_time_dataptr_or_null(x));
+}
+
+SEXP nodes_time_duplicate(SEXP x, Rboolean deep) {
+  auto *view = static_cast<DblView *>(R_ExternalPtrAddr(R_altrep_data2(x)));
+  SEXP out = PROTECT(Rf_allocVector(REALSXP, view->n));
+  std::memcpy(REAL(out), view->ptr, static_cast<size_t>(view->n) * sizeof(double));
+  UNPROTECT(1);
+  return out;
+}
+
+void init_nodes_time_altrep(DllInfo *dll) {
+  nodes_time_altrep_class =
+      R_make_altreal_class("rcppts_nodes_time_altrep", "RcppTskit", dll);
+  R_set_altrep_Length_method(nodes_time_altrep_class, nodes_time_length);
+  R_set_altreal_Elt_method(nodes_time_altrep_class, nodes_time_elt);
+  R_set_altvec_Dataptr_or_null_method(nodes_time_altrep_class, nodes_time_dataptr_or_null);
+  R_set_altvec_Dataptr_method(nodes_time_altrep_class, nodes_time_dataptr);
+  R_set_altrep_Duplicate_method(nodes_time_altrep_class, nodes_time_duplicate);
+}
+} // namespace
+
+// call this from package init with DllInfo*
+extern "C" void RcppTskit_init_altrep(DllInfo *dll) {
+  init_nodes_time_altrep(dll);
+}
+
+// [[Rcpp::export]]
+SEXP ts_ptr_nodes_time_altrep(SEXP ts_ptr) {
+  if (nodes_time_altrep_class == nullptr) {
+    Rf_error("ALTREP class not initialized");
+  }
+
+  RcppTskit_treeseq_xptr ts(ts_ptr);
+  auto *view = new DblView{
+      ts->tables->nodes.time,
+      static_cast<R_xlen_t>(tsk_treeseq_get_num_nodes(ts))
+  };
+
+  SEXP view_ext = PROTECT(R_MakeExternalPtr(view, R_NilValue, R_NilValue));
+  R_RegisterCFinalizerEx(view_ext, view_finalizer, TRUE);
+
+  // data1 keeps owner alive; data2 stores pointer/len metadata
+  SEXP out = R_new_altrep(nodes_time_altrep_class, ts_ptr, view_ext);
+  UNPROTECT(1);
+  return out;
+}
+
+
+# in TreeSequence
+nodes_time <- function() {
+  ts_ptr_nodes_time_altrep(self$pointer)
+}
+
+
+ts <- ts_load(ts_file)
+x <- ts$nodes_time()   # ALTREP vector, read-only, zero-copy view
+x[1:5]
+
+-------------------------------------------------------------------------------
+
+
 // TODO: This will go into AlphaSimR
 // [[Rcpp::export]]
 SEXP tc_grow(SEXP tc) {
