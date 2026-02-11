@@ -390,6 +390,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   ts_ptr_dump(ts_ptr, dump_file)
   rm(ts_ptr)
   ts_ptr <- ts_ptr_load(dump_file)
+  file.remove(dump_file)
 
   # Simple comparison of summaries
   n <- ts_ptr_summary(ts_ptr)
@@ -438,6 +439,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   rm(tc_ptr)
   tc_ptr <- tc_ptr_load(dump_file)
   ts_ptr <- ts_ptr_load(dump_file)
+  file.remove(dump_file)
 
   # Simple comparison of summaries
   n_ts <- ts_ptr_summary(ts_ptr)
@@ -474,6 +476,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   ts$dump(dump_file)
   rm(ts)
   ts <- ts_load(dump_file)
+  file.remove(dump_file)
 
   # Simple comparison of summaries
   n_ptr <- ts_ptr_summary(ts$pointer)
@@ -515,6 +518,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   tc$dump(dump_file)
   rm(tc)
   tc <- tc_load(dump_file)
+  file.remove(dump_file)
 
   # Simple comparison of summaries
   n_ptr <- tc_ptr_summary(tc$pointer)

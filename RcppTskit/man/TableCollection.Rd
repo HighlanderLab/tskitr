@@ -29,6 +29,7 @@ tc <- TableCollection$new(file = ts_file)
 dump_file <- tempfile()
 tc$dump(dump_file)
 tc$write(dump_file) # alias
+\dontshow{file.remove(dump_file)}
 
 ## ------------------------------------------------
 ## Method `TableCollection$tree_sequence`
@@ -171,6 +172,7 @@ tc <- TableCollection$new(file = ts_file)
 dump_file <- tempfile()
 tc$dump(dump_file)
 tc$write(dump_file) # alias
+\dontshow{file.remove(dump_file)}
 }
 \if{html}{\out{</div>}}
 

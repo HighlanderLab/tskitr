@@ -276,6 +276,7 @@ ts$dump(file = ts_file)
 # ... and to bring it back to R, use ...
 ts2 <- ts_load(ts_file)
 ts$num_individuals() # 2 (if you have run the above Python code)
+file.remove(ts_file)
 
 # You can work similarly with table collection between R & Python
 tc <- ts$dump_tables()
