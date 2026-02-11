@@ -33,6 +33,7 @@ ts <- ts_load(ts_file)
 dump_file <- tempfile()
 ts$dump(dump_file)
 ts$write(dump_file) # alias
+\dontshow{file.remove(dump_file)}
 
 ## ------------------------------------------------
 ## Method `TreeSequence$dump_tables`
@@ -318,6 +319,7 @@ ts <- ts_load(ts_file)
 dump_file <- tempfile()
 ts$dump(dump_file)
 ts$write(dump_file) # alias
+\dontshow{file.remove(dump_file)}
 }
 \if{html}{\out{</div>}}
 

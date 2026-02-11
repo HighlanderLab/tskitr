@@ -225,6 +225,7 @@ SEXP tc_ptr_load(const std::string file, const int options = 0) {
 // ts_ptr <- RcppTskit:::ts_ptr_load(ts_file)
 // dump_file <- tempfile()
 // RcppTskit:::ts_ptr_dump(ts_ptr, dump_file)
+// file.remove(dump_file)
 // [[Rcpp::export]]
 void ts_ptr_dump(const SEXP ts, const std::string file, const int options = 0) {
   const tsk_flags_t dump_options =
@@ -250,6 +251,7 @@ void ts_ptr_dump(const SEXP ts, const std::string file, const int options = 0) {
 // tc_ptr <- RcppTskit:::tc_ptr_load(ts_file)
 // dump_file <- tempfile()
 // RcppTskit:::tc_ptr_dump(tc_ptr, dump_file)
+// file.remove(dump_file)
 // [[Rcpp::export]]
 void tc_ptr_dump(const SEXP tc, const std::string file, const int options = 0) {
   const tsk_flags_t dump_options =

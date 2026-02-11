@@ -71,6 +71,7 @@ TreeSequence <- R6Class(
     #' dump_file <- tempfile()
     #' ts$dump(dump_file)
     #' ts$write(dump_file) # alias
+    #' \dontshow{file.remove(dump_file)}
     dump = function(file) {
       ts_ptr_dump(self$pointer, file = file, options = 0L)
     },

@@ -65,6 +65,7 @@ TableCollection <- R6Class(
     #' dump_file <- tempfile()
     #' tc$dump(dump_file)
     #' tc$write(dump_file) # alias
+    #' \dontshow{file.remove(dump_file)}
     dump = function(file) {
       tc_ptr_dump(self$pointer, file = file, options = 0L)
     },
