@@ -8,32 +8,56 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 
   expect_error(
-    ts_load(ts_file, skip_tables = "y"),
-    regexp = "skip_tables must be TRUE/FALSE!"
-  )
-  expect_no_error(tc_load(ts_file, skip_tables = TRUE))
-  check_empty_tables <- function(ts) {
-    # jarl-ignore implicit_assignment: it's just a test
-    tmp <- capture.output(p <- ts$print())
-    expect_true(all(p$tables$number == 0))
-  }
-  ts <- ts_load(ts_file, skip_tables = TRUE)
-  check_empty_tables(ts)
-  ts <- TableCollection$new(file = ts_file, skip_tables = TRUE)
-  check_empty_tables(ts)
-
-  expect_error(
-    ts_load(ts_file, skip_reference_sequence = 1L),
-    regexp = "skip_reference_sequence must be TRUE/FALSE!"
-  )
-  expect_no_error(ts_load(ts_file, skip_reference_sequence = TRUE))
-
-  expect_error(
     ts_ptr_load(ts_file, options = bitwShiftL(1L, 30)),
     regexp = "ts_ptr_load only supports load options"
     # TSK_LOAD_SKIP_TABLES (1 << 0) and TSK_LOAD_SKIP_REFERENCE_SEQUENCE (1 << 1)
   )
 
+  # TSK_LOAD_SKIP_TABLES (1 << 0)
+  expect_error(
+    ts_load(ts_file, skip_tables = "y"),
+    regexp = "skip_tables must be TRUE/FALSE!"
+  )
+  expect_no_error(ts_ptr_load(ts_file, options = bitwShiftL(1L, 0L)))
+  expect_no_error(ts_load(ts_file, skip_tables = TRUE))
+  check_empty_tables_ptr <- function(ts) {
+    # jarl-ignore implicit_assignment: it's just a test
+    tmp <- capture.output(p <- ts_ptr_print(ts))
+    expect_true(all(p$tables$number == 0))
+  }
+  check_empty_tables <- function(ts) {
+    # jarl-ignore implicit_assignment: it's just a test
+    tmp <- capture.output(p <- ts$print())
+    expect_true(all(p$tables$number == 0))
+  }
+  ts_ptr <- ts_ptr_load(ts_file, options = bitwShiftL(1L, 0L))
+  check_empty_tables_ptr(ts_ptr)
+  ts <- ts_load(ts_file, skip_tables = TRUE)
+  check_empty_tables(ts)
+  ts <- TreeSequence$new(file = ts_file, skip_tables = TRUE)
+  check_empty_tables(ts)
+
+  # TSK_LOAD_SKIP_REFERENCE_SEQUENCE (1 << 1)
+  expect_error(
+    ts_load(ts_file, skip_reference_sequence = 1L),
+    regexp = "skip_reference_sequence must be TRUE/FALSE!"
+  )
+  expect_no_error(ts_ptr_load(ts_file, options = bitwShiftL(1L, 1L)))
+  expect_no_error(ts_load(ts_file, skip_reference_sequence = TRUE))
+
+  ts_with_ref_seq_file <- system.file(
+    "examples/test_with_ref_seq.trees",
+    package = "RcppTskit"
+  )
+  expect_no_error(ts_ptr_load(ts_with_ref_seq_file))
+  expect_no_error(ts_ptr_load(
+    ts_with_ref_seq_file,
+    options = bitwShiftL(1L, 1L)
+  ))
+  expect_no_error(ts_load(ts_with_ref_seq_file))
+  expect_no_error(ts_load(ts_with_ref_seq_file, skip_reference_sequence = TRUE))
+
+  # For tests below
   ts_ptr <- ts_ptr_load(ts_file)
   ts <- ts_load(ts_file)
 
@@ -46,32 +70,56 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 
   expect_error(
-    tc_load(ts_file, skip_tables = "y"),
-    regexp = "skip_tables must be TRUE/FALSE!"
-  )
-  expect_no_error(tc_load(ts_file, skip_tables = TRUE))
-  check_empty_tables <- function(tc) {
-    # jarl-ignore implicit_assignment:  it's just a test
-    tmp <- capture.output(p <- tc$print())
-    expect_true(all(p$tables$number == 0))
-  }
-  tc <- tc_load(ts_file, skip_tables = TRUE)
-  check_empty_tables(tc)
-  tc <- TableCollection$new(file = ts_file, skip_tables = TRUE)
-  check_empty_tables(tc)
-
-  expect_error(
-    tc_load(ts_file, skip_reference_sequence = 1L),
-    regexp = "skip_reference_sequence must be TRUE/FALSE!"
-  )
-  expect_no_error(tc_load(ts_file, skip_reference_sequence = TRUE))
-
-  expect_error(
     tc_ptr_load(ts_file, options = bitwShiftL(1L, 30)),
     regexp = "tc_ptr_load only supports load options"
     # TSK_LOAD_SKIP_TABLES (1 << 0) and TSK_LOAD_SKIP_REFERENCE_SEQUENCE (1 << 1)
   )
 
+  # TSK_LOAD_SKIP_TABLES (1 << 0)
+  expect_error(
+    tc_load(ts_file, skip_tables = "y"),
+    regexp = "skip_tables must be TRUE/FALSE!"
+  )
+  expect_no_error(tc_ptr_load(ts_file, options = bitwShiftL(1L, 0L)))
+  expect_no_error(tc_load(ts_file, skip_tables = TRUE))
+  check_empty_tables_ptr <- function(tc) {
+    # jarl-ignore implicit_assignment: it's just a test
+    tmp <- capture.output(p <- tc_ptr_print(tc))
+    expect_true(all(p$tables$number == 0))
+  }
+  check_empty_tables <- function(tc) {
+    # jarl-ignore implicit_assignment: it's just a test
+    tmp <- capture.output(p <- tc$print())
+    expect_true(all(p$tables$number == 0))
+  }
+  tc_ptr <- tc_ptr_load(ts_file, options = bitwShiftL(1L, 0L))
+  check_empty_tables_ptr(tc_ptr)
+  tc <- tc_load(ts_file, skip_tables = TRUE)
+  check_empty_tables(tc)
+  tc <- TableCollection$new(file = ts_file, skip_tables = TRUE)
+  check_empty_tables(tc)
+
+  # TSK_LOAD_SKIP_REFERENCE_SEQUENCE (1 << 1)
+  expect_error(
+    tc_load(ts_file, skip_reference_sequence = 1L),
+    regexp = "skip_reference_sequence must be TRUE/FALSE!"
+  )
+  expect_no_error(tc_ptr_load(ts_file, options = bitwShiftL(1L, 1L)))
+  expect_no_error(tc_load(ts_file, skip_reference_sequence = TRUE))
+
+  ts_with_ref_seq_file <- system.file(
+    "examples/test_with_ref_seq.trees",
+    package = "RcppTskit"
+  )
+  expect_no_error(tc_ptr_load(ts_with_ref_seq_file))
+  expect_no_error(tc_ptr_load(
+    ts_with_ref_seq_file,
+    options = bitwShiftL(1L, 1L)
+  ))
+  expect_no_error(tc_load(ts_with_ref_seq_file))
+  expect_no_error(tc_load(ts_with_ref_seq_file, skip_reference_sequence = TRUE))
+
+  # For tests below
   tc_ptr <- tc_ptr_load(ts_file)
   tc <- tc_load(ts_file)
 

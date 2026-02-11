@@ -20,6 +20,8 @@ builtins <- import_builtins()
 msprime <- import("msprime")
 tskit <- import("tskit")
 
+# -----------------------------------------------------------------------------
+
 # Generate a tree sequence for testing
 ts <- msprime$sim_ancestry(
   samples = 80,
@@ -85,6 +87,8 @@ length(ts$tables$individuals$metadata) # 0
 ts$dump("inst/examples/test.trees")
 # ts <- tskit$load("inst/examples/test.trees")
 
+# -----------------------------------------------------------------------------
+
 # Create a second tree sequence with metadata in some tables
 # basic_schema <- tskit$MetadataSchema("{'codec': 'json'}")
 # Can't get this to work via reticulate :(
@@ -104,3 +108,34 @@ ts$metadata_schema # {"codec":"json"}
 ts$tables$individuals$metadata # R vector
 builtins$type(ts$tables$individuals$metadata) # numpy.ndarray
 length(ts$tables$individuals$metadata) # 21
+
+# -----------------------------------------------------------------------------
+
+# Another example with a reference sequence
+
+ts <- msprime$sim_ancestry(
+  samples = 3,
+  ploidy = 2,
+  sequence_length = 10,
+  random_seed = 2
+)
+ts <- msprime$sim_mutations(ts, rate = 0.1, random_seed = 2)
+ts$has_reference_sequence() # FALSE
+ts$reference_sequence # NULL
+
+tables <- ts$dump_tables()
+tables$reference_sequence$data <- "ATCGAATTCG"
+ts <- tables$tree_sequence()
+ts$has_reference_sequence() # TRUE
+ts$reference_sequence
+# ReferenceSequence({'metadata_schema': '', 'metadata': b'', 'data': 'ATCGAATTCG', 'url': ''})
+
+ali <- ts$alignments()
+iterate(ali, function(i) cat(i, "\n"))
+# iterate(ali, function(i) print(i)) # produces no output
+ali_vec <- iterate(ts$alignments())
+print(ali_vec)
+
+ts$dump("RcppTskit/inst/examples/test_with_ref_seq.trees")
+
+# -----------------------------------------------------------------------------

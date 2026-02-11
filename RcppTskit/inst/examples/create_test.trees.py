@@ -2,6 +2,8 @@ import msprime
 import tskit
 import os
 
+# -----------------------------------------------------------------------------
+
 # Generate a tree sequence for testing
 ts = msprime.sim_ancestry(
     samples=80, sequence_length=1e4, recombination_rate=1e-4, random_seed=42
@@ -55,11 +57,13 @@ len(ts.tables.individuals.metadata)  # 0
 ts.tables.individuals.metadata.shape  # (0,)
 
 os.getcwd()
-os.chdir("RcppTskit")
-ts.dump("inst/examples/test.trees")
-# ts = tskit.load("test.trees")
+ts.dump("RcppTskit/inst/examples/test.trees")
+# ts = tskit.load("RcppTskit/inst/examples/test.trees")
+
+# -----------------------------------------------------------------------------
 
 # Create a second tree sequence with metadata in some tables
+# ts = tskit.load("RcppTskit/inst/examples/test.trees")
 ts2_tables = ts.dump_tables()
 len(ts2_tables.metadata)
 ts2_tables.metadata = tskit.pack_bytes('{"seed": 42, "note": "ts2"}')
@@ -107,7 +111,7 @@ type(ts.tables.individuals.metadata)  # numpy.ndarray
 len(ts.tables.individuals.metadata)  # 21
 ts.tables.individuals.metadata.shape  # (21,)
 
-ts.dump("inst/examples/test2.trees")
+ts.dump("RcppTskit/inst/examples/test2.trees")
 
 tables = ts.dump_tables()
 tables.metadata_schema = tskit.MetadataSchema(None)
@@ -116,3 +120,26 @@ tables.metadata
 ts = tables.tree_sequence()
 ts.metadata
 len(ts.metadata)  # 23
+
+# -----------------------------------------------------------------------------
+
+# Another example with a reference sequence
+
+ts = msprime.sim_ancestry(samples=3, ploidy=2, sequence_length=10, random_seed=2)
+ts = msprime.sim_mutations(ts, rate=0.1, random_seed=2)
+ts.has_reference_sequence()
+ts.reference_sequence
+
+tables = ts.dump_tables()
+tables.reference_sequence.data = "ATCGAATTCG"
+ts = tables.tree_sequence()
+ts.has_reference_sequence()
+ts.reference_sequence
+
+ali = ts.alignments()
+for i in ali:
+    print(i)
+
+ts.dump("RcppTskit/inst/examples/test_with_ref_seq.trees")
+
+# -----------------------------------------------------------------------------
