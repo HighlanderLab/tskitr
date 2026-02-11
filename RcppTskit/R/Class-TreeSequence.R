@@ -128,7 +128,7 @@ TreeSequence <- R6Class(
     #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
     #' ts_r <- ts_load(ts_file)
     #' is(ts_r)
-    #' ts_r$num_individuals() # 80
+    #' ts_r$num_individuals # 80
     #'
     #' # Transfer the tree sequence to reticulate Python and use tskit Python API
     #' tskit <- get_tskit_py()
@@ -177,13 +177,13 @@ TreeSequence <- R6Class(
       ts_ptr_num_migrations(self$pointer)
     },
 
-    #' @description Get the number of individuals in a tree sequence.
+    #' @description Backward-compatible getter for \code{num_individuals}.
     #' @examples
     #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
     #' ts <- ts_load(ts_file)
-    #' ts$num_individuals()
-    num_individuals = function() {
-      ts_ptr_num_individuals(self$pointer)
+    #' ts$get_num_individuals()
+    get_num_individuals = function() {
+      self$num_individuals
     },
 
     #' @description Get the number of samples (of nodes) in a tree sequence.
@@ -284,6 +284,29 @@ TreeSequence <- R6Class(
     #' ts$metadata_length()
     metadata_length = function() {
       ts_ptr_metadata_length(self$pointer)
+    }
+  ),
+  active = list(
+    #' @field num_individuals Read-only number of individuals in the tree sequence.
+    num_individuals = function(value) {
+      if (!missing(value)) {
+        stop("num_individuals is a read-only property!")
+      }
+      private$get_scalar("num_individuals")
+    }
+  ),
+  private = list(
+    scalar_getters = list(
+      num_individuals = function(pointer) {
+        ts_ptr_num_individuals(pointer)
+      }
+    ),
+    get_scalar = function(name) {
+      getter <- private$scalar_getters[[name]]
+      if (is.null(getter)) {
+        stop("Unknown scalar property: ", name)
+      }
+      getter(self$pointer)
     }
   )
 )

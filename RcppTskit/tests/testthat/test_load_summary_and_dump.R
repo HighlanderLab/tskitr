@@ -175,7 +175,12 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   n_ptr <- ts_ptr_num_individuals(ts_ptr)
   expect_true(is.integer(n_ptr))
   expect_equal(n_ptr, 80L)
-  expect_equal(ts$num_individuals(), 80L)
+  expect_equal(ts$num_individuals, 80L)
+  expect_equal(ts$get_num_individuals(), 80L)
+  expect_error(
+    ts$num_individuals <- 81L,
+    regexp = "num_individuals is a read-only property!"
+  )
 
   expect_error(ts_ptr_num_samples())
   expect_error(ts_ptr_num_samples(ts))
@@ -266,6 +271,12 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
     "time_units"
   )
   expect_equal(n_ptr_tc, n_ptr_ts[shared_items])
+  expect_equal(tc$sequence_length, 10000)
+  expect_equal(tc$get_sequence_length(), 10000)
+  expect_error(
+    tc$sequence_length <- 10001,
+    regexp = "sequence_length is a read-only property!"
+  )
 
   # ---- ts_ptr_print() and ts$print() ----
 

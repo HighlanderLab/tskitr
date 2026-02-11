@@ -167,7 +167,7 @@ resemble the `tskit` Python API,
 particularly when compared to reticulate Python.
 `TreeSequence` wraps an external pointer (`externalptr`) to
 the `tskit` C object structure `tsk_treeseq_t`.
-Most methods (for example, `ts$num_individuals()` and `ts$dump()`)
+Most methods and properties (for example, `ts$num_individuals` and `ts$dump()`)
 call the `tskit` C API via `Rcpp`,
 so the calls are fast.
 The underlying pointer is exposed as `TreeSequence$pointer`
@@ -226,7 +226,7 @@ methods::is(ts)
 ts$print()
 # ts # the same as above
 
-ts$num_individuals()
+ts$num_individuals
 
 # Access the table collection
 tc <- ts$dump_tables()
@@ -259,7 +259,7 @@ if (check_tskit_py(tskit)) {
   ts2_py$tables$nodes$time # 0.0 ... 7.4702817
   # ... and to bring it back to R, use ...
   ts2 <- ts_py_to_r(ts2_py)
-  ts2$num_individuals() # 2
+  ts2$num_individuals # 2
 }
 
 # If you prefer standard (non-reticulate) Python, use
@@ -275,7 +275,7 @@ ts$dump(file = ts_file)
 # ts2.dump("insert_ts_file_path_here")
 # ... and to bring it back to R, use ...
 ts2 <- ts_load(ts_file)
-ts$num_individuals() # 2 (if you have run the above Python code)
+ts2$num_individuals # 2 (if you have run the above Python code)
 
 # You can work similarly with table collection between R & Python
 tc <- ts$dump_tables()
@@ -323,7 +323,7 @@ ts_num_individuals2(ts$pointer)
 
 # An identical RcppTskit implementation
 # (available as the method of the TreeSequence class)
-ts$num_individuals()
+ts$num_individuals
 ```
 
 ### 4) Call the `tskit` C API from C++ in another R package
@@ -389,7 +389,7 @@ ts_file <- system.file("examples", "test.trees", package = "RcppTskit")
 ts <- ts_load(ts_file)
 
 # Function from RcppTskit (working with TreeSequence R6 class)
-ts$num_individuals()
+ts$num_individuals
 
 # Function from RcppTskitTestLinking (working with externalptr)
 ts_num_individuals_ptr2(ts$pointer)

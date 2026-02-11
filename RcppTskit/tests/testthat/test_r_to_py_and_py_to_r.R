@@ -32,7 +32,7 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
   expect_equal(ts_py$num_migrations, n$num_migrations)
   expect_equal(ts_py$num_migrations, ts_r$num_migrations())
   expect_equal(ts_py$num_individuals, n$num_individuals)
-  expect_equal(ts_py$num_individuals, ts_r$num_individuals())
+  expect_equal(ts_py$num_individuals, ts_r$num_individuals)
   expect_equal(ts_py$num_samples, n$num_samples)
   expect_equal(ts_py$num_samples, ts_r$num_samples())
   expect_equal(ts_py$num_nodes, n$num_nodes)

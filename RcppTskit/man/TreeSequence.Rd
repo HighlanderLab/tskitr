@@ -59,7 +59,7 @@ ts
 ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 ts_r <- ts_load(ts_file)
 is(ts_r)
-ts_r$num_individuals() # 80
+ts_r$num_individuals # 80
 
 # Transfer the tree sequence to reticulate Python and use tskit Python API
 tskit <- get_tskit_py()
@@ -99,12 +99,12 @@ ts <- ts_load(ts_file)
 ts$num_migrations()
 
 ## ------------------------------------------------
-## Method `TreeSequence$num_individuals`
+## Method `TreeSequence$get_num_individuals`
 ## ------------------------------------------------
 
 ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 ts <- ts_load(ts_file)
-ts$num_individuals()
+ts$get_num_individuals()
 
 ## ------------------------------------------------
 ## Method `TreeSequence$num_samples`
@@ -207,6 +207,13 @@ ts$metadata_length()
 }
 \if{html}{\out{</div>}}
 }
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{num_individuals}}{Read-only number of individuals in the tree sequence.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -219,7 +226,7 @@ ts$metadata_length()
 \item \href{#method-TreeSequence-num_provenances}{\code{TreeSequence$num_provenances()}}
 \item \href{#method-TreeSequence-num_populations}{\code{TreeSequence$num_populations()}}
 \item \href{#method-TreeSequence-num_migrations}{\code{TreeSequence$num_migrations()}}
-\item \href{#method-TreeSequence-num_individuals}{\code{TreeSequence$num_individuals()}}
+\item \href{#method-TreeSequence-get_num_individuals}{\code{TreeSequence$get_num_individuals()}}
 \item \href{#method-TreeSequence-num_samples}{\code{TreeSequence$num_samples()}}
 \item \href{#method-TreeSequence-num_nodes}{\code{TreeSequence$num_nodes()}}
 \item \href{#method-TreeSequence-num_edges}{\code{TreeSequence$num_edges()}}
@@ -424,7 +431,7 @@ Tree sequence in reticulate Python.
 \preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 ts_r <- ts_load(ts_file)
 is(ts_r)
-ts_r$num_individuals() # 80
+ts_r$num_individuals # 80
 
 # Transfer the tree sequence to reticulate Python and use tskit Python API
 tskit <- get_tskit_py()
@@ -505,19 +512,19 @@ ts$num_migrations()
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TreeSequence-num_individuals"></a>}}
-\if{latex}{\out{\hypertarget{method-TreeSequence-num_individuals}{}}}
-\subsection{Method \code{num_individuals()}}{
-Get the number of individuals in a tree sequence.
+\if{html}{\out{<a id="method-TreeSequence-get_num_individuals"></a>}}
+\if{latex}{\out{\hypertarget{method-TreeSequence-get_num_individuals}{}}}
+\subsection{Method \code{get_num_individuals()}}{
+Backward-compatible getter for \code{num_individuals}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TreeSequence$num_individuals()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TreeSequence$get_num_individuals()}\if{html}{\out{</div>}}
 }
 
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 ts <- ts_load(ts_file)
-ts$num_individuals()
+ts$get_num_individuals()
 }
 \if{html}{\out{</div>}}
 

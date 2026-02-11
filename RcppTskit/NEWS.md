@@ -4,6 +4,15 @@ All notable changes to RcppTskit are documented in this file.
 The file format is based on [Keep a Changelog](https://keepachangelog.com),
 and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - Unreleased
+
+### Changed
+
+- Started a property-style access pattern (Python-like) with read-only R6 active
+  bindings: `TreeSequence$num_individuals` and `TableCollection$sequence_length`.
+  Added compatibility getter methods `TreeSequence$get_num_individuals()` and
+  `TableCollection$get_sequence_length()` as an interim migration path.
+
 ## [0.2.0] - 2026-02-09
 
 ### Added (new features)

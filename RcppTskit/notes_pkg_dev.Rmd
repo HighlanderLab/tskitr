@@ -2,10 +2,281 @@
 
 ## Next TODOs
 
-Zero copy ideas based on ALTREP:
+Below are notes on:
+
+Providing zero-copy read access to the table columns and tree arrays? #49
+https://github.com/HighlanderLab/RcppTskit/issues/49
+
+------------------------------------------------------------------------------
+
+Providing zero-copy read access to the table columns and tree arrays? #49
+https://github.com/HighlanderLab/RcppTskit/issues/49
+
+* For `ts_py.num_individuals` the path is:
+
+`trees.py`
+```
+class TreeSequence:
+    ...
+    @property
+    def num_individuals(self):
+        """
+        Returns the number of :ref:`individuals <sec_individual_table_definition>` in
+        this tree sequence.
+
+        :return: The number of individuals in this tree sequence.
+        :rtype: int
+        """
+        return self._ll_tree_sequence.get_num_individuals()
+    ...
+```
+
+`_tskitmodule.c`
+```
+static PyMethodDef TreeSequence_methods[] = {
+    ...
+    { .ml_name = "get_num_individuals",
+        .ml_meth = (PyCFunction) TreeSequence_get_num_individuals,
+        .ml_flags = METH_NOARGS,
+        .ml_doc = "Returns the number of individual records." },
+    ...
+
+static PyObject *
+TreeSequence_get_num_individuals(TreeSequence *self, PyObject *args)
+{
+    PyObject *ret = NULL;
+    tsk_size_t num_records;
+
+    if (TreeSequence_check_state(self) != 0) {
+        goto out;
+    }
+    num_records = tsk_treeseq_get_num_individuals(self->tree_sequence);
+    ret = Py_BuildValue("n", (Py_ssize_t) num_records);
+out:
+    return ret;
+}
+```
+
+So, for each scalar there is a class property (in Python),
+calling a C glue function between C and Python (in _tskitmodule.c),
+this function (TreeSequence_get_num_individuals) extracts the value
+(num_records = tsk_treeseq_get_num_individuals(self->tree_sequence);) and
+returns it to Python.
+Hence this single value is a copy.
+We are doing something similar in RcppTskit.
+
+* Python class property calls low-level C binding.
+* C binding calls tskit C API getter.
+* Result is returned as a new Python scalar object.
+* So that scalar value is materialized (effectively copied) into Python.
+* RcppTskit scalar getters are the same pattern semantically.
+* Zero-copy is mainly relevant for array/column access, not scalar fields.
+
+------------------------------------------------------------------------------
+
+* For `ts_py.tables.nodes.time` path (zero-copy read or immutable table/column) is:
+
+`trees.py`
+```
+class TreeSequence:
+    ...
+    @property
+    def tables(self):
+        """
+        Returns an immutable view of the tables underlying this tree sequence.
+
+        This view shares the same data as the TreeSequence (zero-copy).
+        Use :meth:`.dump_tables` for a modifiable copy.
+
+        Note that if tskit was built with Numpy 1, this method acts as
+        :meth:`.dump_tables` and returns a mutable TableCollection.
+
+        :return: An immutable view of the TableCollection underlying this tree sequence.
+        """
+        if not _tskit.HAS_NUMPY_2:
+            warnings.warn(
+                "Immutable table views require tskit to be built against NumPy 2.0 or "
+                "newer. Falling back to returning a mutable TableCollection.",
+                UserWarning,
+                stacklevel=2,
+            )
+            return self.dump_tables()
+        if self._immutable_tables is None:
+            self._immutable_tables = tables.ImmutableTableCollection(
+                self._ll_tree_sequence
+            )
+        return self._immutable_tables
+```
+
+`tables.py`
+```
+class ImmutableNodeTable(ImmutableMetadataTable):
+    table_name = "nodes"
+    mutable_class = NodeTable
+
+    column_names = [
+        "time",
+        "flags",
+        "population",
+        "individual",
+        "metadata",
+        "metadata_offset",
+    ]
+
+class ImmutableBaseTable(BaseTable):
+    ...
+    def __getattr__(self, name):
+        # Handle attribute access. This method is only called when an attribute
+        # is not found through normal lookup, so we can lazily calculate column
+        # contents.
+        if name in self._set_column_names:
+            full_array = getattr(self._llts, f"{self.table_name}_{name}")
+            # TableCollection methods use the LWT code, which is stuck returning
+            # int8 for compatibility see https://github.com/tskit-dev/tskit/issues/3284
+            if name == "metadata":
+                full_array = full_array.view(np.int8)
+            if not (self._row_indices is None and self._row_slice is None):
+                is_offset = name.endswith("_offset")
+                is_ragged = f"{name}_offset" in self._set_column_names
+                if self._row_indices is None:
+                    subset_array = self._slice_column(
+                        full_array, name, is_offset, is_ragged
+                    )
+                else:
+                    subset_array = self._select_column(
+                        full_array, name, is_offset, is_ragged
+                    )
+            else:
+                subset_array = full_array
+            # Store the result, so on the next access we don't need to calculate it again
+            object.__setattr__(self, name, subset_array)
+            return subset_array
+```
+
+`_tskitmodule.c`
+```
+static PyGetSetDef TreeSequence_getsetters[] = {
+    ...
+    { .name = "nodes_time",
+        .get = (getter) TreeSequence_get_nodes_time,
+        .doc = "The node time array" },
+    ...
+
+/* Universal macro for all array accessors */
+#define DEFINE_ARRAY_ACCESSOR(                                                          \
+    table_name, field_name, table_type, numpy_type, count_expr)                         \
+    static PyObject *TreeSequence_get_##table_name##_##field_name(                      \
+        TreeSequence *self, void *closure)                                              \
+    {                                                                                   \
+        PyObject *ret = NULL;                                                           \
+        tsk_##table_type##_table_t table;                                               \
+                                                                                        \
+        if (TreeSequence_check_state(self) != 0) {                                      \
+            goto out;                                                                   \
+        }                                                                               \
+        table = self->tree_sequence->tables->table_name;                                \
+        ret = TreeSequence_make_array(self, count_expr, numpy_type, table.field_name);  \
+    out:                                                                                \
+        return ret;                                                                     \
+    }
+
+...
+DEFINE_ARRAY_ACCESSOR(nodes, time, node, NPY_FLOAT64, table.num_rows)
+...
+
+/* Make a new array that is owned by the specified object. */
+static PyObject *
+make_owned_array(PyObject *self, tsk_size_t size, int dtype, void *data)
+{
+    PyObject *ret = NULL;
+    PyArrayObject *array = NULL;
+    npy_intp dims = (npy_intp) size;
+
+    array = (PyArrayObject *) PyArray_SimpleNewFromData(1, &dims, dtype, data);
+    if (array == NULL) {
+        goto out;
+    }
+    PyArray_CLEARFLAGS(array, NPY_ARRAY_WRITEABLE);
+    if (PyArray_SetBaseObject(array, (PyObject *) self) != 0) {
+        goto out;
+    }
+    /* PyArray_SetBaseObject steals a reference, so we have to incref this
+     * object. This makes sure that the instance will stay alive if there
+     * are any arrays that refer to its memory. */
+    Py_INCREF(self);
+    ret = (PyObject *) array;
+    array = NULL;
+out:
+    Py_XDECREF(array);
+    return ret;
+}
+```
+
+For vectors, we have TreeSequence class with tables property,
+which is an ImmutableNodeTable, ..., ImmutableBaseTable has __getattr__,
+then we call C TreeSequence_getsetters/TreeSequence_get_nodes_time, which calls
+table = self->tree_sequence->tables->table_name;
+ret = TreeSequence_make_array(self, count_expr, numpy_type, table.field_name);
+and array is created for Python in make_owned_array and
+this is zero-copy because ret is a Python ndarray object,
+whose internal data pointer is set to table.field_name via PyArray_SimpleNewFromData(...),
+hence no memcpy. make_owned_array makes it read-only and
+sets the base object to the TreeSequence so the underlying C memory stays alive.
+table = self->tree_sequence->tables->table_name; copies the small struct header,
+but the column pointers inside still reference underlying TS memory.
+
+------------------------------------------------------------------------------
+
+* For `NodeTable.time` (mutable table/column, hence the copy) the path is:
+
+`_tskitmodule.c`
+```
+#define DEFINE_TABLE_COLUMN_GETTER(table_class, column_name, numpy_type, c_type)        \
+    static PyObject *table_class##Table_get_##column_name(                              \
+        table_class##Table *self, void *closure)                                        \
+    {                                                                                   \
+        PyObject *ret = NULL;                                                           \
+        if (table_class##Table_check_state(self) != 0) {                                \
+            goto out;                                                                   \
+        }                                                                               \
+        ret = table_get_column_array(self->table->num_rows, self->table->column_name,   \
+            numpy_type, sizeof(c_type));                                                \
+    out:                                                                                \
+        return ret;                                                                     \
+    }
+
+
+static PyObject *
+table_get_column_array(
+    tsk_size_t num_rows, void *data, int npy_type, size_t element_size)
+{
+    PyObject *ret = NULL;
+    PyArrayObject *array;
+    npy_intp dims = (npy_intp) num_rows;
+
+    array = (PyArrayObject *) PyArray_EMPTY(1, &dims, npy_type, 0);
+    if (array == NULL) {
+        goto out;
+    }
+    memcpy(PyArray_DATA(array), data, num_rows * element_size);
+    ret = (PyObject *) array;
+out:
+    return ret;
+}
+```
+
+For mutable column, we call instead *table_class##Table_get_##column_name,
+calling table_get_column_array,
+which creates PyArray_EMPTY and memcpy data into it,
+hence the copy.
+
+------------------------------------------------------------------------------
+
+Zero copy in R ideas based on ALTREP:
 
 -------------------------------------------------------------------------------
-A simpler? one:
+
+A simpler? one than a more complex one below:
 
 1) Put ts_ptr in data1 (owner/lifetime anchor).
 2) Leave data2 as R_NilValue.
@@ -88,7 +359,7 @@ SEXP ts_ptr_nodes_time_altrep(SEXP ts_ptr) {
 
 -------------------------------------------------------------------------------
 
-A complicated one:
+A more complicated one:
 
 // src/altrep_nodes_time.cpp
 #include <Rinternals.h>
@@ -178,19 +449,18 @@ SEXP ts_ptr_nodes_time_altrep(SEXP ts_ptr) {
   return out;
 }
 
+-------------------------------------------------------------------------------
 
 # in TreeSequence
 nodes_time <- function() {
   ts_ptr_nodes_time_altrep(self$pointer)
 }
 
-
 ts <- ts_load(ts_file)
-x <- ts$nodes_time()   # ALTREP vector, read-only, zero-copy view
+x <- ts$nodes_time() # ALTREP vector, read-only, zero-copy view
 x[1:5]
 
 -------------------------------------------------------------------------------
-
 
 // TODO: This will go into AlphaSimR
 // [[Rcpp::export]]

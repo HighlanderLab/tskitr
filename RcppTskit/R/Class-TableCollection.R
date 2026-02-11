@@ -147,6 +147,38 @@ TableCollection <- R6Class(
       }
       # nocov end
       invisible(ret)
+    },
+
+    #' @description Backward-compatible getter for \code{sequence_length}.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(file = ts_file)
+    #' tc$get_sequence_length()
+    get_sequence_length = function() {
+      self$sequence_length
+    }
+  ),
+  active = list(
+    #' @field sequence_length Read-only sequence length of the table collection.
+    sequence_length = function(value) {
+      if (!missing(value)) {
+        stop("sequence_length is a read-only property!")
+      }
+      private$get_scalar("sequence_length")
+    }
+  ),
+  private = list(
+    scalar_getters = list(
+      sequence_length = function(pointer) {
+        tc_ptr_summary(pointer)[["sequence_length"]]
+      }
+    ),
+    get_scalar = function(name) {
+      getter <- private$scalar_getters[[name]]
+      if (is.null(getter)) {
+        stop("Unknown scalar property: ", name)
+      }
+      getter(self$pointer)
     }
   )
 )

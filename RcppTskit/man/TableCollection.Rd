@@ -68,6 +68,14 @@ ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(file = ts_file)
 tc$print()
 tc
+
+## ------------------------------------------------
+## Method `TableCollection$get_sequence_length`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(file = ts_file)
+tc$get_sequence_length()
 }
 \seealso{
 \code{\link{tc_py_to_r}}, \code{\link{tc_load}}, and
@@ -80,6 +88,13 @@ tc
 }
 \if{html}{\out{</div>}}
 }
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{sequence_length}}{Read-only sequence length of the table collection.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -89,6 +104,7 @@ tc
 \item \href{#method-TableCollection-tree_sequence}{\code{TableCollection$tree_sequence()}}
 \item \href{#method-TableCollection-r_to_py}{\code{TableCollection$r_to_py()}}
 \item \href{#method-TableCollection-print}{\code{TableCollection$print()}}
+\item \href{#method-TableCollection-get_sequence_length}{\code{TableCollection$get_sequence_length()}}
 \item \href{#method-TableCollection-clone}{\code{TableCollection$clone()}}
 }
 }
@@ -295,6 +311,26 @@ A list with two data.frames; the first contains table collection
 tc <- tc_load(file = ts_file)
 tc$print()
 tc
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-get_sequence_length"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-get_sequence_length}{}}}
+\subsection{Method \code{get_sequence_length()}}{
+Backward-compatible getter for \code{sequence_length}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$get_sequence_length()}\if{html}{\out{</div>}}
+}
+
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(file = ts_file)
+tc$get_sequence_length()
 }
 \if{html}{\out{</div>}}
 

@@ -550,7 +550,7 @@ tc_ptr_py_to_r <- function(tc, cleanup = TRUE) {
 #'   # Transfer the tree sequence to R and use RcppTskit
 #'   ts2_r <- ts_py_to_r(ts2_py)
 #'   is(ts2_r)
-#'   ts2_r$num_individuals() # 2
+#'   ts2_r$num_individuals # 2
 #' }
 #' @export
 ts_py_to_r <- function(ts, cleanup = TRUE) {
