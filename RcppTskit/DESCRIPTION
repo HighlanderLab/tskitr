@@ -9,20 +9,21 @@ Authors@R: c(
     person("Tskit Developers", role = "cph",
            comment = "Authors of included tskit C library")
   )
-Description: 'Tskit' enables efficient storage, manipulation, and
-    analysis of ancestral recombination graphs (ARGs) using succinct tree
-    sequence encoding. The tree sequence encoding of an ARG is described
-    in Wong et al. (2024) <doi:10.1093/genetics/iyae100>. See also
-    <https://tskit.dev> for project news, documentation, and tutorials.
-    'Tskit' provides Python, C, and Rust application programming
-    interfaces (APIs). The Python API can be called from R via the
-    'reticulate' package to load and analyse tree sequences as described
-    at <https://tskit.dev/tutorials/tskitr.html>. 'RcppTskit' provides R
-    access to the 'tskit' C API for cases where the 'reticulate' option
-    is not optimal; for example, high-performance or low-level work with
-    tree sequences. Currently, 'RcppTskit' provides a limited set of R
-    functions because the Python API and 'reticulate' already covers
-    most needs.
+Description: 'Tskit' enables efficient storage, manipulation, and analysis
+    of ancestral recombination graphs (ARGs) using succinct tree sequence
+    encoding. The tree sequence encoding of an ARG is described in Wong et
+    al. (2024) <doi:10.1093/genetics/iyae100>, while `tskit` project is
+    described in Jeffrey et al. (2026) <doi:10.48550/arXiv.2602.09649>.
+    See also <https://tskit.dev> for project news, documentation, and
+    tutorials.  'Tskit' provides Python, C, and Rust application
+    programming interfaces (APIs). The Python API can be called from R via
+    the 'reticulate' package to load and analyse tree sequences as
+    described at <https://tskit.dev/tutorials/tskitr.html>. 'RcppTskit'
+    provides R access to the 'tskit' C API for cases where the
+    'reticulate' option is not optimal; for example, high-performance or
+    low-level work with tree sequences. Currently, 'RcppTskit' provides a
+    limited set of R functions because the Python API and 'reticulate'
+    already covers most needs.
 License: MIT + file LICENSE
 URL: https://github.com/HighlanderLab/RcppTskit
 BugReports: https://github.com/HighlanderLab/RcppTskit/issues
