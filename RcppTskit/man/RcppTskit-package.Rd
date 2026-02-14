@@ -4,7 +4,7 @@
 \name{RcppTskit-package}
 \alias{RcppTskit}
 \alias{RcppTskit-package}
-\title{RcppTskit: R Access to the Tskit C API}
+\title{RcppTskit: 'R' Access to the 'tskit C' API}
 \description{
 `Tskit` enables efficient storage, manipulation, and analysis of
 ancestral recombination graphs (ARGs) using succinct tree sequence encoding.
