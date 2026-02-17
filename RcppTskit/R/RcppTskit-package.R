@@ -1,27 +1,27 @@
 # Contains the package description and .onLoad() function
 
 #' @description
-#' `Tskit` enables efficient storage, manipulation, and analysis of
+#' \code{Tskit} enables efficient storage, manipulation, and analysis of
 #' ancestral recombination graphs (ARGs) using succinct tree sequence encoding.
 #' The tree sequence encoding of an ARG is described in Wong et al. (2024)
-#' <doi:10.1093/genetics/iyae100>, while `tskit` project is
+#' <doi:10.1093/genetics/iyae100>, while \code{tskit} project is
 #' described in Jeffrey et al. (2026) <doi:10.48550/arXiv.2602.09649>.
 #' See also https://tskit.dev for project news, documentation, and tutorials.
-#' `Tskit` provides Python, C, and Rust application programming interfaces (APIs).
-#' The Python API can be called from R via the `reticulate` package to
+#' \code{Tskit} provides Python, C, and Rust application programming interfaces (APIs).
+#' The Python API can be called from R via the \code{reticulate} package to
 #' load and analyse tree sequences as described at
 #' https://tskit.dev/tutorials/tskitr.html.
-#' `RcppTskit` provides R access to the `tskit` C API for cases where the
-#' `reticulate` option is not optimal; for example; high-performance or low-level
-#' work with tree sequences. Currently, `RcppTskit` provides a limited set of
-#' R functions because the Python API and `reticulate` already covers most needs.
+#' \code{RcppTskit} provides R access to the \code{tskit} C API for cases where the
+#' \code{reticulate} option is not optimal; for example; high-performance or low-level
+#' work with tree sequences. Currently, \code{RcppTskit} provides a limited set of
+#' R functions because the Python API and \code{reticulate} already covers most needs.
 #' @keywords internal
 #'
 #' @useDynLib RcppTskit, .registration = TRUE
 #' @importFrom methods is
 #' @importFrom R6 R6Class
-#' @importFrom Rcpp registerPlugin cppFunction
-#' @importFrom reticulate is_py_object import py_module_available py_require
+#' @importFrom Rcpp cppFunction registerPlugin
+#' @importFrom reticulate import is_py_object py_module_available py_require
 #'
 #' @examples
 #' vignette(package="RcppTskit")
@@ -32,7 +32,7 @@
 #' (search for cppFunction).
 #
 #' In RcppArmadillo, I do not see any use of Rcpp::registerPlugin(). This is
-#' likely because Armadillo is header-only, so `depends = "RcppArmadillo"` adds
+#' because Armadillo is header-only, so `depends = "RcppArmadillo"` adds
 #' include paths but there is no library to link against. RcppTskit is different
 #' because we must link against the compiled RcppTskit library file. The plugin
 #' (or `PKG_LIBS`) provides linker flags in addition to `depends` for include

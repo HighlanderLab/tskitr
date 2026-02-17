@@ -106,6 +106,7 @@ PATCH version when you make backward compatible bug fixes
 ### Removed (now removed features)
 ### Fixed (bug fixes)
 ### Security (vulnerabilities)
+### Maintenance (non-user facing changes, e.g. refactoring, CI updates, etc.)
 ```
 
 ## Prepare for release

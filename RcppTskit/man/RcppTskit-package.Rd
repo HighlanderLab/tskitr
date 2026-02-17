@@ -4,22 +4,22 @@
 \name{RcppTskit-package}
 \alias{RcppTskit}
 \alias{RcppTskit-package}
-\title{RcppTskit: R Access to the Tskit C API}
+\title{RcppTskit: 'R' Access to the 'tskit C' API}
 \description{
-`Tskit` enables efficient storage, manipulation, and analysis of
+\code{Tskit} enables efficient storage, manipulation, and analysis of
 ancestral recombination graphs (ARGs) using succinct tree sequence encoding.
 The tree sequence encoding of an ARG is described in Wong et al. (2024)
-<doi:10.1093/genetics/iyae100>, while `tskit` project is
+<doi:10.1093/genetics/iyae100>, while \code{tskit} project is
 described in Jeffrey et al. (2026) <doi:10.48550/arXiv.2602.09649>.
 See also https://tskit.dev for project news, documentation, and tutorials.
-`Tskit` provides Python, C, and Rust application programming interfaces (APIs).
-The Python API can be called from R via the `reticulate` package to
+\code{Tskit} provides Python, C, and Rust application programming interfaces (APIs).
+The Python API can be called from R via the \code{reticulate} package to
 load and analyse tree sequences as described at
 https://tskit.dev/tutorials/tskitr.html.
-`RcppTskit` provides R access to the `tskit` C API for cases where the
-`reticulate` option is not optimal; for example; high-performance or low-level
-work with tree sequences. Currently, `RcppTskit` provides a limited set of
-R functions because the Python API and `reticulate` already covers most needs.
+\code{RcppTskit} provides R access to the \code{tskit} C API for cases where the
+\code{reticulate} option is not optimal; for example; high-performance or low-level
+work with tree sequences. Currently, \code{RcppTskit} provides a limited set of
+R functions because the Python API and \code{reticulate} already covers most needs.
 }
 \examples{
 vignette(package="RcppTskit")

@@ -4,7 +4,7 @@ All notable changes to RcppTskit are documented in this file.
 The file format is based on [Keep a Changelog](https://keepachangelog.com),
 and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0] - 2026-02-09
+## [0.2.0] - 2026-02-13
 
 ### Added (new features)
 
@@ -32,6 +32,10 @@ and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 - We now specify C++20 standard to go around the CRAN Windows issue,
   see #63 for further details.
+
+### Maintenance
+
+- Delete temporary files in examples and tests after use.
 
 - Renamed unexported functions from `RcppTskit:::ts_load_ptr()` to
   `RcppTskit:::ts_ptr_load()`.
