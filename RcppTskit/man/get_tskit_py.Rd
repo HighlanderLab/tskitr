@@ -48,9 +48,11 @@ This function is meant for users running \code{tskit <- get_tskit_py()}
 
 }}
 \examples{
-tskit <- get_tskit_py()
-is(tskit)
-if (check_tskit_py(tskit)) {
-  tskit$ALLELES_01
+\dontrun{
+  tskit <- get_tskit_py()
+  is(tskit)
+  if (check_tskit_py(tskit)) {
+    tskit$ALLELES_01
+  }
 }
 }

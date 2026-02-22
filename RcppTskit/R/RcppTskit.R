@@ -24,10 +24,12 @@
 #'   \code{TRUE} if \code{object} is a reticulate Python module or \code{FALSE}
 #'   otherwise.
 #' @examples
-#' tskit <- get_tskit_py()
-#' is(tskit)
-#' if (check_tskit_py(tskit)) {
-#'   tskit$ALLELES_01
+#' \dontrun{
+#'   tskit <- get_tskit_py()
+#'   is(tskit)
+#'   if (check_tskit_py(tskit)) {
+#'     tskit$ALLELES_01
+#'   }
 #' }
 #' @export
 get_tskit_py <- function(object_name = "tskit", force = FALSE) {
@@ -110,6 +112,7 @@ validate_logical_arg <- function(value, name) {
 # @title Converting load arguments to \code{tskit} bitwise options
 # @param skip_tables logical
 # @param skip_reference_sequence logical
+# @details Used in TableCollection and TreeSequence classes.
 # @return Bitwise options.
 # @examples
 # load_args_to_options()
@@ -362,20 +365,22 @@ tc_ptr_print <- function(tc) {
 #   and \code{\link{ts_ptr_py_to_r}}, \code{\link{ts_ptr_load}}, and
 #   \code{ts_ptr_dump} (Rcpp) for underlying pointer functions.
 # @examples
-# ts_file <- system.file("examples/test.trees", package = "RcppTskit")
-# ts_r <- ts_load(ts_file)
-# ts_r_ptr <- ts_r$pointer
-# is(ts_r_ptr)
-# RcppTskit:::ts_ptr_num_samples(ts_r_ptr) # 160
-# # Transfer the tree sequence to reticulate Python and use tskit Python API
-# ts_py <- RcppTskit:::ts_ptr_r_to_py(ts_r_ptr)
-# is(ts_py)
-# ts_py$num_individuals # 80
-# ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
-# ts_py$num_individuals # 80
-# ts2_py$num_individuals # 2
-# ts2_py$num_nodes # 10
-# ts2_py$tables$nodes$time # 0.0 ... 7.4702817
+# \dontrun{
+#   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+#   ts_r <- ts_load(ts_file)
+#   ts_r_ptr <- ts_r$pointer
+#   is(ts_r_ptr)
+#   RcppTskit:::ts_ptr_num_samples(ts_r_ptr) # 16
+#   # Transfer the tree sequence to reticulate Python and use tskit Python API
+#   ts_py <- RcppTskit:::ts_ptr_r_to_py(ts_r_ptr)
+#   is(ts_py)
+#   ts_py$num_individuals # 8
+#   ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
+#   ts_py$num_individuals # 8
+#   ts2_py$num_individuals # 2
+#   ts2_py$num_nodes # 8
+#   ts2_py$tables$nodes$time # 0.0 ... 5.0093910
+# }
 ts_ptr_r_to_py <- function(ts, tskit_module = get_tskit_py(), cleanup = TRUE) {
   if (!is(ts, "externalptr")) {
     stop("ts must be an object of externalptr class!")
@@ -407,20 +412,22 @@ ts_ptr_r_to_py <- function(ts, tskit_module = get_tskit_py(), cleanup = TRUE) {
 #   and \code{\link{tc_ptr_py_to_r}}, \code{\link{tc_ptr_load}}, and
 #   \code{tc_ptr_dump} (Rcpp) for underlying pointer functions.
 # @examples
-# ts_file <- system.file("examples/test.trees", package = "RcppTskit")
-# tc_r <- tc_load(ts_file)
-# tc_r_ptr <- tc_r$pointer
-# is(tc_r_ptr)
-# RcppTskit:::tc_ptr_summary(tc_r_ptr)
-# # Transfer the table collection to reticulate Python and use tskit Python API
-# tc_py <- RcppTskit:::tc_ptr_r_to_py(tc_r_ptr)
-# is(tc_py)
-# tc_py$individuals$num_rows # 80
-# tmp <- tc_py$simplify(samples = c(0L, 1L, 2L, 3L))
-# tmp
-# tc_py$individuals$num_rows # 2
-# tc_py$nodes$num_rows # 10
-# tc_py$nodes$time # 0.0 ... 7.4702817
+# \dontrun{
+#   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+#   tc_r <- tc_load(ts_file)
+#   tc_r_ptr <- tc_r$pointer
+#   is(tc_r_ptr)
+#   RcppTskit:::tc_ptr_summary(tc_r_ptr)
+#   # Transfer the table collection to reticulate Python and use tskit Python API
+#   tc_py <- RcppTskit:::tc_ptr_r_to_py(tc_r_ptr)
+#   is(tc_py)
+#   tc_py$individuals$num_rows # 8
+#   tmp <- tc_py$simplify(samples = c(0L, 1L, 2L, 3L))
+#   tmp
+#   tc_py$individuals$num_rows # 2
+#   tc_py$nodes$num_rows # 8
+#   tc_py$nodes$time # 0.0 ... 5.0093910
+# }
 tc_ptr_r_to_py <- function(tc, tskit_module = get_tskit_py(), cleanup = TRUE) {
   if (!is(tc, "externalptr")) {
     stop("tc must be an object of externalptr class!")
@@ -447,24 +454,26 @@ tc_ptr_r_to_py <- function(tc, tskit_module = get_tskit_py(), cleanup = TRUE) {
 #   and \code{\link{ts_ptr_r_to_py}}, \code{\link{ts_ptr_load}}, and
 #   \code{ts_ptr_dump} (Rcpp) for underlying pointer functions.
 # @examples
-# ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+# \dontrun{
+#   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 #
-# # Use the tskit Python API to work with a tree sequence (via reticulate)
-# tskit <- get_tskit_py()
-# if (check_tskit_py(tskit)) {
-#   ts_py <- tskit$load(ts_file)
-#   is(ts_py)
-#   ts_py$num_individuals # 80
-#   ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
-#   ts_py$num_individuals # 80
-#   ts2_py$num_individuals # 2
-#   ts2_py$num_nodes # 10
-#   ts2_py$tables$nodes$time # 0.0 ... 7.4702817
+#   # Use the tskit Python API to work with a tree sequence (via reticulate)
+#   tskit <- get_tskit_py()
+#   if (check_tskit_py(tskit)) {
+#     ts_py <- tskit$load(ts_file)
+#     is(ts_py)
+#     ts_py$num_individuals # 8
+#     ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
+#     ts_py$num_individuals # 8
+#     ts2_py$num_individuals # 2
+#     ts2_py$num_nodes # 8
+#     ts2_py$tables$nodes$time # 0.0 ... 5.0093910
 #
-#   # Transfer the tree sequence to R and use RcppTskit
-#   ts2_ptr_r <- RcppTskit:::ts_ptr_py_to_r(ts2_py)
-#   is(ts2_ptr_r)
-#   RcppTskit:::ts_ptr_num_individuals(ts2_ptr_r) # 2
+#     # Transfer the tree sequence to R and use RcppTskit
+#     ts2_ptr_r <- RcppTskit:::ts_ptr_py_to_r(ts2_py)
+#     is(ts2_ptr_r)
+#     RcppTskit:::ts_ptr_num_individuals(ts2_ptr_r) # 2
+#   }
 # }
 ts_ptr_py_to_r <- function(ts, cleanup = TRUE) {
   if (!reticulate::is_py_object(ts)) {
@@ -492,24 +501,26 @@ ts_ptr_py_to_r <- function(ts, cleanup = TRUE) {
 #   and \code{\link{tc_ptr_r_to_py}}, \code{\link{tc_ptr_load}}, and
 #   \code{tc_ptr_dump} (Rcpp) for underlying pointer functions.
 # @examples
-# ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+# \dontrun{
+#   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 #
-# # Use the tskit Python API to work with a table collection (via reticulate)
-# tskit <- get_tskit_py()
-# if (check_tskit_py(tskit)) {
-#   tc_py <- tskit$TableCollection$load(ts_file)
-#   is(tc_py)
-#   tc_py$individuals$num_rows # 80
-#   tmp <- tc_py$simplify(samples = c(0L, 1L, 2L, 3L))
-#   tmp
-#   tc_py$individuals$num_rows # 2
-#   tc_py$nodes$num_rows # 10
-#   tc_py$nodes$time # 0.0 ... 7.4702817
+#   # Use the tskit Python API to work with a table collection (via reticulate)
+#   tskit <- get_tskit_py()
+#   if (check_tskit_py(tskit)) {
+#     tc_py <- tskit$TableCollection$load(ts_file)
+#     is(tc_py)
+#     tc_py$individuals$num_rows # 8
+#     tmp <- tc_py$simplify(samples = c(0L, 1L, 2L, 3L))
+#     tmp
+#     tc_py$individuals$num_rows # 2
+#     tc_py$nodes$num_rows # 8
+#     tc_py$nodes$time # 0.0 ... 5.0093910
 #
-#   # Transfer the table collection to R and use RcppTskit
-#   tc2_ptr_r <- RcppTskit:::tc_ptr_py_to_r(tc_py)
-#   is(tc2_ptr_r)
-#   RcppTskit:::tc_ptr_summary(tc2_ptr_r)
+#     # Transfer the table collection to R and use RcppTskit
+#     tc2_ptr_r <- RcppTskit:::tc_ptr_py_to_r(tc_py)
+#     is(tc2_ptr_r)
+#     RcppTskit:::tc_ptr_summary(tc2_ptr_r)
+#   }
 # }
 tc_ptr_py_to_r <- function(tc, cleanup = TRUE) {
   if (!reticulate::is_py_object(tc)) {
@@ -533,24 +544,26 @@ tc_ptr_py_to_r <- function(tc, cleanup = TRUE) {
 #' @seealso \code{\link[=TreeSequence]{TreeSequence$r_to_py}}
 #'   \code{\link{ts_load}}, and \code{\link[=TreeSequence]{TreeSequence$dump}}.
 #' @examples
-#' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+#' \dontrun{
+#'   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 #'
-#' # Use the tskit Python API to work with a tree sequence (via reticulate)
-#' tskit <- get_tskit_py()
-#' if (check_tskit_py(tskit)) {
-#'   ts_py <- tskit$load(ts_file)
-#'   is(ts_py)
-#'   ts_py$num_individuals # 80
-#'   ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
-#'   ts_py$num_individuals # 80
-#'   ts2_py$num_individuals # 2
-#'   ts2_py$num_nodes # 10
-#'   ts2_py$tables$nodes$time # 0.0 ... 7.4702817
+#'   # Use the tskit Python API to work with a tree sequence (via reticulate)
+#'   tskit <- get_tskit_py()
+#'   if (check_tskit_py(tskit)) {
+#'     ts_py <- tskit$load(ts_file)
+#'     is(ts_py)
+#'     ts_py$num_individuals # 8
+#'     ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
+#'     ts_py$num_individuals # 8
+#'     ts2_py$num_individuals # 2
+#'     ts2_py$num_nodes # 8
+#'     ts2_py$tables$nodes$time # 0.0 ... 5.0093910
 #'
-#'   # Transfer the tree sequence to R and use RcppTskit
-#'   ts2_r <- ts_py_to_r(ts2_py)
-#'   is(ts2_r)
-#'   ts2_r$num_individuals() # 2
+#'     # Transfer the tree sequence to R and use RcppTskit
+#'     ts2_r <- ts_py_to_r(ts2_py)
+#'     is(ts2_r)
+#'     ts2_r$num_individuals() # 2
+#'   }
 #' }
 #' @export
 ts_py_to_r <- function(ts, cleanup = TRUE) {
@@ -568,24 +581,26 @@ ts_py_to_r <- function(ts, cleanup = TRUE) {
 #' @seealso \code{\link[=TableCollection]{TableCollection$r_to_py}}
 #'   \code{\link{tc_load}}, and \code{\link[=TableCollection]{TableCollection$dump}}.
 #' @examples
-#' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+#' \dontrun{
+#'   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 #'
-#' # Use the tskit Python API to work with a table collection (via reticulate)
-#' tskit <- get_tskit_py()
-#' if (check_tskit_py(tskit)) {
-#'   tc_py <- tskit$TableCollection$load(ts_file)
-#'   is(tc_py)
-#'   tc_py$individuals$num_rows # 80
-#'   tmp <- tc_py$simplify(samples = c(0L, 1L, 2L, 3L))
-#'   tmp
-#'   tc_py$individuals$num_rows # 2
-#'   tc_py$nodes$num_rows # 10
-#'   tc_py$nodes$time # 0.0 ... 7.4702817
+#'   # Use the tskit Python API to work with a table collection (via reticulate)
+#'   tskit <- get_tskit_py()
+#'   if (check_tskit_py(tskit)) {
+#'     tc_py <- tskit$TableCollection$load(ts_file)
+#'     is(tc_py)
+#'     tc_py$individuals$num_rows # 8
+#'     tmp <- tc_py$simplify(samples = c(0L, 1L, 2L, 3L))
+#'     tmp
+#'     tc_py$individuals$num_rows # 2
+#'     tc_py$nodes$num_rows # 8
+#'     tc_py$nodes$time # 0.0 ... 5.0093910
 #'
-#'   # Transfer the table collection to R and use RcppTskit
-#'   tc_r <- tc_py_to_r(tc_py)
-#'   is(tc_r)
-#'   tc_r$print()
+#'     # Transfer the table collection to R and use RcppTskit
+#'     tc_r <- tc_py_to_r(tc_py)
+#'     is(tc_r)
+#'    tc_r$print()
+#'   }
 #' }
 #' @export
 tc_py_to_r <- function(tc, cleanup = TRUE) {

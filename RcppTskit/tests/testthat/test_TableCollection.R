@@ -78,7 +78,7 @@ test_that("TableCollection and TreeSequence round-trip works", {
           "time_units",
           "has_metadata"
         ),
-        value = c(10000, "generations", FALSE)
+        value = c(100, "generations", FALSE)
       ),
       tables = data.frame(
         table = c(
@@ -91,7 +91,7 @@ test_that("TableCollection and TreeSequence round-trip works", {
           "sites",
           "mutations"
         ),
-        number = c(2, 1, 0, 80, 344, 414, 2376, 2700),
+        number = c(2, 1, 0, 8, 39, 59, 25, 30),
         has_metadata = c(
           NA, # provenances have no metadata
           TRUE,
@@ -142,7 +142,7 @@ test_that("TableCollection and TreeSequence round-trip works", {
           "time_units",
           "has_metadata"
         ),
-        value = c(10000, "generations", FALSE)
+        value = c(100, "generations", FALSE)
       ),
       tables = data.frame(
         table = c(
@@ -155,7 +155,7 @@ test_that("TableCollection and TreeSequence round-trip works", {
           "sites",
           "mutations"
         ),
-        number = c(2, 1, 0, 80, 344, 414, 2376, 2700),
+        number = c(2, 1, 0, 8, 39, 59, 25, 30),
         has_metadata = c(
           NA, # provenances have no metadata
           TRUE,

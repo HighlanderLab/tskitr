@@ -19,24 +19,26 @@ This function saves a tree sequence from reticulate Python to disk
   and reads it into R for use with \code{RcppTskit}.
 }
 \examples{
-ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+\dontrun{
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 
-# Use the tskit Python API to work with a tree sequence (via reticulate)
-tskit <- get_tskit_py()
-if (check_tskit_py(tskit)) {
-  ts_py <- tskit$load(ts_file)
-  is(ts_py)
-  ts_py$num_individuals # 80
-  ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
-  ts_py$num_individuals # 80
-  ts2_py$num_individuals # 2
-  ts2_py$num_nodes # 10
-  ts2_py$tables$nodes$time # 0.0 ... 7.4702817
+  # Use the tskit Python API to work with a tree sequence (via reticulate)
+  tskit <- get_tskit_py()
+  if (check_tskit_py(tskit)) {
+    ts_py <- tskit$load(ts_file)
+    is(ts_py)
+    ts_py$num_individuals # 8
+    ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
+    ts_py$num_individuals # 8
+    ts2_py$num_individuals # 2
+    ts2_py$num_nodes # 8
+    ts2_py$tables$nodes$time # 0.0 ... 5.0093910
 
-  # Transfer the tree sequence to R and use RcppTskit
-  ts2_r <- ts_py_to_r(ts2_py)
-  is(ts2_r)
-  ts2_r$num_individuals() # 2
+    # Transfer the tree sequence to R and use RcppTskit
+    ts2_r <- ts_py_to_r(ts2_py)
+    is(ts2_r)
+    ts2_r$num_individuals() # 2
+  }
 }
 }
 \seealso{

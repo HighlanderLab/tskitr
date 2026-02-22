@@ -126,22 +126,24 @@ TreeSequence <- R6Class(
     #' @seealso \code{\link{ts_py_to_r}}, \code{\link{ts_load}}, and
     #'   \code{\link[=TreeSequence]{TreeSequence$dump}}.
     #' @examples
-    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
-    #' ts_r <- ts_load(ts_file)
-    #' is(ts_r)
-    #' ts_r$num_individuals() # 80
+    #' \dontrun{
+    #'   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #'   ts_r <- ts_load(ts_file)
+    #'   is(ts_r)
+    #'   ts_r$num_individuals() # 8
     #'
-    #' # Transfer the tree sequence to reticulate Python and use tskit Python API
-    #' tskit <- get_tskit_py()
-    #' if (check_tskit_py(tskit)) {
-    #'   ts_py <- ts_r$r_to_py()
-    #'   is(ts_py)
-    #'   ts_py$num_individuals # 80
-    #'   ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
-    #'   ts_py$num_individuals # 80
-    #'   ts2_py$num_individuals # 2
-    #'   ts2_py$num_nodes # 10
-    #'   ts2_py$tables$nodes$time # 0.0 ... 7.4702817
+    #'   # Transfer the tree sequence to reticulate Python and use tskit Python API
+    #'   tskit <- get_tskit_py()
+    #'   if (check_tskit_py(tskit)) {
+    #'     ts_py <- ts_r$r_to_py()
+    #'     is(ts_py)
+    #'     ts_py$num_individuals # 8
+    #'     ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
+    #'     ts_py$num_individuals # 8
+    #'     ts2_py$num_individuals # 2
+    #'     ts2_py$num_nodes # 8
+    #'     ts2_py$tables$nodes$time # 0.0 ... 5.0093910
+    #'   }
     #' }
     r_to_py = function(tskit_module = get_tskit_py(), cleanup = TRUE) {
       ts_ptr_r_to_py(

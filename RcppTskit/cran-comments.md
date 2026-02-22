@@ -6,6 +6,10 @@
 
 * Re-submitting to CRAN.
 
+* Submitted to CRAN on 2026-02-12 and got feedback to reduce examples time.
+  Have addressed this by reducing size of `.trees` and `\dontrun{}` for
+  any function that calls `get_tskit_py()`.
+
 * Submitted to CRAN on 2026-02-09 and got feedback to quote
   Python, C, and Rust and to be mindful about case sensitivity.
 

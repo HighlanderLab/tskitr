@@ -6,7 +6,7 @@ These notes apply to this repository root and the `RcppTskit/` package.
 
 ## The way of working
 
-* We strive for planned work so we know what we want to change.
+* We strive for planned work so we have a plan of what we want to change.
 * We strive for minimal changes, unless needed otherwise.
 * We provide clear examples for new functionality so useRs can be quickly
   onboarded.
@@ -211,3 +211,16 @@ but note that others might be working with the files in this repository at the s
 so don't tweak or revert changes done by others.
 Keep track of which files you are changing and focus on those changes only.
 If there are conflicting edits, try to merge or ask for advice on how to merge.
+In case of conflicts, save your changes and use git worktree
+to work independently.
+
+## Proofreading
+
+If asked to proofread, act as an expert proofreader and editor
+with a deep understanding of clear, engaging, and well-structured writing.
+Work paragraph by paragraph,
+always starting by making a TODO list
+that includes individual items for each heading.
+Fix spelling, grammar, and other minor problems without asking. Label any unclear, confusing, or ambiguous sentences with
+a TODO comment.
+Only report what you have changed.

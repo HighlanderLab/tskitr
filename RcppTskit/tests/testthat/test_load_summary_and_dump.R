@@ -135,17 +135,17 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
       "num_provenances" = 2L,
       "num_populations" = 1L,
       "num_migrations" = 0L,
-      "num_individuals" = 80L,
-      "num_samples" = 160L,
-      "num_nodes" = 344L,
-      "num_edges" = 414L,
-      "num_trees" = 26L,
-      "num_sites" = 2376L,
-      "num_mutations" = 2700L,
-      "sequence_length" = 10000.0,
+      "num_individuals" = 8L,
+      "num_samples" = 16L,
+      "num_nodes" = 39L,
+      "num_edges" = 59L,
+      "num_trees" = 9L,
+      "num_sites" = 25L,
+      "num_mutations" = 30L,
+      "sequence_length" = 100.0,
       "time_units" = "generations",
       "min_time" = 0,
-      "max_time" = 7.470281689748594
+      "max_time" = 6.9619933371908083
     )
   )
 
@@ -174,57 +174,57 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   expect_error(ts_ptr_num_individuals(ts))
   n_ptr <- ts_ptr_num_individuals(ts_ptr)
   expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 80L)
-  expect_equal(ts$num_individuals(), 80L)
+  expect_equal(n_ptr, 8L)
+  expect_equal(ts$num_individuals(), 8L)
 
   expect_error(ts_ptr_num_samples())
   expect_error(ts_ptr_num_samples(ts))
   n_ptr <- ts_ptr_num_samples(ts_ptr)
   expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 160L)
-  expect_equal(ts$num_samples(), 160L)
+  expect_equal(n_ptr, 16L)
+  expect_equal(ts$num_samples(), 16L)
 
   expect_error(ts_ptr_num_nodes())
   expect_error(ts_ptr_num_nodes(ts))
   n_ptr <- ts_ptr_num_nodes(ts_ptr)
   expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 344L)
-  expect_equal(ts$num_nodes(), 344L)
+  expect_equal(n_ptr, 39L)
+  expect_equal(ts$num_nodes(), 39L)
 
   expect_error(ts_ptr_num_edges())
   expect_error(ts_ptr_num_edges(ts))
   n_ptr <- ts_ptr_num_edges(ts_ptr)
   expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 414L)
-  expect_equal(ts$num_edges(), 414L)
+  expect_equal(n_ptr, 59L)
+  expect_equal(ts$num_edges(), 59L)
 
   expect_error(ts_ptr_num_trees())
   expect_error(ts_ptr_num_trees(ts))
   n_ptr <- ts_ptr_num_trees(ts_ptr)
   expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 26L)
-  expect_equal(ts$num_trees(), 26L)
+  expect_equal(n_ptr, 9L)
+  expect_equal(ts$num_trees(), 9L)
 
   expect_error(ts_ptr_num_sites())
   expect_error(ts_ptr_num_sites(ts))
   n_ptr <- ts_ptr_num_sites(ts_ptr)
   expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 2376L)
-  expect_equal(ts$num_sites(), 2376L)
+  expect_equal(n_ptr, 25L)
+  expect_equal(ts$num_sites(), 25L)
 
   expect_error(ts_ptr_num_mutations())
   expect_error(ts_ptr_num_mutations(ts))
   n_ptr <- ts_ptr_num_mutations(ts_ptr)
   expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 2700L)
-  expect_equal(ts$num_mutations(), 2700L)
+  expect_equal(n_ptr, 30L)
+  expect_equal(ts$num_mutations(), 30L)
 
   expect_error(ts_ptr_sequence_length())
   expect_error(ts_ptr_sequence_length(ts))
   n_ptr <- ts_ptr_sequence_length(ts_ptr)
   expect_true(is.numeric(n_ptr))
-  expect_equal(n_ptr, 10000)
-  expect_equal(ts$sequence_length(), 10000)
+  expect_equal(n_ptr, 100)
+  expect_equal(ts$sequence_length(), 100)
 
   expect_error(ts_ptr_time_units())
   expect_error(ts_ptr_time_units(ts))
@@ -244,8 +244,8 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   expect_error(ts_ptr_max_time(ts))
   d_ptr <- ts_ptr_max_time(ts_ptr)
   expect_true(is.numeric(d_ptr))
-  expect_equal(d_ptr, 7.470281689748594)
-  expect_equal(ts$max_time(), 7.470281689748594)
+  expect_equal(d_ptr, 6.9619933371908083)
+  expect_equal(ts$max_time(), 6.9619933371908083)
 
   # ---- tc_ptr_summary() ----
 
@@ -290,7 +290,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "max_time",
           "has_metadata"
         ),
-        value = c(160, 10000, 26, "generations", 0.0, 7.470281689748594, FALSE)
+        value = c(16, 100, 9, "generations", 0.0, 6.9619933371908083, FALSE)
       ),
       tables = data.frame(
         table = c(
@@ -303,7 +303,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "sites",
           "mutations"
         ),
-        number = c(2, 1, 0, 80, 344, 414, 2376, 2700),
+        number = c(2, 1, 0, 8, 39, 59, 25, 30),
         has_metadata = c(
           NA, # provenances have no metadata
           TRUE,
@@ -338,7 +338,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "time_units",
           "has_metadata"
         ),
-        value = c(10000, "generations", FALSE)
+        value = c(100, "generations", FALSE)
       ),
       tables = data.frame(
         table = c(
@@ -351,7 +351,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "sites",
           "mutations"
         ),
-        number = c(2, 1, 0, 80, 344, 414, 2376, 2700),
+        number = c(2, 1, 0, 8, 39, 59, 25, 30),
         has_metadata = c(
           NA, # provenances have no metadata
           TRUE,
@@ -401,17 +401,17 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
       "num_provenances" = 2L,
       "num_populations" = 1L,
       "num_migrations" = 0L,
-      "num_individuals" = 80L,
-      "num_samples" = 160L,
-      "num_nodes" = 344L,
-      "num_edges" = 414L,
-      "num_trees" = 26L,
-      "num_sites" = 2376L,
-      "num_mutations" = 2700L,
-      "sequence_length" = 10000.0,
+      "num_individuals" = 8L,
+      "num_samples" = 16L,
+      "num_nodes" = 39L,
+      "num_edges" = 59L,
+      "num_trees" = 9L,
+      "num_sites" = 25L,
+      "num_mutations" = 30L,
+      "sequence_length" = 100.0,
       "time_units" = "generations",
       "min_time" = 0.0,
-      "max_time" = 7.470281689748594
+      "max_time" = 6.9619933371908083
     )
   )
 
@@ -487,17 +487,17 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
       "num_provenances" = 2L,
       "num_populations" = 1L,
       "num_migrations" = 0L,
-      "num_individuals" = 80L,
-      "num_samples" = 160L,
-      "num_nodes" = 344L,
-      "num_edges" = 414L,
-      "num_trees" = 26L,
-      "num_sites" = 2376L,
-      "num_mutations" = 2700L,
-      "sequence_length" = 10000.0,
+      "num_individuals" = 8L,
+      "num_samples" = 16L,
+      "num_nodes" = 39L,
+      "num_edges" = 59L,
+      "num_trees" = 9L,
+      "num_sites" = 25L,
+      "num_mutations" = 30L,
+      "sequence_length" = 100.0,
       "time_units" = "generations",
       "min_time" = 0.0,
-      "max_time" = 7.470281689748594
+      "max_time" = 6.9619933371908083
     )
   )
 
@@ -529,12 +529,12 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
       "num_provenances" = 2L,
       "num_populations" = 1L,
       "num_migrations" = 0L,
-      "num_individuals" = 80L,
-      "num_nodes" = 344L,
-      "num_edges" = 414L,
-      "num_sites" = 2376L,
-      "num_mutations" = 2700L,
-      "sequence_length" = 10000.0,
+      "num_individuals" = 8L,
+      "num_nodes" = 39L,
+      "num_edges" = 59L,
+      "num_sites" = 25L,
+      "num_mutations" = 30L,
+      "sequence_length" = 100.0,
       "time_units" = "generations"
     )
   )
@@ -572,17 +572,17 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
       "num_provenances" = 2L,
       "num_populations" = 1L,
       "num_migrations" = 0L,
-      "num_individuals" = 81L,
-      "num_samples" = 160L,
-      "num_nodes" = 344L,
-      "num_edges" = 414L,
-      "num_trees" = 26L,
-      "num_sites" = 2376L,
-      "num_mutations" = 2700L,
-      "sequence_length" = 10000.0,
+      "num_individuals" = 9L,
+      "num_samples" = 16L,
+      "num_nodes" = 39L,
+      "num_edges" = 59L,
+      "num_trees" = 9L,
+      "num_sites" = 25L,
+      "num_mutations" = 30L,
+      "sequence_length" = 100.0,
       "time_units" = "generations",
       "min_time" = 0,
-      "max_time" = 7.470281689748594
+      "max_time" = 6.9619933371908083
     )
   )
 
@@ -620,7 +620,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "max_time",
           "has_metadata"
         ),
-        value = c(160, 10000, 26, "generations", 0.0, 7.470281689748594, TRUE)
+        value = c(16, 100, 9, "generations", 0.0, 6.9619933371908083, TRUE)
       ),
       tables = data.frame(
         table = c(
@@ -633,7 +633,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "sites",
           "mutations"
         ),
-        number = c(2, 1, 0, 81, 344, 414, 2376, 2700),
+        number = c(2, 1, 0, 9, 39, 59, 25, 30),
         has_metadata = c(
           NA, # provenances have no metadata
           TRUE,
@@ -698,7 +698,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "time_units",
           "has_metadata"
         ),
-        value = c(10000, "generations", TRUE)
+        value = c(100, "generations", TRUE)
       ),
       tables = data.frame(
         table = c(
@@ -711,7 +711,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "sites",
           "mutations"
         ),
-        number = c(2, 1, 0, 81, 344, 414, 2376, 2700),
+        number = c(2, 1, 0, 9, 39, 59, 25, 30),
         has_metadata = c(
           NA, # provenances have no metadata
           TRUE,

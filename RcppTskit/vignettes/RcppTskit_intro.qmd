@@ -252,11 +252,11 @@ tskit <- get_tskit_py()
 if (check_tskit_py(tskit)) {
   ts_py <- ts$r_to_py()
   # ... continue in reticulate Python ...
-  ts_py$num_individuals # 80
+  ts_py$num_individuals # 8
   ts2_py = ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
   ts2_py$num_individuals # 2
-  ts2_py$num_nodes # 10
-  ts2_py$tables$nodes$time # 0.0 ... 7.4702817
+  ts2_py$num_nodes # 8
+  ts2_py$tables$nodes$time # 0.0 ... 5.0093910
   # ... and to bring it back to R, use ...
   ts2 <- ts_py_to_r(ts2_py)
   ts2$num_individuals() # 2
@@ -269,7 +269,7 @@ ts$dump(file = ts_file)
 # ... continue in standard Python ...
 # import tskit
 # ts = tskit.load("insert_ts_file_path_here")
-# ts.num_individuals # 80
+# ts.num_individuals # 8
 # ts2 = ts.simplify(samples = [0, 1, 2, 3])
 # ts2.num_individuals # 2
 # ts2.dump("insert_ts_file_path_here")
@@ -286,8 +286,8 @@ if (check_tskit_py(tskit)) {
   tmp <- tc_py$simplify(samples = c(0L, 1L, 2L, 3L))
   tmp
   tc_py$individuals$num_rows # 2
-  tc_py$nodes$num_rows # 10
-  tc_py$nodes$time # 0.0 ... 7.4702817
+  tc_py$nodes$num_rows # 8
+  tc_py$nodes$time # 0.0 ... 5.0093910
   # ... and to bring it back to R, use ...
   tc2 <- tc_py_to_r(tc_py)
   tc2$print()

@@ -4,7 +4,7 @@ All notable changes to RcppTskit are documented in this file.
 The file format is based on [Keep a Changelog](https://keepachangelog.com),
 and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0] - 2026-02-13
+## [0.2.0] - 2026-02-22
 
 ### Added (new features)
 
@@ -35,10 +35,16 @@ and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Maintenance
 
+- Used `\dontrun{}` with `get_tskit_py()` calls in examples to
+  further reduce `R CMD check time` on CRAN.
+
+- Reduced bundled example tree-sequence sizes in `inst/examples/test.trees`
+  and `inst/examples/test2.trees` to speed up examples and checks.
+
 - Delete temporary files in examples and tests after use.
 
 - Renamed unexported functions from `RcppTskit:::ts_load_ptr()` to
-  `RcppTskit:::ts_ptr_load()`.
+  `RcppTskit:::ts_ptr_load()` style.
 
 ## [0.1.0] - 2026-01-26
 

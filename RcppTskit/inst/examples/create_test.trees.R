@@ -24,29 +24,29 @@ tskit <- import("tskit")
 
 # Generate a tree sequence for testing
 ts <- msprime$sim_ancestry(
-  samples = 80,
-  sequence_length = 1e4,
-  recombination_rate = 1e-4,
+  samples = 8,
+  sequence_length = 1e2,
+  recombination_rate = 1e-2,
   random_seed = 42
 )
-ts <- msprime$sim_mutations(ts, rate = 1e-2, random_seed = 42)
+ts <- msprime$sim_mutations(ts, rate = 2e-2, random_seed = 42)
 ts
 cat(py_str(ts))
 builtins$print(ts)
 ts$num_provenances # 2
 ts$num_populations # 1
 ts$num_migrations # 0
-ts$num_individuals # 80
-ts$num_samples # 160
-ts$num_nodes # 344
-ts$num_edges # 414
-ts$num_trees # 26
-ts$num_sites # 2376
-ts$num_mutations # 2700
-ts$sequence_length # 10000.0
+ts$num_individuals # 8
+ts$num_samples # 16
+ts$num_nodes # 39
+ts$num_edges # 59
+ts$num_trees # 9
+ts$num_sites # 25
+ts$num_mutations # 30
+ts$sequence_length # 100.0
 ts$time_units # generations
 ts$min_time # 0.0
-ts$max_time # 7.470281689748594
+ts$max_time # 6.961993337190808
 
 ts$metadata # b''
 builtins$type(ts$metadata) # <class 'bytes'>
@@ -96,7 +96,7 @@ ts$dump("inst/examples/test.trees")
 
 ts <- tskit$load("inst/examples/test2.trees")
 ts
-ts$num_individuals # 81
+ts$num_individuals # 9
 
 ts$metadata
 # $mean_coverage

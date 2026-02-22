@@ -20,4 +20,6 @@ RcppTskit/src/tskit/*.o
 RcppTskit/vignettes/*.R
 RcppTskit/vignettes/*.html
 RcppTskit/vignettes/*_files/
+RcppTskit.Rcheck/
+RcppTskit_*.tar.gz
 test.trees
