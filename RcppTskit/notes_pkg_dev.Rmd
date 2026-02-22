@@ -276,6 +276,8 @@ Zero copy in R ideas based on ALTREP:
 
 https://github.com/r-lib/sparsevctrs uses ALTREP
 
+cpp11 is ALTREP-aware https://speakerdeck.com/jimhester/cpp11-welding-r-and-c-plus-plus?slide=64
+
 -------------------------------------------------------------------------------
 
 A simpler? one than a more complex one below:
