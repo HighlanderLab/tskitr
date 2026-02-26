@@ -16,7 +16,11 @@ A \code{\link{TableCollection}} object.
 }
 \description{
 This function saves a table collection from reticulate Python
-  to disk and reads it into R for use with \code{RcppTskit}.
+  to temporary file on disk and reads it into R for use with \code{RcppTskit}.
+}
+\details{
+Because this transfer is via a temporary file,
+  the file UUID property changes.
 }
 \examples{
 \dontrun{

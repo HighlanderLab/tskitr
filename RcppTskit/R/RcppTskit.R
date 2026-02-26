@@ -139,7 +139,7 @@ load_args_to_options <- function(
 #' @param file a string specifying the full path to a tree sequence file.
 #' @param skip_tables logical; if \code{TRUE}, load only non-table information.
 #' @param skip_reference_sequence logical; if \code{TRUE}, skip loading
-#'   reference sequence information.
+#'   reference genome sequence information.
 #' @details See the corresponding Python function at
 #'   \url{https://tskit.dev/tskit/docs/latest/python-api.html#tskit.load}.
 #' @return A \code{\link{TreeSequence}} object.
@@ -175,7 +175,7 @@ ts_read <- ts_load
 #' @param file a string specifying the full path to a tree sequence file.
 #' @param skip_tables logical; if \code{TRUE}, load only non-table information.
 #' @param skip_reference_sequence logical; if \code{TRUE}, skip loading
-#'   reference sequence information.
+#'   reference genome sequence information.
 #' @return A \code{\link{TableCollection}} object.
 #' @details See the corresponding Python function at
 #'   \url{https://github.com/tskit-dev/tskit/blob/dc394d72d121c99c6dcad88f7a4873880924dd72/python/tskit/tables.py#L3463}.
@@ -229,21 +229,29 @@ ts_ptr_print <- function(ts) {
     ts = data.frame(
       property = c(
         "num_samples",
-        "sequence_length",
         "num_trees",
+        "sequence_length",
+        "discrete_genome",
+        "has_reference_sequence",
         "time_units",
+        "discrete_time",
         "min_time",
         "max_time",
-        "has_metadata"
+        "has_metadata",
+        "file_uuid"
       ),
       value = c(
         tmp_summary[["num_samples"]],
-        tmp_summary[["sequence_length"]],
         tmp_summary[["num_trees"]],
+        tmp_summary[["sequence_length"]],
+        tmp_summary[["discrete_genome"]],
+        tmp_summary[["has_reference_sequence"]],
         tmp_summary[["time_units"]],
+        tmp_summary[["discrete_time"]],
         tmp_summary[["min_time"]],
         tmp_summary[["max_time"]],
-        tmp_metadata[["ts"]] > 0
+        tmp_metadata[["ts"]] > 0,
+        tmp_summary[["file_uuid"]]
       )
     ),
     tables = data.frame(
@@ -306,13 +314,19 @@ tc_ptr_print <- function(tc) {
     tc = data.frame(
       property = c(
         "sequence_length",
+        "has_reference_sequence",
         "time_units",
-        "has_metadata"
+        "has_metadata",
+        "file_uuid",
+        "has_index"
       ),
       value = c(
         tmp_summary[["sequence_length"]],
+        tmp_summary[["has_reference_sequence"]],
         tmp_summary[["time_units"]],
-        tmp_metadata[["tc"]] > 0
+        tmp_metadata[["tc"]] > 0,
+        tmp_summary[["file_uuid"]],
+        tmp_summary[["has_index"]]
       )
     ),
     tables = data.frame(
@@ -352,13 +366,16 @@ tc_ptr_print <- function(tc) {
 }
 
 # @title Transfer a tree sequence from R to reticulate Python
-# @description This function saves a tree sequence from R to disk and
-#   reads it into reticulate Python for use with \code{tskit} Python API.
+# @description This function saves a tree sequence from R to
+#   temporary file on disk and reads it into reticulate Python
+#   for use with \code{tskit} Python API.
 # @param ts an external pointer (\code{externalptr}) to a \code{tsk_treeseq_t} object.
 # @param tskit_module reticulate Python module of \code{tskit}. By default,
 #   it calls \code{\link{get_tskit_py}} to obtain the module.
 # @param cleanup logical; delete the temporary file at the end of the function?
 # @return A tree sequence in reticulate Python.
+# @details Because this transfer is via a temporary file,
+#   the file UUID property changes.
 # @seealso \code{\link{ts_py_to_r}}, \code{\link{ts_load}}, and
 #   \code{\link[=TreeSequence]{TreeSequence$dump}} on how this function
 #   is used and presented to users,
@@ -396,8 +413,9 @@ ts_ptr_r_to_py <- function(ts, tskit_module = get_tskit_py(), cleanup = TRUE) {
 }
 
 # @title Transfer a table collection from R to reticulate Python
-# @description This function saves a table collection from R to disk and
-#   reads it into reticulate Python for use with \code{tskit} Python API.
+# @description This function saves a table collection from R to
+#   temporary file on disk and reads it into reticulate Python
+#   for use with \code{tskit} Python API.
 # @param tc an external pointer (\code{externalptr}) to a
 #   \code{tsk_table_collection_t} object.
 # @param tskit_module reticulate Python module of \code{tskit}. By default,
@@ -405,6 +423,8 @@ ts_ptr_r_to_py <- function(ts, tskit_module = get_tskit_py(), cleanup = TRUE) {
 # @param cleanup logical; delete the temporary file at the end of the function?
 # @details See \url{https://tskit.dev/tutorials/tables_and_editing.html#tables-and-editing}
 #   on what you can do with the tables.
+#   Because this transfer is via a temporary file,
+#   the file UUID property changes.
 # @return A table collection in reticulate Python.
 # @seealso \code{\link{tc_py_to_r}}, \code{\link{tc_load}}, and
 #   \code{\link[=TableCollection]{TableCollection$dump}} on how this function
@@ -443,11 +463,13 @@ tc_ptr_r_to_py <- function(tc, tskit_module = get_tskit_py(), cleanup = TRUE) {
 }
 
 # @title Transfer a tree sequence from reticulate Python to R
-# @description This function saves a tree sequence from reticulate Python to disk
-#   and reads it into R for use with \code{RcppTskit}.
+# @description This function saves a tree sequence from reticulate Python to
+#   temporary file on disk and reads it into R for use with \code{RcppTskit}.
 # @param ts tree sequence in reticulate Python.
 # @param cleanup logical; delete the temporary file at the end of the function?
 # @return An external pointer (\code{externalptr}) to a \code{tsk_treeseq_t} object.
+# @details Because this transfer is via a temporary file,
+#   the file UUID property changes.
 # @seealso \code{\link[=TreeSequence]{TreeSequence$r_to_py}},
 #   \code{\link{ts_load}}, and \code{\link[=TreeSequence]{TreeSequence$dump}}
 #   on how this function is used and presented to users,
@@ -490,11 +512,13 @@ ts_ptr_py_to_r <- function(ts, cleanup = TRUE) {
 
 # @title Transfer a table collection from reticulate Python to R
 # @description This function saves a table collection from reticulate Python to
-#   disk and reads it into R for use with \code{RcppTskit}.
+#   temporary file on disk and reads it into R for use with \code{RcppTskit}.
 # @param tc table collection in reticulate Python.
 # @param cleanup logical; delete the temporary file at the end of the function?
 # @return An external pointer (\code{externalptr}) to a
 #   \code{tsk_table_collection_t} object.
+# @details Because this transfer is via a temporary file,
+#   the file UUID property changes.
 # @seealso \code{\link[=TableCollection]{TableCollection$r_to_py}},
 #   \code{\link{tc_load}}, and \code{\link[=TableCollection]{TableCollection$dump}}
 #   on how this function is used and presented to users,
@@ -536,11 +560,13 @@ tc_ptr_py_to_r <- function(tc, cleanup = TRUE) {
 }
 
 #' @title Transfer a tree sequence from reticulate Python to R
-#' @description This function saves a tree sequence from reticulate Python to disk
-#'   and reads it into R for use with \code{RcppTskit}.
+#' @description This function saves a tree sequence from reticulate Python to
+#'   temporary file on disk and reads it into R for use with \code{RcppTskit}.
 #' @param ts tree sequence in reticulate Python.
 #' @param cleanup logical; delete the temporary file at the end of the function?
 #' @return A \code{\link{TreeSequence}} object.
+#' @details Because this transfer is via a temporary file,
+#'   the file UUID property changes.
 #' @seealso \code{\link[=TreeSequence]{TreeSequence$r_to_py}}
 #'   \code{\link{ts_load}}, and \code{\link[=TreeSequence]{TreeSequence$dump}}.
 #' @examples
@@ -574,10 +600,12 @@ ts_py_to_r <- function(ts, cleanup = TRUE) {
 
 #' @title Transfer a table collection from reticulate Python to R
 #' @description This function saves a table collection from reticulate Python
-#'   to disk and reads it into R for use with \code{RcppTskit}.
+#'   to temporary file on disk and reads it into R for use with \code{RcppTskit}.
 #' @param tc table collection in reticulate Python.
 #' @param cleanup logical; delete the temporary file at the end of the function?
 #' @return A \code{\link{TableCollection}} object.
+#' @details Because this transfer is via a temporary file,
+#'   the file UUID property changes.
 #' @seealso \code{\link[=TableCollection]{TableCollection$r_to_py}}
 #'   \code{\link{tc_load}}, and \code{\link[=TableCollection]{TableCollection$dump}}.
 #' @examples

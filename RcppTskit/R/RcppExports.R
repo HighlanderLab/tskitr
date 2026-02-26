@@ -91,8 +91,20 @@ ts_ptr_sequence_length <- function(ts) {
     .Call(`_RcppTskit_ts_ptr_sequence_length`, ts)
 }
 
+ts_ptr_discrete_genome <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_discrete_genome`, ts)
+}
+
+ts_ptr_has_reference_sequence <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_has_reference_sequence`, ts)
+}
+
 ts_ptr_time_units <- function(ts) {
     .Call(`_RcppTskit_ts_ptr_time_units`, ts)
+}
+
+ts_ptr_discrete_time <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_discrete_time`, ts)
 }
 
 ts_ptr_min_time <- function(ts) {
@@ -103,16 +115,40 @@ ts_ptr_max_time <- function(ts) {
     .Call(`_RcppTskit_ts_ptr_max_time`, ts)
 }
 
+ts_ptr_file_uuid <- function(ts) {
+    .Call(`_RcppTskit_ts_ptr_file_uuid`, ts)
+}
+
 ts_ptr_summary <- function(ts) {
     .Call(`_RcppTskit_ts_ptr_summary`, ts)
 }
 
-tc_ptr_summary <- function(tc) {
-    .Call(`_RcppTskit_tc_ptr_summary`, tc)
-}
-
 ts_ptr_metadata_length <- function(ts) {
     .Call(`_RcppTskit_ts_ptr_metadata_length`, ts)
+}
+
+tc_ptr_sequence_length <- function(tc) {
+    .Call(`_RcppTskit_tc_ptr_sequence_length`, tc)
+}
+
+tc_ptr_has_reference_sequence <- function(tc) {
+    .Call(`_RcppTskit_tc_ptr_has_reference_sequence`, tc)
+}
+
+tc_ptr_time_units <- function(tc) {
+    .Call(`_RcppTskit_tc_ptr_time_units`, tc)
+}
+
+tc_ptr_file_uuid <- function(tc) {
+    .Call(`_RcppTskit_tc_ptr_file_uuid`, tc)
+}
+
+tc_ptr_has_index <- function(tc) {
+    .Call(`_RcppTskit_tc_ptr_has_index`, tc)
+}
+
+tc_ptr_summary <- function(tc) {
+    .Call(`_RcppTskit_tc_ptr_summary`, tc)
 }
 
 tc_ptr_metadata_length <- function(tc) {

@@ -2,20 +2,209 @@
 
 ## Next TODOs
 
+## TableCollection indexes and `tree_sequence()` (notes for future work)
+
+### Why this note exists
+
+I got a bit hazy on how indexes are handled across tskit C, tskit Python,
+and `RcppTskit` when converting a `TableCollection` to a `TreeSequence`.
+This note Codex summarised the current understanding and suggests a future path.
+We have to study this and decide how to move onwards.
+
+### tskit Python API behavior (reference behavior for R API)
+
+- `TableCollection.tree_sequence()` is user-facing and Pythonic (no bitwise flags).
+- It checks `self.has_index()`.
+- If indexes are missing, it calls `self.build_index()`.
+- Then it calls `tskit.TreeSequence.load_tables(self)`.
+
+In other words: Python handles index preparation explicitly at the
+`TableCollection` layer before creating a `TreeSequence`.
+
+Python also exposes these `TableCollection` methods:
+
+- `has_index()`
+- `build_index()`
+- `drop_index()`
+
+### tskit C API behavior (reference behavior for low-level C++ wrappers)
+
+- `tsk_table_collection_has_index(...)`
+- `tsk_table_collection_build_index(...)`
+- `tsk_table_collection_drop_index(...)`
+- `tsk_treeseq_init(..., options)` where `options` may include:
+  - `TSK_TS_INIT_BUILD_INDEXES`
+  - `TSK_TS_INIT_COMPUTE_MUTATION_PARENTS`
+
+`TSK_TS_INIT_BUILD_INDEXES` is a C-level bitwise option and fits naturally in
+the low-level `tc_ptr_to_ts_ptr(..., options)` wrapper.
+
+### Current `RcppTskit` behavior (as of this note)
+
+- Public R method `TableCollection$tree_sequence()` currently sets
+  `TSK_TS_INIT_BUILD_INDEXES` (via `bitwShiftL(1L, 0)`) and passes it to
+  `tc_ptr_to_ts_ptr(...)`.
+- This is functionally fine, but it exposes C-style flag handling in the R
+  method implementation.
+
+Important nuance:
+
+- `tc_ptr_to_ts_ptr()` calls `tsk_treeseq_init(...)` without `TSK_TAKE_OWNERSHIP`.
+- In tskit C, this means the tree sequence gets its own copied tables.
+- If `TSK_TS_INIT_BUILD_INDEXES` is used there, indexes are built on the copied
+  tables (inside the tree sequence init path), not necessarily on the original
+  R `TableCollection` object.
+
+This differs from Python `TableCollection.tree_sequence()` behavior, which
+builds indexes on the table collection itself before conversion.
+
+### Consistency goal (recommended)
+
+Use two layers with different styles on purpose:
+
+- R public API: Python-like, simple methods / logical arguments
+- C++ low-level wrappers: C-like, bitwise `options` allowed
+
+That gives:
+
+- R-Python consistency for user-facing behavior
+- C-C++ consistency for thin wrappers
+
+### Suggested future refactor for `TableCollection$tree_sequence()`
+
+Refactor R method to follow Python semantics explicitly:
+
+```r
+tree_sequence = function() {
+  if (!self$has_index()) {
+    self$build_index()
+  }
+  ts_ptr <- tc_ptr_to_ts_ptr(self$pointer, options = 0L)
+  TreeSequence$new(pointer = ts_ptr)
+}
+```
+
+Benefits:
+
+- No bitwise flag logic in R method implementation
+- Easier to read and explain
+- Matches Python behavior more closely
+- Makes `has_index()` tests and state transitions clearer
+
+### Why `skip_tables = TRUE` is not a good "no index" test case
+
+I initially wondered whether loading a table collection with empty tables would
+imply `has_index() == FALSE`. It does not reliably do that.
+
+Observation from local Python check:
+
+- `TableCollection.load(..., skip_tables=True)` can still report `has_index() == TRUE`
+  even when `num_edges == 0`.
+
+So:
+
+- "no rows" does not necessarily mean "no index"
+- `skip_tables=TRUE` is not a robust negative test for `has_index()`
+
+### Best way to test `has_index()` false cases
+
+Add explicit index mutators to R API (matching Python):
+
+- `tc_ptr_build_index()` + `TableCollection$build_index()`
+- `tc_ptr_drop_index()` + `TableCollection$drop_index()`
+
+Then tests become simple and deterministic:
+
+1. Load `tc`
+2. `expect_true(tc$has_index())`
+3. `tc$drop_index()`
+4. `expect_false(tc$has_index())`
+5. `tc$build_index()`
+6. `expect_true(tc$has_index())`
+
+And for `tree_sequence()` behavior:
+
+1. Load `tc`
+2. `tc$drop_index()`
+3. `expect_false(tc$has_index())`
+4. `ts <- tc$tree_sequence()`
+5. Decide/document expected side effect:
+   - Python-consistent target: `tc$has_index()` becomes `TRUE`
+   - Current C-flag-inside-init approach may leave `tc` unchanged
+
+### Design decision to make explicitly (before implementing)
+
+Choose one and document it:
+
+- **Python-consistent behavior (recommended)**:
+  `TableCollection$tree_sequence()` may build indexes on `self` if missing.
+- **Non-mutating conversion behavior**:
+  `TableCollection$tree_sequence()` builds indexes only in the transient treeseq
+  init path and leaves `self` as-is.
+
+The first option is more consistent with tskit Python and easier to reason
+about for users switching between R and Python.
+
+### Minimal next steps when time allows
+
+1. Add `TableCollection$build_index()` / `$drop_index()` (+ `tc_ptr_*` wrappers).
+2. Add focused tests for `has_index()` false/true transitions.
+3. Refactor `TableCollection$tree_sequence()` to Python-style pre-check and
+   `build_index()`.
+4. Add a regression test for `tc$tree_sequence()` behavior after dropping index.
+5. Keep `tc_ptr_to_ts_ptr(..., options)` as low-level C-like API (do not remove).
+
+### Optional later (separate concern)
+
+If needed, consider a Python-style logical argument on the R method for
+mutation-parent computation instead of exposing bitwise flags, e.g.
+`compute_mutation_parents = FALSE`, while still translating to
+`TSK_TS_INIT_COMPUTE_MUTATION_PARENTS` inside the low-level wrapper layer.
+
 // TODO: This will go into AlphaSimR
+
+Tskit examples of building tree sequence in C
+extern/tskit/c/tests/testlib.c has lots of examples of constructing a tree sequence using C
+extern/tskit/c/tests/test_minimal_cpp.cpp has some C++ example too
+extern/tskit/c/examples/haploid_wright_fisher.c
+extern/tskit/c/examples/multichrom_wright_fisher_singlethreaded.c
+extern/tskit/c/examples/multichrom_wright_fisher.c
+
 // [[Rcpp::export]]
 SEXP tc_grow(SEXP tc) {
   RcppTskit_table_collection_xptr tc_xptr(tc);
   int ret;
   ret = 0;
-  // TODO: What do we need to do here now? How do we grow a tree sequence?
-  //       Look into the simple example in C code online or look into what SLiM
-  //       is doing!?
+  // Minimal example: grow the table collection in place by appending one child
+  // node and one edge spanning the full sequence. A real simulator would choose
+  // parent(s), times, and intervals according to its model.
+  if (tc_xptr->nodes.num_rows == 0) {
+    ret = TSK_ERR_NODE_OUT_OF_BOUNDS;
+  } else {
+    const tsk_id_t parent = tc_xptr->nodes.num_rows - 1;
+    const tsk_id_t child = tsk_node_table_add_row(&tc_xptr->nodes, TSK_NODE_IS_SAMPLE,
+                                                  0.0, TSK_NULL, TSK_NULL, NULL, 0);
+    if (child < 0) {
+      ret = static_cast<int>(child);
+    } else {
+      const tsk_id_t edge = tsk_edge_table_add_row(
+          &tc_xptr->edges, 0.0, tc_xptr->sequence_length, parent, child, NULL, 0);
+      if (edge < 0) {
+        ret = static_cast<int>(edge);
+      }
+    }
+  }
+  if (ret == 0) {
+    ret = tsk_table_collection_sort(tc_xptr, NULL, 0);
+  }
+  if (ret == 0) {
+    ret = tsk_table_collection_build_index(tc_xptr, 0);
+  }
   if (ret != 0) {
     // TODO: What should we do if something goes wrong? We can clearly throw an
     //       error using Rcpp::stop(), but should we also do something with the
     //       ts pointer and object? If we delete, we discard/delete past work,
-    //       but if we don't, do we risk of returning a corrupted ts?
+    //       but if we do not, do we risk of returning a corrupted ts?
     // tsk_table_collection_free(tc_ptr);
     // delete tc_ptr;
     Rcpp::stop(tsk_strerror(ret));
@@ -28,60 +217,6 @@ SEXP tc_grow(SEXP tc) {
   (it saves various ts information as attributes)
   https://github.com/bodkan/slendr/pull/191/changes#diff-f46eb0da2f9267022ecc6e09316598fde6bdcd2f980963906dc041b5096f344f
 
-* TODO Tskit examples of building tree sequence in C
-extern/tskit/c/tests/testlib.c has lots of examples of constructing a tree sequence using C
-extern/tskit/c/tests/test_minimal_cpp.cpp has some C++ example too
-extern/tskit/c/examples/haploid_wright_fisher.c
-extern/tskit/c/examples/multichrom_wright_fisher_singlethreaded.c
-extern/tskit/c/examples/multichrom_wright_fisher.c
-
-This test nicely shows the required columns:
-
-static void
-test_missing_required_columns(void)
-{
-    int ret;
-    size_t j;
-    tsk_treeseq_t *ts = caterpillar_tree(5, 3, 3);
-    tsk_table_collection_t t;
-    const char *required_cols[] = {
-        "edges/child",
-        "edges/left",
-        "edges/parent",
-        "edges/right",
-        "format/name",
-        "format/version",
-        "individuals/flags",
-        "migrations/dest",
-        "migrations/left",
-        "migrations/node",
-        "migrations/right",
-        "migrations/source",
-        "migrations/time",
-        "mutations/node",
-        "mutations/parent",
-        "mutations/site",
-        "nodes/flags",
-        "nodes/individual",
-        "nodes/population",
-        "nodes/time",
-        "sequence_length",
-        "sites/position",
-        "uuid",
-    };
-    const char *drop_cols[1];
-
-    for (j = 0; j < sizeof(required_cols) / sizeof(*required_cols); j++) {
-        drop_cols[0] = required_cols[j];
-        copy_store_drop_columns(ts, 1, drop_cols, _tmp_file_name);
-        ret = tsk_table_collection_load(&t, _tmp_file_name, 0);
-        CU_ASSERT_EQUAL_FATAL(ret, TSK_ERR_REQUIRED_COL_NOT_FOUND);
-        tsk_table_collection_free(&t);
-    }
-
-    tsk_treeseq_free(ts);
-    free(ts);
-}
 
 ## NEWS template
 

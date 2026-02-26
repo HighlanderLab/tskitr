@@ -58,6 +58,9 @@ ts.tables.individuals.metadata.shape  # (0,)
 
 os.getcwd()
 ts.dump("RcppTskit/inst/examples/test.trees")
+tskit.load("RcppTskit/inst/examples/test.trees").file_uuid
+# '79ec383f-a57d-b44f-2a5c-f0feecbbcb32'
+# test_trees_file_uuid <- "79ec383f-a57d-b44f-2a5c-f0feecbbcb32"
 # ts = tskit.load("RcppTskit/inst/examples/test.trees")
 
 # -----------------------------------------------------------------------------
@@ -114,6 +117,9 @@ len(ts.tables.individuals.metadata)  # 21
 ts.tables.individuals.metadata.shape  # (21,)
 
 ts.dump("RcppTskit/inst/examples/test2.trees")
+tskit.load("RcppTskit/inst/examples/test2.trees").file_uuid
+# 'cf406b8c-be33-af4a-c00b-a4de1e6151ff'
+# test2_trees_file_uuid <- "cf406b8c-be33-af4a-c00b-a4de1e6151ff"
 
 tables = ts.dump_tables()
 tables.metadata_schema = tskit.MetadataSchema(None)
@@ -125,7 +131,24 @@ len(ts.metadata)  # 23
 
 # -----------------------------------------------------------------------------
 
-# Another example with a reference sequence
+# Tiny example with a non-discrete genome (continuous coordinates)
+
+ts = msprime.sim_ancestry(
+    samples=2,
+    sequence_length=10.5,
+    recombination_rate=1e-2,
+    random_seed=7,
+    discrete_genome=False,
+)
+ts.discrete_genome  # False
+ts.sequence_length  # 10.5
+ts.dump("RcppTskit/inst/examples/test_non_discrete_genome.trees")
+tskit.load("RcppTskit/inst/examples/test_non_discrete_genome.trees").file_uuid
+# '42bc7ad8-f3a2-e722-a7e3-7f87c6c1dfc2'
+
+# -----------------------------------------------------------------------------
+
+# Another example with a reference genome sequence
 
 ts = msprime.sim_ancestry(samples=3, ploidy=2, sequence_length=10, random_seed=2)
 ts = msprime.sim_mutations(ts, rate=0.1, random_seed=2)
@@ -143,5 +166,26 @@ for i in ali:
     print(i)
 
 ts.dump("RcppTskit/inst/examples/test_with_ref_seq.trees")
+tskit.load("RcppTskit/inst/examples/test_with_ref_seq.trees").file_uuid
+# '71793465-49ed-e0f3-0657-c01926226b29'
+# test_with_ref_seq_file_uuid <- "71793465-49ed-e0f3-0657-c01926226b29"
+
+# -----------------------------------------------------------------------------
+
+# Tiny example with discrete time values
+
+tables = tskit.TableCollection(sequence_length=10)
+tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE, time=0)
+tables.nodes.add_row(flags=tskit.NODE_IS_SAMPLE, time=0)
+tables.nodes.add_row(time=1)
+tables.edges.add_row(0, 10, parent=2, child=0)
+tables.edges.add_row(0, 10, parent=2, child=1)
+tables.sort()
+ts = tables.tree_sequence()
+ts.discrete_time  # True
+ts.num_trees  # 1
+ts.dump("RcppTskit/inst/examples/test_discrete_time.trees")
+tskit.load("RcppTskit/inst/examples/test_discrete_time.trees").file_uuid
+# 'ff35bc1d-8592-097c-c70a-03828ad847d8'
 
 # -----------------------------------------------------------------------------
