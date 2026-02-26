@@ -166,12 +166,45 @@ ts <- ts_load(ts_file)
 ts$sequence_length()
 
 ## ------------------------------------------------
+## Method `TreeSequence$discrete_genome`
+## ------------------------------------------------
+
+ts_file1 <- system.file("examples/test.trees", package = "RcppTskit")
+ts_file2 <- system.file("examples/test_non_discrete_genome.trees", package = "RcppTskit")
+ts1 <- ts_load(ts_file1)
+ts1$discrete_genome()
+ts2 <- ts_load(ts_file2)
+ts2$discrete_genome()
+
+## ------------------------------------------------
+## Method `TreeSequence$has_reference_sequence`
+## ------------------------------------------------
+
+ts_file1 <- system.file("examples/test.trees", package = "RcppTskit")
+ts_file2 <- system.file("examples/test_with_ref_seq.trees", package = "RcppTskit")
+ts1 <- ts_load(ts_file1)
+ts1$has_reference_sequence()
+ts2 <- ts_load(ts_file2)
+ts2$has_reference_sequence()
+
+## ------------------------------------------------
 ## Method `TreeSequence$time_units`
 ## ------------------------------------------------
 
 ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 ts <- ts_load(ts_file)
 ts$time_units()
+
+## ------------------------------------------------
+## Method `TreeSequence$discrete_time`
+## ------------------------------------------------
+
+ts_file1 <- system.file("examples/test.trees", package = "RcppTskit")
+ts_file2 <- system.file("examples/test_discrete_time.trees", package = "RcppTskit")
+ts1 <- ts_load(ts_file1)
+ts1$discrete_time()
+ts2 <- ts_load(ts_file2)
+ts2$discrete_time()
 
 ## ------------------------------------------------
 ## Method `TreeSequence$min_time`
@@ -196,6 +229,14 @@ ts$max_time()
 ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 ts <- ts_load(ts_file)
 ts$metadata_length()
+
+## ------------------------------------------------
+## Method `TreeSequence$file_uuid`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+ts <- ts_load(ts_file)
+ts$file_uuid()
 }
 \seealso{
 \code{\link{ts_load}}
@@ -230,10 +271,14 @@ ts$metadata_length()
 \item \href{#method-TreeSequence-num_sites}{\code{TreeSequence$num_sites()}}
 \item \href{#method-TreeSequence-num_mutations}{\code{TreeSequence$num_mutations()}}
 \item \href{#method-TreeSequence-sequence_length}{\code{TreeSequence$sequence_length()}}
+\item \href{#method-TreeSequence-discrete_genome}{\code{TreeSequence$discrete_genome()}}
+\item \href{#method-TreeSequence-has_reference_sequence}{\code{TreeSequence$has_reference_sequence()}}
 \item \href{#method-TreeSequence-time_units}{\code{TreeSequence$time_units()}}
+\item \href{#method-TreeSequence-discrete_time}{\code{TreeSequence$discrete_time()}}
 \item \href{#method-TreeSequence-min_time}{\code{TreeSequence$min_time()}}
 \item \href{#method-TreeSequence-max_time}{\code{TreeSequence$max_time()}}
 \item \href{#method-TreeSequence-metadata_length}{\code{TreeSequence$metadata_length()}}
+\item \href{#method-TreeSequence-file_uuid}{\code{TreeSequence$file_uuid()}}
 \item \href{#method-TreeSequence-clone}{\code{TreeSequence$clone()}}
 }
 }
@@ -260,7 +305,7 @@ Create a \code{\link{TreeSequence}} from a file or a pointer.
 \item{\code{skip_tables}}{logical; if \code{TRUE}, load only non-table information.}
 
 \item{\code{skip_reference_sequence}}{logical; if \code{TRUE}, skip loading
-reference sequence information.}
+reference genome sequence information.}
 
 \item{\code{pointer}}{an external pointer (\code{externalptr}) to a tree sequence.}
 }
@@ -671,6 +716,57 @@ ts$sequence_length()
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TreeSequence-discrete_genome"></a>}}
+\if{latex}{\out{\hypertarget{method-TreeSequence-discrete_genome}{}}}
+\subsection{Method \code{discrete_genome()}}{
+Get the discrete genome status.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TreeSequence$discrete_genome()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+Returns \code{TRUE} if all genomic coordinates in the tree
+  sequence are discrete integer values.
+}
+
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file1 <- system.file("examples/test.trees", package = "RcppTskit")
+ts_file2 <- system.file("examples/test_non_discrete_genome.trees", package = "RcppTskit")
+ts1 <- ts_load(ts_file1)
+ts1$discrete_genome()
+ts2 <- ts_load(ts_file2)
+ts2$discrete_genome()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TreeSequence-has_reference_sequence"></a>}}
+\if{latex}{\out{\hypertarget{method-TreeSequence-has_reference_sequence}{}}}
+\subsection{Method \code{has_reference_sequence()}}{
+Get whether the tree sequence has a reference genome sequence.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TreeSequence$has_reference_sequence()}\if{html}{\out{</div>}}
+}
+
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file1 <- system.file("examples/test.trees", package = "RcppTskit")
+ts_file2 <- system.file("examples/test_with_ref_seq.trees", package = "RcppTskit")
+ts1 <- ts_load(ts_file1)
+ts1$has_reference_sequence()
+ts2 <- ts_load(ts_file2)
+ts2$has_reference_sequence()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TreeSequence-time_units"></a>}}
 \if{latex}{\out{\hypertarget{method-TreeSequence-time_units}{}}}
 \subsection{Method \code{time_units()}}{
@@ -684,6 +780,34 @@ Get the time units string.
 \preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 ts <- ts_load(ts_file)
 ts$time_units()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TreeSequence-discrete_time"></a>}}
+\if{latex}{\out{\hypertarget{method-TreeSequence-discrete_time}{}}}
+\subsection{Method \code{discrete_time()}}{
+Get the discrete time status.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TreeSequence$discrete_time()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+Returns \code{TRUE} if all time values in the tree sequence are
+  discrete integer values.
+}
+
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file1 <- system.file("examples/test.trees", package = "RcppTskit")
+ts_file2 <- system.file("examples/test_discrete_time.trees", package = "RcppTskit")
+ts1 <- ts_load(ts_file1)
+ts1$discrete_time()
+ts2 <- ts_load(ts_file2)
+ts2$discrete_time()
 }
 \if{html}{\out{</div>}}
 
@@ -747,6 +871,31 @@ A named list with the length of metadata.
 \preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 ts <- ts_load(ts_file)
 ts$metadata_length()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TreeSequence-file_uuid"></a>}}
+\if{latex}{\out{\hypertarget{method-TreeSequence-file_uuid}{}}}
+\subsection{Method \code{file_uuid()}}{
+Get the file UUID string.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TreeSequence$file_uuid()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+Returns the UUID of the file the tree sequence was loaded from.
+  If unavailable, returns \code{NA_character_}.
+}
+
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+ts <- ts_load(ts_file)
+ts$file_uuid()
 }
 \if{html}{\out{</div>}}
 

@@ -14,6 +14,9 @@ These notes apply to this repository root and the `RcppTskit/` package.
 * We run R CMD check for every code change.
 * We keep local quality gates green before handoff.
 * We update `RcppTskit/NEWS.md` for user-visible behavior or API changes.
+* We aim for a comparative tskit Python API and tskit R API and
+  similarly for tskit C API and tskit C++ API
+  (the later is RcppTskit C++ binding to tskit C API).
 
 ## Permission
 

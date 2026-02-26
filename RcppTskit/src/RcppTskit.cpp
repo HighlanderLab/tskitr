@@ -340,12 +340,37 @@ SEXP tc_ptr_to_ts_ptr(const SEXP tc, const int options = 0) {
   return ts_xptr;
 }
 
-// See tsk_treeseq_t inst/include/tskit/tskit/trees.h on what it contains. Here
-// is the Python summary
+// See tsk_treeseq_t inst/include/tskit/tskit/trees.h on which elements
+// are there in a tsk_treeseq_t type.
+// Here is a copy with comments on what we have implemented in RcppTskit:
+//  * tsk_size_t num_trees; SCALAR, IMPLEMENTED HERE
+//  * tsk_size_t num_samples; SCALAR, IMPLEMENTED HERE
+//  * tsk_id_t *samples; ARRAY, TODO LATER #49
+//  * bool time_uncalibrated; SKIPPED (for now) since we have time_units
+//  * bool discrete_genome; SCALAR, IMPLEMENTED HERE
+//  * bool discrete_time; SCALAR, IMPLEMENTED HERE
+//  * double min_time; SCALAR, IMPLEMENTED HERE
+//  * double max_time; SCALAR, IMPLEMENTED HERE
+//  * double *breakpoints; ARRAY, TODO LATER #49
+//  * tsk_id_t *sample_index_map; ARRAY, TODO LATER #49
+//  * tsk_id_t *individual_nodes_mem; ARRAY, TODO LATER #49
+//  * tsk_id_t **individual_nodes; ARRAY, TODO LATER #49
+//  * tsk_size_t *individual_nodes_length; ARRAY, TODO LATER #49
+//  * tsk_site_t *tree_sites_mem; ARRAY, TODO LATER #49
+//  * tsk_site_t **tree_sites; ARRAY, TODO LATER #49
+//  * tsk_size_t *tree_sites_length; ARRAY, TODO LATER #49
+//  * tsk_mutation_t *site_mutations_mem; ARRAY, TODO LATER #49
+//  * tsk_mutation_t **site_mutations; ARRAY, TODO LATER #49
+//  * tsk_size_t *site_mutations_length; ARRAY, TODO LATER #49
+//  * tsk_table_collection_t *tables; SKIPPED since we might look into
+//    table-column arrays/vectors
+//
+// Here is the Python API summary
 // https://tskit.dev/tskit/docs/stable/python-api.html#trees-and-tree-sequences
-// See tsk_table_collection_t inst/include/tskit/tskit/tables.h on what it
-// contains. Here is the Python summary
-// https://tskit.dev/tskit/docs/stable/python-api.html#sec-tables-api-table-collection
+// https://tskit.dev/tskit/docs/stable/python-api.html#tskit.TreeSequence
+// https://tskit.dev/tskit/docs/stable/python-api.html#tskit.TreeSequence.max_root_time
+// is a scalar property (which we have strived to implement / mirror here),
+// but this one requires table-column arrays, which we will look into in #49
 
 // @describeIn ts_ptr_summary Get the number of provenances in a tree sequence
 // [[Rcpp::export]]
@@ -425,6 +450,24 @@ double ts_ptr_sequence_length(const SEXP ts) {
   return tsk_treeseq_get_sequence_length(ts_xptr);
 }
 
+// @describeIn ts_ptr_summary Get the discrete genome status
+// [[Rcpp::export]]
+bool ts_ptr_discrete_genome(const SEXP ts) {
+  RcppTskit_treeseq_xptr ts_xptr(ts);
+  return tsk_treeseq_get_discrete_genome(ts_xptr);
+}
+
+// @describeIn ts_ptr_summary Does the tree sequence hold a reference genome
+//   sequence
+// @details Note that tsk_treeseq_has_reference_sequence is undocumented
+//   method in the tskit C API (see trees.h), but documented in tskit Python API
+//   https://tskit.dev/tskit/docs/stable/python-api.html#tskit.TreeSequence.has_reference_sequence
+// [[Rcpp::export]]
+bool ts_ptr_has_reference_sequence(const SEXP ts) {
+  RcppTskit_treeseq_xptr ts_xptr(ts);
+  return tsk_treeseq_has_reference_sequence(ts_xptr);
+}
+
 // @describeIn ts_ptr_summary Get the time units string
 // [[Rcpp::export]]
 Rcpp::String ts_ptr_time_units(const SEXP ts) {
@@ -436,6 +479,13 @@ Rcpp::String ts_ptr_time_units(const SEXP ts) {
     time_units.assign(p, p + n);
   }
   return Rcpp::String(time_units);
+}
+
+// @describeIn ts_ptr_summary Get the discrete time status
+// [[Rcpp::export]]
+bool ts_ptr_discrete_time(const SEXP ts) {
+  RcppTskit_treeseq_xptr ts_xptr(ts);
+  return tsk_treeseq_get_discrete_time(ts_xptr);
 }
 
 // @describeIn ts_ptr_summary Get the min time in node table and mutation table
@@ -450,6 +500,17 @@ double ts_ptr_min_time(const SEXP ts) {
 double ts_ptr_max_time(const SEXP ts) {
   RcppTskit_treeseq_xptr ts_xptr(ts);
   return tsk_treeseq_get_max_time(ts_xptr);
+}
+
+// @describeIn ts_ptr_summary Get the file uuid string
+// [[Rcpp::export]]
+Rcpp::String ts_ptr_file_uuid(const SEXP ts) {
+  RcppTskit_treeseq_xptr ts_xptr(ts);
+  const char *p = tsk_treeseq_get_file_uuid(ts_xptr);
+  if (p == NULL || p[0] == '\0') {
+    return Rcpp::String(NA_STRING);
+  }
+  return Rcpp::String(p);
 }
 
 // @name ts_ptr_summary
@@ -469,13 +530,16 @@ double ts_ptr_max_time(const SEXP ts) {
 // \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_sites},
 // \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_num_mutations},
 // \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_sequence_length},
+// \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_discrete_genome},
+// \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_has_reference_sequence},
 // \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_time_units},
+// \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_discrete_time},
 // \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_min_time},
-//   and
 // \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_max_time},
-// @return A named list with the number/value for all items,
-//   while other functions \code{ts_num_x} and \code{ts_ptr_num_x} etc.
-//   return the number/value of each item.
+//   and
+// \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_file_uuid},
+// @return \code{ts_ptr_summary} returns a named list with numbers and values,
+//   while functions \code{ts_ptr_*} return the number or value for each item.
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // ts_ptr <- RcppTskit:::ts_ptr_load(ts_file)
@@ -491,9 +555,13 @@ double ts_ptr_max_time(const SEXP ts) {
 // RcppTskit:::ts_ptr_num_sites(ts_ptr)
 // RcppTskit:::ts_ptr_num_mutations(ts_ptr)
 // RcppTskit:::ts_ptr_sequence_length(ts_ptr)
+// RcppTskit:::ts_ptr_discrete_genome(ts_ptr)
+// RcppTskit:::ts_ptr_has_reference_sequence(ts_ptr)
 // RcppTskit:::ts_ptr_time_units(ts_ptr)
+// RcppTskit:::ts_ptr_discrete_time(ts_ptr)
 // RcppTskit:::ts_ptr_min_time(ts_ptr)
 // RcppTskit:::ts_ptr_max_time(ts_ptr)
+// RcppTskit:::ts_ptr_file_uuid(ts_ptr)
 // [[Rcpp::export]]
 Rcpp::List ts_ptr_summary(const SEXP ts) {
   RcppTskit_treeseq_xptr ts_xptr(ts);
@@ -509,39 +577,14 @@ Rcpp::List ts_ptr_summary(const SEXP ts) {
       Rcpp::_["num_sites"] = tsk_treeseq_get_num_sites(ts_xptr),
       Rcpp::_["num_mutations"] = tsk_treeseq_get_num_mutations(ts_xptr),
       Rcpp::_["sequence_length"] = tsk_treeseq_get_sequence_length(ts_xptr),
+      Rcpp::_["discrete_genome"] = tsk_treeseq_get_discrete_genome(ts_xptr),
+      Rcpp::_["has_reference_sequence"] =
+          tsk_treeseq_has_reference_sequence(ts_xptr),
       Rcpp::_["time_units"] = ts_ptr_time_units(ts),
+      Rcpp::_["discrete_time"] = tsk_treeseq_get_discrete_time(ts_xptr),
       Rcpp::_["min_time"] = ts_ptr_min_time(ts),
-      Rcpp::_["max_time"] = ts_ptr_max_time(ts));
-}
-
-// @title Summary of properties and number of records in a table collection
-// @param tc an external pointer to table collection as a
-//   \code{tsk_table_collection_t} object.
-// @return A named list with the number/value for all items.
-// @examples
-// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
-// tc_ptr <- RcppTskit:::tc_ptr_load(ts_file)
-// RcppTskit:::tc_ptr_summary(tc_ptr)
-// [[Rcpp::export]]
-Rcpp::List tc_ptr_summary(const SEXP tc) {
-  RcppTskit_table_collection_xptr tc_xptr(tc);
-  const tsk_table_collection_t *tables = tc_xptr;
-  std::string time_units;
-  if (tables->time_units_length > 0 && tables->time_units != NULL) {
-    time_units.assign(tables->time_units,
-                      tables->time_units + tables->time_units_length);
-  }
-  return Rcpp::List::create(
-      Rcpp::_["num_provenances"] = tables->provenances.num_rows,
-      Rcpp::_["num_populations"] = tables->populations.num_rows,
-      Rcpp::_["num_migrations"] = tables->migrations.num_rows,
-      Rcpp::_["num_individuals"] = tables->individuals.num_rows,
-      Rcpp::_["num_nodes"] = tables->nodes.num_rows,
-      Rcpp::_["num_edges"] = tables->edges.num_rows,
-      Rcpp::_["num_sites"] = tables->sites.num_rows,
-      Rcpp::_["num_mutations"] = tables->mutations.num_rows,
-      Rcpp::_["sequence_length"] = tables->sequence_length,
-      Rcpp::_["time_units"] = time_units);
+      Rcpp::_["max_time"] = ts_ptr_max_time(ts),
+      Rcpp::_["file_uuid"] = ts_ptr_file_uuid(ts));
 }
 
 // @title Get the length of metadata in a tree sequence and its tables
@@ -566,6 +609,7 @@ Rcpp::List ts_ptr_metadata_length(const SEXP ts) {
       // tsk_treeseq_get_metadata_length() returns self->tables->metadata_length
       // Rcpp::_["ts"] =
       //    static_cast<int>(tsk_treeseq_get_metadata_length(ts_xptr)),
+      // hence we just use that here
       Rcpp::_["ts"] = static_cast<int>(tables->metadata_length),
       Rcpp::_["populations"] =
           static_cast<int>(tables->populations.metadata_length),
@@ -578,6 +622,161 @@ Rcpp::List ts_ptr_metadata_length(const SEXP ts) {
       Rcpp::_["sites"] = static_cast<int>(tables->sites.metadata_length),
       Rcpp::_["mutations"] =
           static_cast<int>(tables->mutations.metadata_length));
+}
+
+// # nocov start
+// TODO: Metadata notes if we do anything with metadata #36
+//       https://github.com/HighlanderLab/RcppTskit/issues/36
+// This is how we would get metadata, but it will be raw bytes,
+// so would have to work with schema and codes ...
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// ts_ptr <- RcppTskit:::ts_ptr_load(ts_file)
+// RcppTskit:::ts_ptr_metadata(ts_ptr)
+// slendr::ts_metadata(slim_ts)
+Rcpp::String ts_ptr_metadata(const SEXP ts) {
+  RcppTskit_treeseq_xptr ts_xptr(ts);
+  const char *p = tsk_treeseq_get_metadata(ts_xptr);
+  tsk_size_t n = tsk_treeseq_get_metadata_length(ts_xptr);
+  std::string metadata;
+  if (n > 0 && p != NULL) {
+    metadata.assign(p, p + n);
+  }
+  return Rcpp::String(metadata);
+}
+// # nocov end
+
+// TODO: Metadata notes if we do anything with metadata #36
+//       https://github.com/HighlanderLab/RcppTskit/issues/36
+// int ts_ptr_metadata_schema_length(const SEXP ts) {
+//  RcppTskit_treeseq_xptr ts_xptr(ts);
+//  return static_cast<int>(tsk_treeseq_get_metadata_schema_length(ts_xptr));
+// }
+// TODO: test the above function
+// TODO: document the above function
+// TODO: expose the above function to R, including TreeSequence method
+
+// TODO: Develop tsk_treeseq_get_metadata
+// TODO: Metadata notes if we do anything with metadata #36
+//       https://github.com/HighlanderLab/RcppTskit/issues/36
+
+// See tsk_treeseq_t inst/include/tskit/tskit/tables.h on which elements
+// are there in a tsk_table_collection_t type.
+// Here is a copy with comments on what we have implemented in RcppTskit:
+//   * double sequence_length; SCALAR, IMPLEMENTED HERE
+//   * char *file_uuid; "SCALAR", IMPLEMENTED HERE
+//   * char *time_units; "SCALAR", IMPLEMENTED HERE
+//   * tsk_size_t time_units_length; IMPLEMENTED HERE (as part of the above)
+// TODO: Metadata notes if we do anything with metadata #36
+//       https://github.com/HighlanderLab/RcppTskit/issues/36
+//   * char *metadata; "SCALAR", TODO --> tc_ptr_metadata
+//   * tsk_size_t metadata_length; SCALAR, TODO as part of the above
+// TODO: Metadata notes if we do anything with metadata #36
+//       https://github.com/HighlanderLab/RcppTskit/issues/36
+//   * char *metadata_schema; "SCALAR", TODO --> tc_ptr_metadata_schema
+//   * tsk_size_t metadata_schema_length; SCALAR, TODO as part of the above
+//   * tsk_reference_sequence_t reference_sequence; TODO?
+//   * tsk_individual_table_t individuals; TABLE, SKIP OR TODO LATER #49
+//   * tsk_node_table_t nodes; TABLE, SKIP OR TODO LATER #49
+//   * tsk_edge_table_t edges; TABLE, SKIP OR TODO LATER #49
+//   * tsk_migration_table_t migrations; TABLE, SKIP OR TODO LATER #49
+//   * tsk_site_table_t sites; TABLE, SKIP OR TODO LATER #49
+//   * tsk_mutation_table_t mutations; TABLE, SKIP OR TODO LATER #49
+//   * tsk_population_table_t populations; TABLE, SKIP OR TODO LATER #49
+//   * tsk_provenance_table_t provenances; TABLE, SKIP OR TODO LATER #49
+//   * struct {
+//       tsk_id_t *edge_insertion_order;
+//       tsk_id_t *edge_removal_order;
+//       tsk_size_t num_edges;
+//    *} indexes; SKIPPED (for now)
+//
+// Here is the Python summary
+// https://tskit.dev/tskit/docs/stable/python-api.html#sec-tables-api-table-collection
+// https://tskit.dev/tskit/docs/stable/python-api.html#tskit.TableCollection
+
+// @describeIn tc_ptr_summary Get the sequence length
+// [[Rcpp::export]]
+double tc_ptr_sequence_length(const SEXP tc) {
+  RcppTskit_table_collection_xptr tc_xptr(tc);
+  return tc_xptr->sequence_length;
+}
+
+// @describeIn tc_ptr_summary Does the table collection hold a reference genome
+//   sequence
+// @details Note that tsk_table_collection_has_reference_sequence is
+//   undocumented method in the tskit C API (see tables.h),
+//   but documented in tskit Python API
+//   https://tskit.dev/tskit/docs/stable/python-api.html#tskit.TableCollection.has_reference_sequence
+// [[Rcpp::export]]
+bool tc_ptr_has_reference_sequence(const SEXP tc) {
+  RcppTskit_table_collection_xptr tc_xptr(tc);
+  return tsk_table_collection_has_reference_sequence(tc_xptr);
+}
+
+// @describeIn tc_ptr_summary Get the time units string
+// [[Rcpp::export]]
+Rcpp::String tc_ptr_time_units(const SEXP tc) {
+  RcppTskit_table_collection_xptr tc_xptr(tc);
+  const char *p = tc_xptr->time_units;
+  tsk_size_t n = tc_xptr->time_units_length;
+  std::string time_units;
+  if (n > 0 && p != NULL) {
+    time_units.assign(p, p + n);
+  }
+  return Rcpp::String(time_units);
+}
+
+// @describeIn tc_ptr_summary Get the file uuid string
+// [[Rcpp::export]]
+Rcpp::String tc_ptr_file_uuid(const SEXP tc) {
+  RcppTskit_table_collection_xptr tc_xptr(tc);
+  if (tc_xptr->file_uuid == NULL || tc_xptr->file_uuid[0] == '\0') {
+    return Rcpp::String(NA_STRING);
+  }
+  return Rcpp::String(tc_xptr->file_uuid);
+}
+
+// @describeIn tc_ptr_summary Is the table collection indexed
+// [[Rcpp::export]]
+bool tc_ptr_has_index(const SEXP tc) {
+  RcppTskit_table_collection_xptr tc_xptr(tc);
+  return tsk_table_collection_has_index(tc_xptr, 0);
+}
+
+// @title Summary of properties and number of records in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @details These functions return the summary of properties and number of
+//   records in a table collection, by accessing its elements and/or calling
+// \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_table_collection_has_index}
+// @return \code{tc_ptr_summary} returns a named list with numbers and values,
+//   while functions \code{tc_ptr_*} return the number or value for each item.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_ptr <- RcppTskit:::tc_ptr_load(ts_file)
+// RcppTskit:::tc_ptr_summary(tc_ptr)
+// RcppTskit:::tc_ptr_sequence_length(tc_ptr)
+// RcppTskit:::tc_ptr_has_reference_sequence(tc_ptr)
+// RcppTskit:::tc_ptr_time_units(tc_ptr)
+// RcppTskit:::tc_ptr_file_uuid(tc_ptr)
+// RcppTskit:::tc_ptr_has_index(tc_ptr)
+// [[Rcpp::export]]
+Rcpp::List tc_ptr_summary(const SEXP tc) {
+  RcppTskit_table_collection_xptr tc_xptr(tc);
+  const tsk_table_collection_t *tables = tc_xptr;
+  return Rcpp::List::create(
+      Rcpp::_["num_provenances"] = tables->provenances.num_rows,
+      Rcpp::_["num_populations"] = tables->populations.num_rows,
+      Rcpp::_["num_migrations"] = tables->migrations.num_rows,
+      Rcpp::_["num_individuals"] = tables->individuals.num_rows,
+      Rcpp::_["num_nodes"] = tables->nodes.num_rows,
+      Rcpp::_["num_edges"] = tables->edges.num_rows,
+      Rcpp::_["num_sites"] = tables->sites.num_rows,
+      Rcpp::_["num_mutations"] = tables->mutations.num_rows,
+      Rcpp::_["sequence_length"] = tables->sequence_length,
+      Rcpp::_["has_reference_sequence"] = tc_ptr_has_reference_sequence(tc),
+      Rcpp::_["time_units"] = tc_ptr_time_units(tc),
+      Rcpp::_["file_uuid"] = tc_ptr_file_uuid(tc),
+      Rcpp::_["has_index"] = tc_ptr_has_index(tc));
 }
 
 // @title Get the length of metadata in a table collection and its tables
@@ -606,22 +805,16 @@ Rcpp::List tc_ptr_metadata_length(const SEXP tc) {
           static_cast<int>(tc_xptr->mutations.metadata_length));
 }
 
-// # nocov start
-// This is how we would get metadata, but it will be raw bytes,
-// so would have to work with schema and codes ... but see
-// https://github.com/HighlanderLab/RcppTskit/issues/36
-// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
-// ts_ptr <- RcppTskit:::ts_ptr_load(ts_file)
-// RcppTskit:::ts_ptr_metadata(ts_ptr)
-// slendr::ts_metadata(slim_ts)
-Rcpp::String ts_ptr_metadata(const SEXP ts) {
-  RcppTskit_treeseq_xptr ts_xptr(ts);
-  const char *p = tsk_treeseq_get_metadata(ts_xptr);
-  tsk_size_t n = tsk_treeseq_get_metadata_length(ts_xptr);
-  std::string metadata;
-  if (n > 0 && p != NULL) {
-    metadata.assign(p, p + n);
-  }
-  return Rcpp::String(metadata);
-}
-// # nocov end
+// TODO: Metadata notes if we do anything with metadata #36
+//       https://github.com/HighlanderLab/RcppTskit/issues/36
+// int tc_ptr_metadata_schema_length(const SEXP tc) {
+//   RcppTskit_table_collection_xptr tc_xptr(tc);
+//   return static_cast<int>(tc_xptr->metadata_schema_length);
+// }
+// TODO: test the above function
+// TODO: document the above function
+// TODO: expose the above function to R, including TableCollection method
+
+// TODO: Develop tc_ptr_metadata_schema
+// TODO: Metadata notes if we do anything with metadata #36
+//       https://github.com/HighlanderLab/RcppTskit/issues/36

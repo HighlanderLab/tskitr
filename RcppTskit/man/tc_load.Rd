@@ -15,7 +15,7 @@ tc_read(file, skip_tables = FALSE, skip_reference_sequence = FALSE)
 \item{skip_tables}{logical; if \code{TRUE}, load only non-table information.}
 
 \item{skip_reference_sequence}{logical; if \code{TRUE}, skip loading
-reference sequence information.}
+reference genome sequence information.}
 }
 \value{
 A \code{\link{TableCollection}} object.

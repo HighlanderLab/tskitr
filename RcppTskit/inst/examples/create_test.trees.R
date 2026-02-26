@@ -111,7 +111,7 @@ length(ts$tables$individuals$metadata) # 21
 
 # -----------------------------------------------------------------------------
 
-# Another example with a reference sequence
+# Another example with a reference genome sequence
 
 ts <- msprime$sim_ancestry(
   samples = 3,

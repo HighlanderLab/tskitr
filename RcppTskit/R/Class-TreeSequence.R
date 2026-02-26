@@ -15,7 +15,7 @@ TreeSequence <- R6Class(
     #' @param file a string specifying the full path of the tree sequence file.
     #' @param skip_tables logical; if \code{TRUE}, load only non-table information.
     #' @param skip_reference_sequence logical; if \code{TRUE}, skip loading
-    #'   reference sequence information.
+    #'   reference genome sequence information.
     #' @param pointer an external pointer (\code{externalptr}) to a tree sequence.
     #' @details See the corresponding Python function at
     #'   \url{https://tskit.dev/tskit/docs/latest/python-api.html#tskit.load}.
@@ -252,6 +252,32 @@ TreeSequence <- R6Class(
       ts_ptr_sequence_length(self$pointer)
     },
 
+    #' @description Get the discrete genome status.
+    #' @details Returns \code{TRUE} if all genomic coordinates in the tree
+    #'   sequence are discrete integer values.
+    #' @examples
+    #' ts_file1 <- system.file("examples/test.trees", package = "RcppTskit")
+    #' ts_file2 <- system.file("examples/test_non_discrete_genome.trees", package = "RcppTskit")
+    #' ts1 <- ts_load(ts_file1)
+    #' ts1$discrete_genome()
+    #' ts2 <- ts_load(ts_file2)
+    #' ts2$discrete_genome()
+    discrete_genome = function() {
+      ts_ptr_discrete_genome(self$pointer)
+    },
+
+    #' @description Get whether the tree sequence has a reference genome sequence.
+    #' @examples
+    #' ts_file1 <- system.file("examples/test.trees", package = "RcppTskit")
+    #' ts_file2 <- system.file("examples/test_with_ref_seq.trees", package = "RcppTskit")
+    #' ts1 <- ts_load(ts_file1)
+    #' ts1$has_reference_sequence()
+    #' ts2 <- ts_load(ts_file2)
+    #' ts2$has_reference_sequence()
+    has_reference_sequence = function() {
+      ts_ptr_has_reference_sequence(self$pointer)
+    },
+
     #' @description Get the time units string.
     #' @examples
     #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
@@ -259,6 +285,20 @@ TreeSequence <- R6Class(
     #' ts$time_units()
     time_units = function() {
       ts_ptr_time_units(self$pointer)
+    },
+
+    #' @description Get the discrete time status.
+    #' @details Returns \code{TRUE} if all time values in the tree sequence are
+    #'   discrete integer values.
+    #' @examples
+    #' ts_file1 <- system.file("examples/test.trees", package = "RcppTskit")
+    #' ts_file2 <- system.file("examples/test_discrete_time.trees", package = "RcppTskit")
+    #' ts1 <- ts_load(ts_file1)
+    #' ts1$discrete_time()
+    #' ts2 <- ts_load(ts_file2)
+    #' ts2$discrete_time()
+    discrete_time = function() {
+      ts_ptr_discrete_time(self$pointer)
     },
 
     #' @description Get the min time in node table and mutation table.
@@ -287,6 +327,17 @@ TreeSequence <- R6Class(
     #' ts$metadata_length()
     metadata_length = function() {
       ts_ptr_metadata_length(self$pointer)
+    },
+
+    #' @description Get the file UUID string.
+    #' @details Returns the UUID of the file the tree sequence was loaded from.
+    #'   If unavailable, returns \code{NA_character_}.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' ts <- ts_load(ts_file)
+    #' ts$file_uuid()
+    file_uuid = function() {
+      ts_ptr_file_uuid(self$pointer)
     }
   )
 )

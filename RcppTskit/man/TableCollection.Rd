@@ -41,6 +41,49 @@ ts <- tc$tree_sequence()
 is(ts)
 
 ## ------------------------------------------------
+## Method `TableCollection$sequence_length`
+## ------------------------------------------------
+
+tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(tc_file)
+tc$sequence_length()
+
+## ------------------------------------------------
+## Method `TableCollection$time_units`
+## ------------------------------------------------
+
+tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(tc_file)
+tc$time_units()
+
+## ------------------------------------------------
+## Method `TableCollection$has_index`
+## ------------------------------------------------
+
+tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(tc_file)
+tc$has_index()
+
+## ------------------------------------------------
+## Method `TableCollection$has_reference_sequence`
+## ------------------------------------------------
+
+tc_file1 <- system.file("examples/test.trees", package = "RcppTskit")
+tc_file2 <- system.file("examples/test_with_ref_seq.trees", package = "RcppTskit")
+tc1 <- tc_load(tc_file1)
+tc1$has_reference_sequence()
+tc2 <- tc_load(tc_file2)
+tc2$has_reference_sequence()
+
+## ------------------------------------------------
+## Method `TableCollection$file_uuid`
+## ------------------------------------------------
+
+tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(tc_file)
+tc$file_uuid()
+
+## ------------------------------------------------
 ## Method `TableCollection$r_to_py`
 ## ------------------------------------------------
 
@@ -90,6 +133,11 @@ tc
 \item \href{#method-TableCollection-dump}{\code{TableCollection$dump()}}
 \item \href{#method-TableCollection-write}{\code{TableCollection$write()}}
 \item \href{#method-TableCollection-tree_sequence}{\code{TableCollection$tree_sequence()}}
+\item \href{#method-TableCollection-sequence_length}{\code{TableCollection$sequence_length()}}
+\item \href{#method-TableCollection-time_units}{\code{TableCollection$time_units()}}
+\item \href{#method-TableCollection-has_index}{\code{TableCollection$has_index()}}
+\item \href{#method-TableCollection-has_reference_sequence}{\code{TableCollection$has_reference_sequence()}}
+\item \href{#method-TableCollection-file_uuid}{\code{TableCollection$file_uuid()}}
 \item \href{#method-TableCollection-r_to_py}{\code{TableCollection$r_to_py()}}
 \item \href{#method-TableCollection-print}{\code{TableCollection$print()}}
 \item \href{#method-TableCollection-clone}{\code{TableCollection$clone()}}
@@ -117,7 +165,7 @@ Create a \code{\link{TableCollection}} from a file or a pointer.
 \item{\code{skip_tables}}{logical; if \code{TRUE}, load only non-table information.}
 
 \item{\code{skip_reference_sequence}}{logical; if \code{TRUE}, skip loading
-reference sequence information.}
+reference genome sequence information.}
 
 \item{\code{pointer}}{an external pointer (\code{externalptr}) to a table collection.}
 }
@@ -221,6 +269,114 @@ A \code{\link{TreeSequence}} object.
 tc <- TableCollection$new(file = ts_file)
 ts <- tc$tree_sequence()
 is(ts)
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-sequence_length"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-sequence_length}{}}}
+\subsection{Method \code{sequence_length()}}{
+Get the sequence length.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$sequence_length()}\if{html}{\out{</div>}}
+}
+
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(tc_file)
+tc$sequence_length()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-time_units"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-time_units}{}}}
+\subsection{Method \code{time_units()}}{
+Get the time units string.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$time_units()}\if{html}{\out{</div>}}
+}
+
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(tc_file)
+tc$time_units()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-has_index"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-has_index}{}}}
+\subsection{Method \code{has_index()}}{
+Get whether the table collection has edge indexes.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$has_index()}\if{html}{\out{</div>}}
+}
+
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(tc_file)
+tc$has_index()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-has_reference_sequence"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-has_reference_sequence}{}}}
+\subsection{Method \code{has_reference_sequence()}}{
+Get whether the table collection has a reference genome sequence.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$has_reference_sequence()}\if{html}{\out{</div>}}
+}
+
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{tc_file1 <- system.file("examples/test.trees", package = "RcppTskit")
+tc_file2 <- system.file("examples/test_with_ref_seq.trees", package = "RcppTskit")
+tc1 <- tc_load(tc_file1)
+tc1$has_reference_sequence()
+tc2 <- tc_load(tc_file2)
+tc2$has_reference_sequence()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-file_uuid"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-file_uuid}{}}}
+\subsection{Method \code{file_uuid()}}{
+Get the file UUID string.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$file_uuid()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+Returns the UUID of the file the table collection was loaded from.
+  If unavailable, returns \code{NA_character_}.
+}
+
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(tc_file)
+tc$file_uuid()
 }
 \if{html}{\out{</div>}}
 

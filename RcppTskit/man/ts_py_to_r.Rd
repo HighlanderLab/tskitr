@@ -15,8 +15,12 @@ ts_py_to_r(ts, cleanup = TRUE)
 A \code{\link{TreeSequence}} object.
 }
 \description{
-This function saves a tree sequence from reticulate Python to disk
-  and reads it into R for use with \code{RcppTskit}.
+This function saves a tree sequence from reticulate Python to
+  temporary file on disk and reads it into R for use with \code{RcppTskit}.
+}
+\details{
+Because this transfer is via a temporary file,
+  the file UUID property changes.
 }
 \examples{
 \dontrun{

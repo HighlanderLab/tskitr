@@ -146,6 +146,10 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
   tmp <- capture.output(ts2_r_print <- ts2_r$print())
   # jarl-ignore implicit_assignment:  it's just a test
   tmp <- capture.output(ts_ptr2_r_print <- ts_ptr_print(ts_ptr2_r))
+  sel <- ts2_r_print$ts$property == "file_uuid"
+  ts2_r_print$ts$value[sel] <- NA_character_
+  sel <- ts_ptr2_r_print$ts$property == "file_uuid"
+  ts_ptr2_r_print$ts$value[sel] <- NA_character_
   expect_equal(ts2_r_print, ts_ptr2_r_print)
 })
 
@@ -270,5 +274,9 @@ test_that("tc_r_to_py() and tc_py_to_r() work", {
   tmp <- capture.output(tc2_r_print <- tc2_r$print())
   # jarl-ignore implicit_assignment: it's just a test
   tmp <- capture.output(tc_ptr2_r <- tc_ptr_print(tc_ptr2_r))
+  sel <- tc2_r_print$tc$property == "file_uuid"
+  tc2_r_print$tc$value[sel] <- NA_character_
+  sel <- tc_ptr2_r$tc$property == "file_uuid"
+  tc_ptr2_r$tc$value[sel] <- NA_character_
   expect_equal(tc2_r_print, tc_ptr2_r)
 })

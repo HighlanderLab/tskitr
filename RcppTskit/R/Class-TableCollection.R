@@ -14,7 +14,7 @@ TableCollection <- R6Class(
     #' @param file a string specifying the full path of the tree sequence file.
     #' @param skip_tables logical; if \code{TRUE}, load only non-table information.
     #' @param skip_reference_sequence logical; if \code{TRUE}, skip loading
-    #'   reference sequence information.
+    #'   reference genome sequence information.
     #' @param pointer an external pointer (\code{externalptr}) to a table collection.
     #' @details See the corresponding Python function at
     #'   \url{https://github.com/tskit-dev/tskit/blob/dc394d72d121c99c6dcad88f7a4873880924dd72/python/tskit/tables.py#L3463}.
@@ -88,10 +88,61 @@ TableCollection <- R6Class(
     tree_sequence = function() {
       # See https://tskit.dev/tskit/docs/stable/c-api.html#c.TSK_TS_INIT_BUILD_INDEXES
       # TSK_TS_INIT_BUILD_INDEXES (1 << 0) is bitwShiftL(1L, 0) or just 1L
-      # TODO: Should we also use https://tskit.dev/tskit/docs/stable/c-api.html#c.TSK_TS_INIT_COMPUTE_MUTATION_PARENTS?
+      # TODO: Should we also use TSK_TS_INIT_COMPUTE_MUTATION_PARENTS in TableCollection$tree_sequence()? #65
+      #       https://github.com/HighlanderLab/RcppTskit/issues/65
       init_options <- bitwShiftL(1L, 0)
       ts_ptr <- tc_ptr_to_ts_ptr(self$pointer, options = init_options)
       TreeSequence$new(pointer = ts_ptr)
+    },
+
+    #' @description Get the sequence length.
+    #' @examples
+    #' tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(tc_file)
+    #' tc$sequence_length()
+    sequence_length = function() {
+      tc_ptr_sequence_length(self$pointer)
+    },
+
+    #' @description Get the time units string.
+    #' @examples
+    #' tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(tc_file)
+    #' tc$time_units()
+    time_units = function() {
+      tc_ptr_time_units(self$pointer)
+    },
+
+    #' @description Get whether the table collection has edge indexes.
+    #' @examples
+    #' tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(tc_file)
+    #' tc$has_index()
+    has_index = function() {
+      tc_ptr_has_index(self$pointer)
+    },
+
+    #' @description Get whether the table collection has a reference genome sequence.
+    #' @examples
+    #' tc_file1 <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc_file2 <- system.file("examples/test_with_ref_seq.trees", package = "RcppTskit")
+    #' tc1 <- tc_load(tc_file1)
+    #' tc1$has_reference_sequence()
+    #' tc2 <- tc_load(tc_file2)
+    #' tc2$has_reference_sequence()
+    has_reference_sequence = function() {
+      tc_ptr_has_reference_sequence(self$pointer)
+    },
+
+    #' @description Get the file UUID string.
+    #' @details Returns the UUID of the file the table collection was loaded from.
+    #'   If unavailable, returns \code{NA_character_}.
+    #' @examples
+    #' tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(tc_file)
+    #' tc$file_uuid()
+    file_uuid = function() {
+      tc_ptr_file_uuid(self$pointer)
     },
 
     #' @description This function saves a table collection from R to disk and

@@ -4,6 +4,27 @@ All notable changes to RcppTskit are documented in this file.
 The file format is based on [Keep a Changelog](https://keepachangelog.com),
 and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added (new features)
+
+- Added the following scalar getters to match tskit C/Python API
+  - `TreeSequence$discrete_genome()` to query whether genome coordinates
+    are discrete integer values.
+  - `TreeSequence$has_reference_sequence()` to query whether a tree sequence
+    contains a reference genome sequence.
+  - `TreeSequence$discrete_time()` to query whether time values are discrete
+    integer values.
+  - `TreeSequence$file_uuid()` to query the UUID of the source `.trees` file.
+  - `TableCollection$has_reference_sequence()` to query whether a table
+    collection contains a reference genome sequence.
+  - `TableCollection$file_uuid()` to query the UUID of the source `.trees`
+    file.
+  - `TableCollection$sequence_length()` to query the sequence length.
+  - `TableCollection$time_units()` to query the time units.
+  - `TableCollection$has_index()` to query whether edge indexes are present.
+  - TODO
+
 ## [0.2.0] - 2026-02-22
 
 ### Added (new features)

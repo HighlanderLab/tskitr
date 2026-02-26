@@ -43,6 +43,7 @@ test_that("TableCollection$new() works", {
 
 test_that("TableCollection and TreeSequence round-trip works", {
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  test_trees_file_uuid <- "79ec383f-a57d-b44f-2a5c-f0feecbbcb32"
   ts_ptr <- ts_ptr_load(ts_file)
 
   # ---- Integer bitmask of tskit flags ----
@@ -75,10 +76,13 @@ test_that("TableCollection and TreeSequence round-trip works", {
       tc = data.frame(
         property = c(
           "sequence_length",
+          "has_reference_sequence",
           "time_units",
-          "has_metadata"
+          "has_metadata",
+          "file_uuid",
+          "has_index"
         ),
-        value = c(100, "generations", FALSE)
+        value = c(100, FALSE, "generations", FALSE, NA_character_, TRUE)
       ),
       tables = data.frame(
         table = c(
@@ -118,7 +122,12 @@ test_that("TableCollection and TreeSequence round-trip works", {
     "externalptr"
   ))
   ts_ptr2 <- tc_ptr_to_ts_ptr(tc_ptr)
-  expect_equal(ts_ptr_print(ts_ptr), ts_ptr_print(ts_ptr2))
+  p_ts_ptr <- ts_ptr_print(ts_ptr)
+  p_ts_ptr2 <- ts_ptr_print(ts_ptr2)
+  i_file_uuid <- p_ts_ptr$ts$property == "file_uuid"
+  p_ts_ptr$ts$value[i_file_uuid] <- NA_character_
+  p_ts_ptr2$ts$value[p_ts_ptr2$ts$property == "file_uuid"] <- NA_character_
+  expect_equal(p_ts_ptr, p_ts_ptr2)
 
   # ---- ts --> tc --> ts ----
 
@@ -139,10 +148,13 @@ test_that("TableCollection and TreeSequence round-trip works", {
       tc = data.frame(
         property = c(
           "sequence_length",
+          "has_reference_sequence",
           "time_units",
-          "has_metadata"
+          "has_metadata",
+          "file_uuid",
+          "has_index"
         ),
-        value = c(100, "generations", FALSE)
+        value = c(100, FALSE, "generations", FALSE, NA_character_, TRUE)
       ),
       tables = data.frame(
         table = c(
@@ -182,6 +194,9 @@ test_that("TableCollection and TreeSequence round-trip works", {
   tmp <- capture.output(ts_print <- ts$print())
   # jarl-ignore implicit_assignment: it's just a test
   tmp <- capture.output(ts2_print <- ts2$print())
+  i_file_uuid <- ts_print$ts$property == "file_uuid"
+  ts_print$ts$value[i_file_uuid] <- NA_character_
+  ts2_print$ts$value[ts2_print$ts$property == "file_uuid"] <- NA_character_
   expect_equal(ts_print, ts2_print)
 
   # Edge cases
