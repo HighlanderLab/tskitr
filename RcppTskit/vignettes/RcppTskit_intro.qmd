@@ -141,20 +141,19 @@ to record a tree sequence in a multi-generation simulation with many individuals
 
 Given the current tree sequence ecosystem,
 the aims of the `RcppTskit` package are to provide an easy-to-install R package
-that supports users in four typical cases.
+that supports users in four typical cases of working with tree sequences
+and table collection.
 The authors are open to expanding this scope of `RcppTskit`
 depending on user demand and engagement.
 The four typical cases are:
 
-1. Load a tree sequence[^ts_and_tc_note] into R and summarise it,
+1. Load a tree sequence into R and summarise it,
 
-2. Pass a tree sequence[^ts_and_tc_note] between R and reticulate or standard Python,
+2. Pass a tree sequence between R and reticulate or standard Python,
 
 3. Call the `tskit` C API from C++ in an R session or script, and
 
 4. Call the `tskit` C API from C++ in another R package.
-
-[^ts_and_tc_note]: Both tree sequence and table collection types are supported.
 
 Examples for all of these cases are provided below
 after we describe the implemented data and class model.
@@ -213,7 +212,7 @@ if (!test) {
 }
 ```
 
-### 1) Load a tree sequence[^ts_and_tc_note] into R and summarise it
+### 1) Load a tree sequence into R and summarise it
 
 ```{r}
 #| label: use_case_1
@@ -239,7 +238,7 @@ ts2 <- tc$tree_sequence()
 help(package = "RcppTskit")
 ```
 
-### 2) Pass a tree sequence[^ts_and_tc_note] between R and reticulate or standard Python
+### 2) Pass a tree sequence between R and reticulate or standard Python
 
 ```{r}
 #| label: use_case_2

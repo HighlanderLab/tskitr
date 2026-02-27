@@ -22,7 +22,7 @@ work with tree sequences. Currently, \code{RcppTskit} provides a limited set of
 R functions because the Python API and \code{reticulate} already covers most needs.
 }
 \examples{
-vignette(package="RcppTskit")
+vignette("RcppTskit_intro")
 }
 \seealso{
 Useful links:

@@ -28,14 +28,14 @@ repos:
     hooks:
       - id: air-format
         name: air format
-        entry: air format .
+        entry: RcppTskit/tools/run-local-tool.sh air format .
         language: system
         pass_filenames: false
         files: '\.(R|Rmd|rmd|qmd|Qmd)$'
 
       - id: jarl-lint
         name: jarl lint
-        entry: jarl check .
+        entry: RcppTskit/tools/run-local-tool.sh jarl check .
         language: system
         pass_filenames: false
         files: '\.(R|Rmd|rmd|qmd|Qmd)$'

@@ -73,6 +73,7 @@ To install the published release from [CRAN](https://cran.r-project.org) use:
 #       https://github.com/HighlanderLab/RcppTskit/issues/14
 #       https://github.com/HighlanderLab/RcppTskit/issues/45
 # install.packages("RcppTskit")
+# vignette("RcppTskit_intro")
 ```
 
 To install the latest development version (possibly unstable!) from
@@ -99,10 +100,14 @@ https://mac.r-project.org/tools for macOS tools.
 # remotes::install_github("HighlanderLab/RcppTskit/RcppTskit")
 
 # Main branch
-remotes::install_github("HighlanderLab/RcppTskit/RcppTskit@main")
+remotes::install_github("HighlanderLab/RcppTskit/RcppTskit@main",
+  build_vignettes=TRUE)
 
 # Development branch
-remotes::install_github("HighlanderLab/RcppTskit/RcppTskit@devel")
+remotes::install_github("HighlanderLab/RcppTskit/RcppTskit@devel",
+  build_vignettes=TRUE)
+
+vignette("RcppTskit_intro")
 ```
 
 ## Development
