@@ -3,6 +3,17 @@
 ## Scope
 
 These notes apply to this repository root and the `RcppTskit/` package.
+RcppTskit aims to provide a practical, well-tested R and C++ interface to
+`tskit` while mirroring upstream APIs where practical and clearly documenting
+intentional deviations.
+
+Within this scope, we prioritise:
+
+* aligning the tskit R API with the upstream tskit Python API;
+* aligning the RcppTskit C++ API with the upstream tskit C API
+  (the former is a C++ binding to the tskit C API);
+* using `tskit-dev/tskit` and `tskit.dev` as primary references for API
+  behavior, naming, and semantics.
 
 ## The way of working
 
@@ -14,9 +25,6 @@ These notes apply to this repository root and the `RcppTskit/` package.
 * We run R CMD check for every code change.
 * We keep local quality gates green before handoff.
 * We update `RcppTskit/NEWS.md` for user-visible behavior or API changes.
-* We aim for a comparative tskit Python API and tskit R API and
-  similarly for tskit C API and tskit C++ API
-  (the later is RcppTskit C++ binding to tskit C API).
 
 ## Permission
 
@@ -24,6 +32,12 @@ You can use all the commands and tools mentioned in this document,
 both for sandboxed and unsandboxed/escalated execution.
 You don't need to ask for permission to use these commands and tools,
 for the purposes described here.
+You can also use `curl` (or equivalent read-only HTTP tools) to read
+GitHub resources for this project, including repository pages and
+`api.github.com` endpoints (issues, pull requests, comments, and metadata).
+You can also read upstream `tskit` resources in the same way, including
+`https://github.com/tskit-dev/tskit` and `https://tskit.dev`
+(and related `api.github.com` endpoints).
 
 ## Definition of done
 
@@ -36,6 +50,77 @@ A task is done when all applicable items below are completed:
 * `Rscript -e "setwd('RcppTskit'); devtools::check()"`
   for non-interactive "mode" testing and full package checks.
 * Updated `RcppTskit/NEWS.md` for user-visible changes.
+
+### Task-class quality gates
+
+* For docs/config-only changes (for example `AGENTS.md`, README text, `NEWS.md`
+  text-only edits, comments, formatting-only), `devtools::test()` and
+  `devtools::check()` are not required unless package behavior is affected.
+* For behavior-changing R/C++ work, run focused tests first (for example
+  `devtools::test(filter = '...')`), then run full package checks before
+  handoff (`pre-commit`, `devtools::test()`, and `devtools::check()`).
+* If full checks are intentionally skipped, explicitly report what was skipped,
+  why, and which focused checks were run.
+
+## Worktree and file hygiene
+
+Default for non-trivial code tasks is to use a dedicated git worktree:
+
+```sh
+git fetch origin --prune
+git worktree add ../RcppTskit_<task> -b <branch-name> origin/main
+```
+
+Within this workflow, follow these rules:
+
+* In the shared root worktree, limit edits to small docs/meta/config work.
+* For behavior-changing R/C++ tasks, use a dedicated worktree by default.
+* A branch can be checked out in only one worktree at a time.
+* If the shared root is dirty or conflicting edits appear, stop and move work
+  into a dedicated worktree.
+* In a dedicated worktree, edit only task-related files and do not revert or
+  overwrite unrelated edits.
+* If syncing an existing branch before substantial work, run:
+
+```sh
+git fetch origin --prune
+git rebase origin/main
+```
+
+* If there are local uncommitted edits, use `--autostash` or an explicit stash.
+* If conflicts occur, preserve local edits, resolve conflicts carefully, and
+  report conflicted files plus the chosen resolution.
+* By default, edit files freely but do not run `git add`, `git commit`,
+  or `git push` unless explicitly requested.
+* If a command leaves files staged unintentionally, report that in handoff.
+
+Worktree cleanup after merge/finish:
+
+```sh
+git worktree remove ../RcppTskit_<task>
+git worktree prune
+```
+
+## Issue triage workflow
+
+For issue exploration, closure recommendations, or "what is left to do?" tasks:
+
+* Read issue body, comments, and events/timeline.
+* Check linked commits/PRs and map issue checklist items to current files/tests.
+* Report what is done, what is missing, and a concrete recommendation
+  (close, keep open, or split follow-up issue).
+* Include direct references to supporting files/tests/commits.
+
+## API parity decision rubric
+
+When adding or changing API surface:
+
+* Default to upstream naming, argument semantics, defaults, and error behavior.
+* Mirror upstream examples/docs where practical for user familiarity.
+* If deviation is intentional (R idioms, safety, performance, or technical
+  constraints), document the rationale in code comments and issue/PR notes,
+  add tests for the chosen behavior, and record user-visible deviations in
+  `RcppTskit/NEWS.md`.
 
 ## Quality toolchain
 
@@ -206,16 +291,6 @@ For testing use:
   `Rscript -e "setwd('RcppTskit'); devtools::test(filter = 'TableCollection')`.
 
 Tests are also run as part of R CMD check.
-
-## Changing files
-
-You have permission to change files,
-but note that others might be working with the files in this repository at the same time,
-so don't tweak or revert changes done by others.
-Keep track of which files you are changing and focus on those changes only.
-If there are conflicting edits, try to merge or ask for advice on how to merge.
-In case of conflicts, save your changes and use git worktree
-to work independently.
 
 ## Proofreading
 
