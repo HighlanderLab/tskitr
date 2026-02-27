@@ -24,7 +24,7 @@
 #' @importFrom reticulate import is_py_object py_module_available py_require
 #'
 #' @examples
-#' vignette(package="RcppTskit")
+#' vignette(package="RcppTskit_intro")
 "_PACKAGE"
 
 #' Provide an inline plugin so we can call the tskit C API with functions like
