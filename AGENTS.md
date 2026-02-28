@@ -42,8 +42,22 @@ Standing authorization for this repository:
 * Agents may use `curl` (or equivalent read-only HTTP tools) for repository
   and upstream references on:
   `github.com`, `api.github.com`, `raw.githubusercontent.com`,
-  `github.com/tskit-dev/tskit`, and `tskit.dev`
+  `github.com/tskit-dev/tskit`, `tskit.dev`,
+  `cran.r-project.org`, `cranchecks.info`, `badges.cranchecks.info`,
+  `r-pkg.org`, `cranlogs.r-pkg.org`, `img.shields.io`,
+  `codecov.io`, `app.codecov.io`, and `highlanderlab.r-universe.dev`
   (including issues, pull requests, comments, events, metadata, and docs).
+* For the above domains, agents should execute `curl` directly without asking
+  for extra confirmation in chat; if sandboxing requires escalation, submit the
+  escalated tool request immediately and continue.
+* To minimise repeated platform permission prompts, prefer these canonical
+  command forms (same flags and flag order):
+
+```sh
+curl -sS --max-time 15 <url>
+curl -I -sS --max-time 15 <url>
+```
+
 * This standing authorization does not override explicit user instructions or
   allow destructive commands that were not requested by the user.
 
