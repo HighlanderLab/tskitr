@@ -1,28 +1,31 @@
-# RcppTskit: R access to the `tskit` C API
+# `RcppTskit`: `R` access to the `tskit C` API
 
 ## Overview
+
+<!-- keep in sync with DESCRIPTION file but use `` and Markdown URLs for DOIs -->
 
 `Tskit` enables performant storage, manipulation, and analysis of ancestral
 recombination graphs (ARGs) using succinct tree sequence encoding.
 The tree sequence encoding of an ARG is
-described in [Wong et al. (2024)](https://doi.org/10.1093/genetics/iyae100),
-while `tskit` project is described in
-[Jeffrey et al. (2026)](https://doi.org/10.48550/arXiv.2602.09649).
+described in Wong et al. (2024)
+<[doi:10.1093/genetics/iyae100](https://doi.org/10.1093/genetics/iyae100)>,
+while `tskit` project is described in Jeffrey et al. (2026)
+<[doi:10.48550/arXiv.2602.09649](https://doi.org/10.48550/arXiv.2602.09649)>.
 See https://tskit.dev for project news, documentation, and tutorials.
-`Tskit` provides Python, C, and Rust application programming interfaces (APIs).
-The Python API can be called from R via the `reticulate` R package to
+`Tskit` provides `Python`, `C`, and `Rust` application programming interfaces (APIs).
+The `Python` API can be called from `R` via the `reticulate` `R` package to
 seamlessly load and analyse a tree sequence, as described at
 https://tskit.dev/tutorials/RcppTskit.html.
-`RcppTskit` provides R access to the `tskit` C API for use cases where the
+`RcppTskit` provides `R` access to the `tskit C` API for use cases where the
 `reticulate` option is not optimal. For example, for high-performance and
 low-level work with tree sequences. Currently, `RcppTskit` provides a limited
-number of R functions due to the availability of extensive Python API and
+number of `R` functions due to the availability of extensive `Python` API and
 the `reticulate` option.
 
 See more details on the state of the tree sequence ecosystem and aims of
 `RcppTskit` in [the introduction vignette](https://highlanderlab.r-universe.dev/articles/RcppTskit/RcppTskit_intro.html) ([source](RcppTskit/vignettes/RcppTskit_intro.qmd)).
 The vignette also shows examples on how to use `RcppTskit` on its own or
-to develop new R packages.
+to develop new `R` packages that can leverage `RcppTskit`.
 
 ## Status
 
@@ -51,12 +54,12 @@ Code quality: [![Codecov test coverage](https://codecov.io/gh/HighlanderLab/Rcpp
 ## Contents
 
   * `extern` - Git submodule for `tskit` and instructions on
-    obtaining the latest version and copying the `tskit` C code into
+    obtaining the latest version and copying the `tskit C` code into
     `RcppTskit` directory.
     `extern` is saved outside of the `RcppTskit` directory
     because `R CMD CHECK` complains otherwise (even with `.Rbuildignore`).
 
-  * `RcppTskit` - R package `RcppTskit`.
+  * `RcppTskit` - `R` package `RcppTskit`.
 
 ## License
 
@@ -66,27 +69,32 @@ Code quality: [![Codecov test coverage](https://codecov.io/gh/HighlanderLab/Rcpp
 
 ## Installation
 
-To install the published release from [CRAN](https://cran.r-project.org) use:
+To install the published release from
+[CRAN](https://cran.r-project.org/package=RcppTskit) use:
 
 ```
-# TODO: Publish on CRAN #14
-#       https://github.com/HighlanderLab/RcppTskit/issues/14
-#       https://github.com/HighlanderLab/RcppTskit/issues/45
-# install.packages("RcppTskit")
-# vignette("RcppTskit_intro")
+install.packages("RcppTskit")
+vignette("RcppTskit_intro")
 ```
 
 To install the latest development version (possibly unstable!) from
 [R universe](https://r-universe.dev) use:
 
 ```
-RUniverseAndCRAN <- c('https://highlanderlab.r-universe.dev', 'https://cloud.r-project.org')
-install.packages('RcppTskit', repos = RUniverseAndCRAN)
+r_universe_and_cran <- c(
+  "https://highlanderlab.r-universe.dev",
+  "https://cloud.r-project.org"
+  )
+install.packages("RcppTskit", repos = r_universe_and_cran)
+vignette("RcppTskit_intro")
 ```
 
-To install the latest development version (possibly unstable!) from Github use the
-following code. Note that you will have to compile the C/C++ code and will
-hence require the complete R build toolchain, including compilers. See
+To install the latest development version (possibly unstable!) from Github
+use the following code.
+Note that you will have to compile the `C/C++` code and vignette,
+so you will require the complete build toolchain,
+including compilers, other `R` packages, and `quarto`.
+See
 https://r-pkgs.org/setup.html#setup-tools for introduction to this topic,
 https://cran.r-project.org/bin/windows/Rtools for Windows tools, and
 https://mac.r-project.org/tools for macOS tools.
@@ -131,10 +139,10 @@ cd RcppTskit
 
 We use [pre-commit](https://pre-commit.com) hooks to ensure code quality.
 Specifically, we use:
-* [air](https://github.com/posit-dev/air) to format R code,
-* [jarl](https://github.com/etiennebacher/jarl) to lint R code,
-* [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format C/C++ code, and
-* [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) to lint C/C++ code.
+* [air](https://github.com/posit-dev/air) to format `R` code,
+* [jarl](https://github.com/etiennebacher/jarl) to lint `R` code,
+* [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format `C/C++` code, and
+* [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) to lint `C/C++` code.
 
 To install the hooks, run:
 
@@ -148,10 +156,10 @@ If you plan to update `tskit`, follow instructions in `extern/README.md`.
 
 ### RcppTskit
 
-Then open `RcppTskit` package directory in your favourite R IDE
+Then open `RcppTskit` package directory in your favourite `R` editor
 (Positron, RStudio, text-editor-of-your-choice, etc.) and implement your changes.
 
-You should routinely `R CMD check` your changes (in R):
+You should routinely `R CMD check` your changes (in `R`):
 
 ```
 # Note that the RcppTskit R package is in the RcppTskit sub-directory
