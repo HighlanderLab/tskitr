@@ -252,6 +252,15 @@ use_release_issue(version = NULL) # https://usethis.r-lib.org/reference/use_rele
 # just follow tasks in there;)
 ```
 
+Tag a release:
+
+```
+git checkout main
+git pull --ff-only origin main
+git tag -a v0.2.0 eb6e19c -m "RcppTskit 0.2.0"
+git push origin v0.2.0
+```
+
 ## Dev tools setup / use
 
 ```

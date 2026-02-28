@@ -33,18 +33,19 @@ to develop new `R` packages that can leverage `RcppTskit`.
 
 <!-- Row 1 -->
 General: [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) <!-- Col-1-End -->
-[![Development](https://img.shields.io/badge/development-active-blue.svg)](https://img.shields.io/badge/development-active-blue.svg) <!-- Col-2-End -->
+[![Development](https://img.shields.io/badge/development-active-blue.svg)](https://github.com/HighlanderLab/RcppTskit?tab=readme-ov-file#development) <!-- Col-2-End -->
 [![Licence](https://img.shields.io/badge/licence-MIT-blue.svg)](https://opensource.org/licenses/MIT) <!-- Col-3-End -->
 
 <!-- Row 2 -->
 Release: [![CRAN version](https://www.r-pkg.org/badges/version/RcppTskit)](https://CRAN.R-project.org/package=RcppTskit) <!-- Col-1-End -->
 [![Downloads - total](https://cranlogs.r-pkg.org/badges/grand-total/RcppTskit)](https://cranlogs.r-pkg.org/badges/grand-total/RcppTskit) <!-- Col-2-End -->
-![GitHub version (main)](https://img.shields.io/github/r-package/v/HighlanderLab/RcppTskit/main?filename=RcppTskit%2FDESCRIPTION&label=Github) <!-- Col-3-End -->
+[![GitHub version (main)](https://img.shields.io/github/r-package/v/HighlanderLab/RcppTskit/main?filename=RcppTskit%2FDESCRIPTION&label=Github)](https://github.com/HighlanderLab/RcppTskit) <!-- Col-3-End -->
 
 <!-- Row 3 -->
-R CMD checks: [![CRAN](https://cranchecks.info/badges/summary/RcppTskit?label=CRAN)](https://cran.r-project.org/web/checks/check_results_RcppTskit.html) <!-- Col-1-End -->
-[![R universe](https://highlanderlab.r-universe.dev/RcppTskit/badges/checks?label=R-universe)](https://highlanderlab.r-universe.dev/RcppTskit) <!-- Col-2-End -->
-[![GitHub](https://img.shields.io/github/actions/workflow/status/HighlanderLab/RcppTskit/R-CMD-check.yaml?label=GitHub)](https://github.com/HighlanderLab/RcppTskit/actions/workflows/R-CMD-check.yaml) <!-- Col-3-End -->
+R CMD checks: [![CRAN summary](https://badges.cranchecks.info/summary/RcppTskit.svg)](https://cran.r-project.org/web/checks/check_results_RcppTskit.html) <!-- Col-1-End -->
+[![CRAN worst](https://badges.cranchecks.info/worst/RcppTskit.svg)](https://cran.r-project.org/web/checks/check_results_RcppTskit.html) <!-- Col-2-End -->
+[![R universe](https://highlanderlab.r-universe.dev/RcppTskit/badges/checks?label=R-universe)](https://highlanderlab.r-universe.dev/RcppTskit) <!-- Col-3-End -->
+[![GitHub](https://img.shields.io/github/actions/workflow/status/HighlanderLab/RcppTskit/R-CMD-check.yaml?label=GitHub)](https://github.com/HighlanderLab/RcppTskit/actions/workflows/R-CMD-check.yaml) <!-- Col-4-End -->
 
 <!-- Row 4 -->
 Code quality: [![Codecov test coverage](https://codecov.io/gh/HighlanderLab/RcppTskit/graph/badge.svg)](https://app.codecov.io/gh/HighlanderLab/RcppTskit) <!-- Col-1-End -->
@@ -73,7 +74,10 @@ To install the published release from
 [CRAN](https://cran.r-project.org/package=RcppTskit) use:
 
 ```
+# Install
 install.packages("RcppTskit")
+
+# Read the introduction to RcppTskit
 vignette("RcppTskit_intro")
 ```
 
@@ -81,11 +85,14 @@ To install the latest development version (possibly unstable!) from
 [R universe](https://r-universe.dev) use:
 
 ```
+# Install
 r_universe_and_cran <- c(
   "https://highlanderlab.r-universe.dev",
   "https://cloud.r-project.org"
   )
 install.packages("RcppTskit", repos = r_universe_and_cran)
+
+# Read the introduction to RcppTskit
 vignette("RcppTskit_intro")
 ```
 
@@ -102,19 +109,18 @@ https://mac.r-project.org/tools for macOS tools.
 ```
 # install.packages("remotes") # If you don't have it already
 
-# Release
-# TODO: Tag a release #15
-#       https://github.com/HighlanderLab/RcppTskit/issues/15
-# remotes::install_github("HighlanderLab/RcppTskit/RcppTskit")
-
-# Main branch
+# Install the main branch
 remotes::install_github("HighlanderLab/RcppTskit/RcppTskit@main",
   build_vignettes=TRUE)
 
-# Development branch
+# Install the development branch
 remotes::install_github("HighlanderLab/RcppTskit/RcppTskit@devel",
   build_vignettes=TRUE)
 
+# Install a specific release (say, v0.2.0)
+remotes::install_github("HighlanderLab/RcppTskit/RcppTskit@v0.2.0")
+
+# Read the introduction to RcppTskit
 vignette("RcppTskit_intro")
 ```
 

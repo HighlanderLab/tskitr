@@ -1,7 +1,7 @@
 Type: Package
 Package: RcppTskit
 Title: 'R' Access to the 'tskit C' API
-Version: 0.2.0
+Version: 0.2.0.9000
 Date: 2026-01-27
 Authors@R: c(
     person("Gregor", "Gorjanc", , "gregor.gorjanc@gmail.com", role = c("aut", "cre", "cph"),
