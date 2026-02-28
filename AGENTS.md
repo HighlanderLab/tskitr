@@ -26,18 +26,26 @@ Within this scope, we prioritise:
 * We keep local quality gates green before handoff.
 * We update `RcppTskit/NEWS.md` for user-visible behavior or API changes.
 
-## Permission
+## Permissions and authorization
 
-You can use all the commands and tools mentioned in this document,
-both for sandboxed and unsandboxed/escalated execution.
-You don't need to ask for permission to use these commands and tools,
-for the purposes described here.
-You can also use `curl` (or equivalent read-only HTTP tools) to read
-GitHub resources for this project, including repository pages and
-`api.github.com` endpoints (issues, pull requests, comments, and metadata).
-You can also read upstream `tskit` resources in the same way, including
-`https://github.com/tskit-dev/tskit` and `https://tskit.dev`
-(and related `api.github.com` endpoints).
+Standing authorization for this repository:
+
+* All commands explicitly shown in this document are pre-authorized for
+  repository work (including inline commands and code-block commands,
+  with task-specific substitutions where placeholders are shown).
+* Agents should run these documented commands directly without asking for
+  extra confirmation in chat.
+* If sandboxing blocks an allowed command, agents should submit the required
+  unsandboxed/escalated tool request directly with a brief justification.
+* Agents should ask in chat only if a required escalation is denied or a
+  platform policy still blocks execution after escalation.
+* Agents may use `curl` (or equivalent read-only HTTP tools) for repository
+  and upstream references on:
+  `github.com`, `api.github.com`, `raw.githubusercontent.com`,
+  `github.com/tskit-dev/tskit`, and `tskit.dev`
+  (including issues, pull requests, comments, events, metadata, and docs).
+* This standing authorization does not override explicit user instructions or
+  allow destructive commands that were not requested by the user.
 
 ## Definition of done
 
