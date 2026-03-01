@@ -30,372 +30,372 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_load
-SEXP ts_ptr_load(const std::string file, const int options);
-RcppExport SEXP _RcppTskit_ts_ptr_load(SEXP fileSEXP, SEXP optionsSEXP) {
+// ts_xptr_load
+SEXP ts_xptr_load(const std::string file, const int options);
+RcppExport SEXP _RcppTskit_ts_xptr_load(SEXP fileSEXP, SEXP optionsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string >::type file(fileSEXP);
     Rcpp::traits::input_parameter< const int >::type options(optionsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_load(file, options));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_load(file, options));
     return rcpp_result_gen;
 END_RCPP
 }
-// tc_ptr_load
-SEXP tc_ptr_load(const std::string file, const int options);
-RcppExport SEXP _RcppTskit_tc_ptr_load(SEXP fileSEXP, SEXP optionsSEXP) {
+// tc_xptr_load
+SEXP tc_xptr_load(const std::string file, const int options);
+RcppExport SEXP _RcppTskit_tc_xptr_load(SEXP fileSEXP, SEXP optionsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string >::type file(fileSEXP);
     Rcpp::traits::input_parameter< const int >::type options(optionsSEXP);
-    rcpp_result_gen = Rcpp::wrap(tc_ptr_load(file, options));
+    rcpp_result_gen = Rcpp::wrap(tc_xptr_load(file, options));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_dump
-void ts_ptr_dump(const SEXP ts, const std::string file, const int options);
-RcppExport SEXP _RcppTskit_ts_ptr_dump(SEXP tsSEXP, SEXP fileSEXP, SEXP optionsSEXP) {
+// ts_xptr_dump
+void ts_xptr_dump(const SEXP ts, const std::string file, const int options);
+RcppExport SEXP _RcppTskit_ts_xptr_dump(SEXP tsSEXP, SEXP fileSEXP, SEXP optionsSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
     Rcpp::traits::input_parameter< const std::string >::type file(fileSEXP);
     Rcpp::traits::input_parameter< const int >::type options(optionsSEXP);
-    ts_ptr_dump(ts, file, options);
+    ts_xptr_dump(ts, file, options);
     return R_NilValue;
 END_RCPP
 }
-// tc_ptr_dump
-void tc_ptr_dump(const SEXP tc, const std::string file, const int options);
-RcppExport SEXP _RcppTskit_tc_ptr_dump(SEXP tcSEXP, SEXP fileSEXP, SEXP optionsSEXP) {
+// tc_xptr_dump
+void tc_xptr_dump(const SEXP tc, const std::string file, const int options);
+RcppExport SEXP _RcppTskit_tc_xptr_dump(SEXP tcSEXP, SEXP fileSEXP, SEXP optionsSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
     Rcpp::traits::input_parameter< const std::string >::type file(fileSEXP);
     Rcpp::traits::input_parameter< const int >::type options(optionsSEXP);
-    tc_ptr_dump(tc, file, options);
+    tc_xptr_dump(tc, file, options);
     return R_NilValue;
 END_RCPP
 }
-// ts_ptr_to_tc_ptr
-SEXP ts_ptr_to_tc_ptr(const SEXP ts, const int options);
-RcppExport SEXP _RcppTskit_ts_ptr_to_tc_ptr(SEXP tsSEXP, SEXP optionsSEXP) {
+// ts_xptr_to_tc_xptr
+SEXP ts_xptr_to_tc_xptr(const SEXP ts, const int options);
+RcppExport SEXP _RcppTskit_ts_xptr_to_tc_xptr(SEXP tsSEXP, SEXP optionsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
     Rcpp::traits::input_parameter< const int >::type options(optionsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_to_tc_ptr(ts, options));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_to_tc_xptr(ts, options));
     return rcpp_result_gen;
 END_RCPP
 }
-// tc_ptr_to_ts_ptr
-SEXP tc_ptr_to_ts_ptr(const SEXP tc, const int options);
-RcppExport SEXP _RcppTskit_tc_ptr_to_ts_ptr(SEXP tcSEXP, SEXP optionsSEXP) {
+// tc_xptr_to_ts_xptr
+SEXP tc_xptr_to_ts_xptr(const SEXP tc, const int options);
+RcppExport SEXP _RcppTskit_tc_xptr_to_ts_xptr(SEXP tcSEXP, SEXP optionsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
     Rcpp::traits::input_parameter< const int >::type options(optionsSEXP);
-    rcpp_result_gen = Rcpp::wrap(tc_ptr_to_ts_ptr(tc, options));
+    rcpp_result_gen = Rcpp::wrap(tc_xptr_to_ts_xptr(tc, options));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_num_provenances
-int ts_ptr_num_provenances(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_num_provenances(SEXP tsSEXP) {
+// ts_xptr_num_provenances
+int ts_xptr_num_provenances(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_num_provenances(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_num_provenances(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_num_provenances(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_num_populations
-int ts_ptr_num_populations(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_num_populations(SEXP tsSEXP) {
+// ts_xptr_num_populations
+int ts_xptr_num_populations(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_num_populations(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_num_populations(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_num_populations(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_num_migrations
-int ts_ptr_num_migrations(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_num_migrations(SEXP tsSEXP) {
+// ts_xptr_num_migrations
+int ts_xptr_num_migrations(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_num_migrations(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_num_migrations(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_num_migrations(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_num_individuals
-int ts_ptr_num_individuals(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_num_individuals(SEXP tsSEXP) {
+// ts_xptr_num_individuals
+int ts_xptr_num_individuals(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_num_individuals(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_num_individuals(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_num_individuals(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_num_samples
-int ts_ptr_num_samples(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_num_samples(SEXP tsSEXP) {
+// ts_xptr_num_samples
+int ts_xptr_num_samples(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_num_samples(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_num_samples(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_num_samples(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_num_nodes
-int ts_ptr_num_nodes(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_num_nodes(SEXP tsSEXP) {
+// ts_xptr_num_nodes
+int ts_xptr_num_nodes(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_num_nodes(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_num_nodes(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_num_nodes(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_num_edges
-int ts_ptr_num_edges(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_num_edges(SEXP tsSEXP) {
+// ts_xptr_num_edges
+int ts_xptr_num_edges(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_num_edges(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_num_edges(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_num_edges(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_num_trees
-int ts_ptr_num_trees(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_num_trees(SEXP tsSEXP) {
+// ts_xptr_num_trees
+int ts_xptr_num_trees(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_num_trees(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_num_trees(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_num_trees(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_num_sites
-int ts_ptr_num_sites(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_num_sites(SEXP tsSEXP) {
+// ts_xptr_num_sites
+int ts_xptr_num_sites(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_num_sites(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_num_sites(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_num_sites(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_num_mutations
-int ts_ptr_num_mutations(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_num_mutations(SEXP tsSEXP) {
+// ts_xptr_num_mutations
+int ts_xptr_num_mutations(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_num_mutations(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_num_mutations(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_num_mutations(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_sequence_length
-double ts_ptr_sequence_length(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_sequence_length(SEXP tsSEXP) {
+// ts_xptr_sequence_length
+double ts_xptr_sequence_length(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_sequence_length(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_sequence_length(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_sequence_length(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_discrete_genome
-bool ts_ptr_discrete_genome(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_discrete_genome(SEXP tsSEXP) {
+// ts_xptr_discrete_genome
+bool ts_xptr_discrete_genome(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_discrete_genome(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_discrete_genome(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_discrete_genome(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_has_reference_sequence
-bool ts_ptr_has_reference_sequence(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_has_reference_sequence(SEXP tsSEXP) {
+// ts_xptr_has_reference_sequence
+bool ts_xptr_has_reference_sequence(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_has_reference_sequence(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_has_reference_sequence(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_has_reference_sequence(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_time_units
-Rcpp::String ts_ptr_time_units(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_time_units(SEXP tsSEXP) {
+// ts_xptr_time_units
+Rcpp::String ts_xptr_time_units(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_time_units(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_time_units(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_time_units(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_discrete_time
-bool ts_ptr_discrete_time(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_discrete_time(SEXP tsSEXP) {
+// ts_xptr_discrete_time
+bool ts_xptr_discrete_time(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_discrete_time(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_discrete_time(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_discrete_time(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_min_time
-double ts_ptr_min_time(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_min_time(SEXP tsSEXP) {
+// ts_xptr_min_time
+double ts_xptr_min_time(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_min_time(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_min_time(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_min_time(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_max_time
-double ts_ptr_max_time(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_max_time(SEXP tsSEXP) {
+// ts_xptr_max_time
+double ts_xptr_max_time(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_max_time(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_max_time(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_max_time(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_file_uuid
-Rcpp::String ts_ptr_file_uuid(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_file_uuid(SEXP tsSEXP) {
+// ts_xptr_file_uuid
+Rcpp::String ts_xptr_file_uuid(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_file_uuid(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_file_uuid(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_file_uuid(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_summary
-Rcpp::List ts_ptr_summary(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_summary(SEXP tsSEXP) {
+// ts_xptr_summary
+Rcpp::List ts_xptr_summary(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_summary(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_summary(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_summary(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// ts_ptr_metadata_length
-Rcpp::List ts_ptr_metadata_length(const SEXP ts);
-RcppExport SEXP _RcppTskit_ts_ptr_metadata_length(SEXP tsSEXP) {
+// ts_xptr_metadata_length
+Rcpp::List ts_xptr_metadata_length(const SEXP ts);
+RcppExport SEXP _RcppTskit_ts_xptr_metadata_length(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ts_ptr_metadata_length(ts));
+    rcpp_result_gen = Rcpp::wrap(ts_xptr_metadata_length(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// tc_ptr_sequence_length
-double tc_ptr_sequence_length(const SEXP tc);
-RcppExport SEXP _RcppTskit_tc_ptr_sequence_length(SEXP tcSEXP) {
+// tc_xptr_sequence_length
+double tc_xptr_sequence_length(const SEXP tc);
+RcppExport SEXP _RcppTskit_tc_xptr_sequence_length(SEXP tcSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
-    rcpp_result_gen = Rcpp::wrap(tc_ptr_sequence_length(tc));
+    rcpp_result_gen = Rcpp::wrap(tc_xptr_sequence_length(tc));
     return rcpp_result_gen;
 END_RCPP
 }
-// tc_ptr_has_reference_sequence
-bool tc_ptr_has_reference_sequence(const SEXP tc);
-RcppExport SEXP _RcppTskit_tc_ptr_has_reference_sequence(SEXP tcSEXP) {
+// tc_xptr_has_reference_sequence
+bool tc_xptr_has_reference_sequence(const SEXP tc);
+RcppExport SEXP _RcppTskit_tc_xptr_has_reference_sequence(SEXP tcSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
-    rcpp_result_gen = Rcpp::wrap(tc_ptr_has_reference_sequence(tc));
+    rcpp_result_gen = Rcpp::wrap(tc_xptr_has_reference_sequence(tc));
     return rcpp_result_gen;
 END_RCPP
 }
-// tc_ptr_time_units
-Rcpp::String tc_ptr_time_units(const SEXP tc);
-RcppExport SEXP _RcppTskit_tc_ptr_time_units(SEXP tcSEXP) {
+// tc_xptr_time_units
+Rcpp::String tc_xptr_time_units(const SEXP tc);
+RcppExport SEXP _RcppTskit_tc_xptr_time_units(SEXP tcSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
-    rcpp_result_gen = Rcpp::wrap(tc_ptr_time_units(tc));
+    rcpp_result_gen = Rcpp::wrap(tc_xptr_time_units(tc));
     return rcpp_result_gen;
 END_RCPP
 }
-// tc_ptr_file_uuid
-Rcpp::String tc_ptr_file_uuid(const SEXP tc);
-RcppExport SEXP _RcppTskit_tc_ptr_file_uuid(SEXP tcSEXP) {
+// tc_xptr_file_uuid
+Rcpp::String tc_xptr_file_uuid(const SEXP tc);
+RcppExport SEXP _RcppTskit_tc_xptr_file_uuid(SEXP tcSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
-    rcpp_result_gen = Rcpp::wrap(tc_ptr_file_uuid(tc));
+    rcpp_result_gen = Rcpp::wrap(tc_xptr_file_uuid(tc));
     return rcpp_result_gen;
 END_RCPP
 }
-// tc_ptr_has_index
-bool tc_ptr_has_index(const SEXP tc);
-RcppExport SEXP _RcppTskit_tc_ptr_has_index(SEXP tcSEXP) {
+// tc_xptr_has_index
+bool tc_xptr_has_index(const SEXP tc);
+RcppExport SEXP _RcppTskit_tc_xptr_has_index(SEXP tcSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
-    rcpp_result_gen = Rcpp::wrap(tc_ptr_has_index(tc));
+    rcpp_result_gen = Rcpp::wrap(tc_xptr_has_index(tc));
     return rcpp_result_gen;
 END_RCPP
 }
-// tc_ptr_summary
-Rcpp::List tc_ptr_summary(const SEXP tc);
-RcppExport SEXP _RcppTskit_tc_ptr_summary(SEXP tcSEXP) {
+// tc_xptr_summary
+Rcpp::List tc_xptr_summary(const SEXP tc);
+RcppExport SEXP _RcppTskit_tc_xptr_summary(SEXP tcSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
-    rcpp_result_gen = Rcpp::wrap(tc_ptr_summary(tc));
+    rcpp_result_gen = Rcpp::wrap(tc_xptr_summary(tc));
     return rcpp_result_gen;
 END_RCPP
 }
-// tc_ptr_metadata_length
-Rcpp::List tc_ptr_metadata_length(const SEXP tc);
-RcppExport SEXP _RcppTskit_tc_ptr_metadata_length(SEXP tcSEXP) {
+// tc_xptr_metadata_length
+Rcpp::List tc_xptr_metadata_length(const SEXP tc);
+RcppExport SEXP _RcppTskit_tc_xptr_metadata_length(SEXP tcSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
-    rcpp_result_gen = Rcpp::wrap(tc_ptr_metadata_length(tc));
+    rcpp_result_gen = Rcpp::wrap(tc_xptr_metadata_length(tc));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -445,25 +445,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// test_ts_ptr_to_tc_ptr_forced_error
-SEXP test_ts_ptr_to_tc_ptr_forced_error(const SEXP ts);
-RcppExport SEXP _RcppTskit_test_ts_ptr_to_tc_ptr_forced_error(SEXP tsSEXP) {
+// test_ts_xptr_to_tc_xptr_forced_error
+SEXP test_ts_xptr_to_tc_xptr_forced_error(const SEXP ts);
+RcppExport SEXP _RcppTskit_test_ts_xptr_to_tc_xptr_forced_error(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    rcpp_result_gen = Rcpp::wrap(test_ts_ptr_to_tc_ptr_forced_error(ts));
+    rcpp_result_gen = Rcpp::wrap(test_ts_xptr_to_tc_xptr_forced_error(ts));
     return rcpp_result_gen;
 END_RCPP
 }
-// test_tc_ptr_to_ts_ptr_forced_error
-SEXP test_tc_ptr_to_ts_ptr_forced_error(const SEXP tc);
-RcppExport SEXP _RcppTskit_test_tc_ptr_to_ts_ptr_forced_error(SEXP tcSEXP) {
+// test_tc_xptr_to_ts_xptr_forced_error
+SEXP test_tc_xptr_to_ts_xptr_forced_error(const SEXP tc);
+RcppExport SEXP _RcppTskit_test_tc_xptr_to_ts_xptr_forced_error(SEXP tcSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
-    rcpp_result_gen = Rcpp::wrap(test_tc_ptr_to_ts_ptr_forced_error(tc));
+    rcpp_result_gen = Rcpp::wrap(test_tc_xptr_to_ts_xptr_forced_error(tc));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -471,46 +471,46 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_kastore_version", (DL_FUNC) &_RcppTskit_kastore_version, 0},
     {"_RcppTskit_tskit_version", (DL_FUNC) &_RcppTskit_tskit_version, 0},
-    {"_RcppTskit_ts_ptr_load", (DL_FUNC) &_RcppTskit_ts_ptr_load, 2},
-    {"_RcppTskit_tc_ptr_load", (DL_FUNC) &_RcppTskit_tc_ptr_load, 2},
-    {"_RcppTskit_ts_ptr_dump", (DL_FUNC) &_RcppTskit_ts_ptr_dump, 3},
-    {"_RcppTskit_tc_ptr_dump", (DL_FUNC) &_RcppTskit_tc_ptr_dump, 3},
-    {"_RcppTskit_ts_ptr_to_tc_ptr", (DL_FUNC) &_RcppTskit_ts_ptr_to_tc_ptr, 2},
-    {"_RcppTskit_tc_ptr_to_ts_ptr", (DL_FUNC) &_RcppTskit_tc_ptr_to_ts_ptr, 2},
-    {"_RcppTskit_ts_ptr_num_provenances", (DL_FUNC) &_RcppTskit_ts_ptr_num_provenances, 1},
-    {"_RcppTskit_ts_ptr_num_populations", (DL_FUNC) &_RcppTskit_ts_ptr_num_populations, 1},
-    {"_RcppTskit_ts_ptr_num_migrations", (DL_FUNC) &_RcppTskit_ts_ptr_num_migrations, 1},
-    {"_RcppTskit_ts_ptr_num_individuals", (DL_FUNC) &_RcppTskit_ts_ptr_num_individuals, 1},
-    {"_RcppTskit_ts_ptr_num_samples", (DL_FUNC) &_RcppTskit_ts_ptr_num_samples, 1},
-    {"_RcppTskit_ts_ptr_num_nodes", (DL_FUNC) &_RcppTskit_ts_ptr_num_nodes, 1},
-    {"_RcppTskit_ts_ptr_num_edges", (DL_FUNC) &_RcppTskit_ts_ptr_num_edges, 1},
-    {"_RcppTskit_ts_ptr_num_trees", (DL_FUNC) &_RcppTskit_ts_ptr_num_trees, 1},
-    {"_RcppTskit_ts_ptr_num_sites", (DL_FUNC) &_RcppTskit_ts_ptr_num_sites, 1},
-    {"_RcppTskit_ts_ptr_num_mutations", (DL_FUNC) &_RcppTskit_ts_ptr_num_mutations, 1},
-    {"_RcppTskit_ts_ptr_sequence_length", (DL_FUNC) &_RcppTskit_ts_ptr_sequence_length, 1},
-    {"_RcppTskit_ts_ptr_discrete_genome", (DL_FUNC) &_RcppTskit_ts_ptr_discrete_genome, 1},
-    {"_RcppTskit_ts_ptr_has_reference_sequence", (DL_FUNC) &_RcppTskit_ts_ptr_has_reference_sequence, 1},
-    {"_RcppTskit_ts_ptr_time_units", (DL_FUNC) &_RcppTskit_ts_ptr_time_units, 1},
-    {"_RcppTskit_ts_ptr_discrete_time", (DL_FUNC) &_RcppTskit_ts_ptr_discrete_time, 1},
-    {"_RcppTskit_ts_ptr_min_time", (DL_FUNC) &_RcppTskit_ts_ptr_min_time, 1},
-    {"_RcppTskit_ts_ptr_max_time", (DL_FUNC) &_RcppTskit_ts_ptr_max_time, 1},
-    {"_RcppTskit_ts_ptr_file_uuid", (DL_FUNC) &_RcppTskit_ts_ptr_file_uuid, 1},
-    {"_RcppTskit_ts_ptr_summary", (DL_FUNC) &_RcppTskit_ts_ptr_summary, 1},
-    {"_RcppTskit_ts_ptr_metadata_length", (DL_FUNC) &_RcppTskit_ts_ptr_metadata_length, 1},
-    {"_RcppTskit_tc_ptr_sequence_length", (DL_FUNC) &_RcppTskit_tc_ptr_sequence_length, 1},
-    {"_RcppTskit_tc_ptr_has_reference_sequence", (DL_FUNC) &_RcppTskit_tc_ptr_has_reference_sequence, 1},
-    {"_RcppTskit_tc_ptr_time_units", (DL_FUNC) &_RcppTskit_tc_ptr_time_units, 1},
-    {"_RcppTskit_tc_ptr_file_uuid", (DL_FUNC) &_RcppTskit_tc_ptr_file_uuid, 1},
-    {"_RcppTskit_tc_ptr_has_index", (DL_FUNC) &_RcppTskit_tc_ptr_has_index, 1},
-    {"_RcppTskit_tc_ptr_summary", (DL_FUNC) &_RcppTskit_tc_ptr_summary, 1},
-    {"_RcppTskit_tc_ptr_metadata_length", (DL_FUNC) &_RcppTskit_tc_ptr_metadata_length, 1},
+    {"_RcppTskit_ts_xptr_load", (DL_FUNC) &_RcppTskit_ts_xptr_load, 2},
+    {"_RcppTskit_tc_xptr_load", (DL_FUNC) &_RcppTskit_tc_xptr_load, 2},
+    {"_RcppTskit_ts_xptr_dump", (DL_FUNC) &_RcppTskit_ts_xptr_dump, 3},
+    {"_RcppTskit_tc_xptr_dump", (DL_FUNC) &_RcppTskit_tc_xptr_dump, 3},
+    {"_RcppTskit_ts_xptr_to_tc_xptr", (DL_FUNC) &_RcppTskit_ts_xptr_to_tc_xptr, 2},
+    {"_RcppTskit_tc_xptr_to_ts_xptr", (DL_FUNC) &_RcppTskit_tc_xptr_to_ts_xptr, 2},
+    {"_RcppTskit_ts_xptr_num_provenances", (DL_FUNC) &_RcppTskit_ts_xptr_num_provenances, 1},
+    {"_RcppTskit_ts_xptr_num_populations", (DL_FUNC) &_RcppTskit_ts_xptr_num_populations, 1},
+    {"_RcppTskit_ts_xptr_num_migrations", (DL_FUNC) &_RcppTskit_ts_xptr_num_migrations, 1},
+    {"_RcppTskit_ts_xptr_num_individuals", (DL_FUNC) &_RcppTskit_ts_xptr_num_individuals, 1},
+    {"_RcppTskit_ts_xptr_num_samples", (DL_FUNC) &_RcppTskit_ts_xptr_num_samples, 1},
+    {"_RcppTskit_ts_xptr_num_nodes", (DL_FUNC) &_RcppTskit_ts_xptr_num_nodes, 1},
+    {"_RcppTskit_ts_xptr_num_edges", (DL_FUNC) &_RcppTskit_ts_xptr_num_edges, 1},
+    {"_RcppTskit_ts_xptr_num_trees", (DL_FUNC) &_RcppTskit_ts_xptr_num_trees, 1},
+    {"_RcppTskit_ts_xptr_num_sites", (DL_FUNC) &_RcppTskit_ts_xptr_num_sites, 1},
+    {"_RcppTskit_ts_xptr_num_mutations", (DL_FUNC) &_RcppTskit_ts_xptr_num_mutations, 1},
+    {"_RcppTskit_ts_xptr_sequence_length", (DL_FUNC) &_RcppTskit_ts_xptr_sequence_length, 1},
+    {"_RcppTskit_ts_xptr_discrete_genome", (DL_FUNC) &_RcppTskit_ts_xptr_discrete_genome, 1},
+    {"_RcppTskit_ts_xptr_has_reference_sequence", (DL_FUNC) &_RcppTskit_ts_xptr_has_reference_sequence, 1},
+    {"_RcppTskit_ts_xptr_time_units", (DL_FUNC) &_RcppTskit_ts_xptr_time_units, 1},
+    {"_RcppTskit_ts_xptr_discrete_time", (DL_FUNC) &_RcppTskit_ts_xptr_discrete_time, 1},
+    {"_RcppTskit_ts_xptr_min_time", (DL_FUNC) &_RcppTskit_ts_xptr_min_time, 1},
+    {"_RcppTskit_ts_xptr_max_time", (DL_FUNC) &_RcppTskit_ts_xptr_max_time, 1},
+    {"_RcppTskit_ts_xptr_file_uuid", (DL_FUNC) &_RcppTskit_ts_xptr_file_uuid, 1},
+    {"_RcppTskit_ts_xptr_summary", (DL_FUNC) &_RcppTskit_ts_xptr_summary, 1},
+    {"_RcppTskit_ts_xptr_metadata_length", (DL_FUNC) &_RcppTskit_ts_xptr_metadata_length, 1},
+    {"_RcppTskit_tc_xptr_sequence_length", (DL_FUNC) &_RcppTskit_tc_xptr_sequence_length, 1},
+    {"_RcppTskit_tc_xptr_has_reference_sequence", (DL_FUNC) &_RcppTskit_tc_xptr_has_reference_sequence, 1},
+    {"_RcppTskit_tc_xptr_time_units", (DL_FUNC) &_RcppTskit_tc_xptr_time_units, 1},
+    {"_RcppTskit_tc_xptr_file_uuid", (DL_FUNC) &_RcppTskit_tc_xptr_file_uuid, 1},
+    {"_RcppTskit_tc_xptr_has_index", (DL_FUNC) &_RcppTskit_tc_xptr_has_index, 1},
+    {"_RcppTskit_tc_xptr_summary", (DL_FUNC) &_RcppTskit_tc_xptr_summary, 1},
+    {"_RcppTskit_tc_xptr_metadata_length", (DL_FUNC) &_RcppTskit_tc_xptr_metadata_length, 1},
     {"_RcppTskit_test_tsk_bug_assert_c", (DL_FUNC) &_RcppTskit_test_tsk_bug_assert_c, 0},
     {"_RcppTskit_test_tsk_bug_assert_cpp", (DL_FUNC) &_RcppTskit_test_tsk_bug_assert_cpp, 0},
     {"_RcppTskit_test_tsk_trace_error_c", (DL_FUNC) &_RcppTskit_test_tsk_trace_error_c, 0},
     {"_RcppTskit_test_tsk_trace_error_cpp", (DL_FUNC) &_RcppTskit_test_tsk_trace_error_cpp, 0},
     {"_RcppTskit_tsk_trace_errors_defined", (DL_FUNC) &_RcppTskit_tsk_trace_errors_defined, 0},
-    {"_RcppTskit_test_ts_ptr_to_tc_ptr_forced_error", (DL_FUNC) &_RcppTskit_test_ts_ptr_to_tc_ptr_forced_error, 1},
-    {"_RcppTskit_test_tc_ptr_to_ts_ptr_forced_error", (DL_FUNC) &_RcppTskit_test_tc_ptr_to_ts_ptr_forced_error, 1},
+    {"_RcppTskit_test_ts_xptr_to_tc_xptr_forced_error", (DL_FUNC) &_RcppTskit_test_ts_xptr_to_tc_xptr_forced_error, 1},
+    {"_RcppTskit_test_tc_xptr_to_ts_xptr_forced_error", (DL_FUNC) &_RcppTskit_test_tc_xptr_to_ts_xptr_forced_error, 1},
     {NULL, NULL, 0}
 };
 

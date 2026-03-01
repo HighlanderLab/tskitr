@@ -44,7 +44,7 @@ TableCollection <- R6Class(
           skip_tables = skip_tables,
           skip_reference_sequence = skip_reference_sequence
         )
-        self$pointer <- tc_ptr_load(file = file, options = options)
+        self$pointer <- tc_xptr_load(file = file, options = options)
       } else {
         if (!is.null(pointer) && !is(pointer, "externalptr")) {
           stop("pointer must be an object of externalptr class!")
@@ -67,7 +67,7 @@ TableCollection <- R6Class(
     #' tc$write(dump_file) # alias
     #' \dontshow{file.remove(dump_file)}
     dump = function(file) {
-      tc_ptr_dump(self$pointer, file = file, options = 0L)
+      tc_xptr_dump(self$pointer, file = file, options = 0L)
     },
 
     #' @description Alias for \code{\link[=TableCollection]{TableCollection$dump}}.
@@ -91,8 +91,8 @@ TableCollection <- R6Class(
       # TODO: Should we also use TSK_TS_INIT_COMPUTE_MUTATION_PARENTS in TableCollection$tree_sequence()? #65
       #       https://github.com/HighlanderLab/RcppTskit/issues/65
       init_options <- bitwShiftL(1L, 0)
-      ts_ptr <- tc_ptr_to_ts_ptr(self$pointer, options = init_options)
-      TreeSequence$new(pointer = ts_ptr)
+      ts_xptr <- tc_xptr_to_ts_xptr(self$pointer, options = init_options)
+      TreeSequence$new(pointer = ts_xptr)
     },
 
     #' @description Get the sequence length.
@@ -101,7 +101,7 @@ TableCollection <- R6Class(
     #' tc <- tc_load(tc_file)
     #' tc$sequence_length()
     sequence_length = function() {
-      tc_ptr_sequence_length(self$pointer)
+      tc_xptr_sequence_length(self$pointer)
     },
 
     #' @description Get the time units string.
@@ -110,7 +110,7 @@ TableCollection <- R6Class(
     #' tc <- tc_load(tc_file)
     #' tc$time_units()
     time_units = function() {
-      tc_ptr_time_units(self$pointer)
+      tc_xptr_time_units(self$pointer)
     },
 
     #' @description Get whether the table collection has edge indexes.
@@ -119,7 +119,7 @@ TableCollection <- R6Class(
     #' tc <- tc_load(tc_file)
     #' tc$has_index()
     has_index = function() {
-      tc_ptr_has_index(self$pointer)
+      tc_xptr_has_index(self$pointer)
     },
 
     #' @description Get whether the table collection has a reference genome sequence.
@@ -131,7 +131,7 @@ TableCollection <- R6Class(
     #' tc2 <- tc_load(tc_file2)
     #' tc2$has_reference_sequence()
     has_reference_sequence = function() {
-      tc_ptr_has_reference_sequence(self$pointer)
+      tc_xptr_has_reference_sequence(self$pointer)
     },
 
     #' @description Get the file UUID string.
@@ -142,7 +142,7 @@ TableCollection <- R6Class(
     #' tc <- tc_load(tc_file)
     #' tc$file_uuid()
     file_uuid = function() {
-      tc_ptr_file_uuid(self$pointer)
+      tc_xptr_file_uuid(self$pointer)
     },
 
     #' @description This function saves a table collection from R to disk and
@@ -175,7 +175,7 @@ TableCollection <- R6Class(
     #'   }
     #' }
     r_to_py = function(tskit_module = get_tskit_py(), cleanup = TRUE) {
-      tc_ptr_r_to_py(
+      tc_xptr_r_to_py(
         self$pointer,
         tskit_module = tskit_module,
         cleanup = cleanup
@@ -192,7 +192,7 @@ TableCollection <- R6Class(
     #' tc$print()
     #' tc
     print = function() {
-      ret <- tc_ptr_print(self$pointer)
+      ret <- tc_xptr_print(self$pointer)
       # These are not hit since testing is not interactive
       # nocov start
       if (interactive()) {

@@ -44,32 +44,32 @@ test_that("TableCollection$new() works", {
 test_that("TableCollection and TreeSequence round-trip works", {
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
   test_trees_file_uuid <- "79ec383f-a57d-b44f-2a5c-f0feecbbcb32"
-  ts_ptr <- ts_ptr_load(ts_file)
+  ts_xptr <- ts_xptr_load(ts_file)
 
   # ---- Integer bitmask of tskit flags ----
 
-  # See ts_ptr_to_tc_ptr() and tc_ptr_to_ts_ptr() documentation
+  # See ts_xptr_to_tc_xptr() and tc_xptr_to_ts_xptr() documentation
   unsupported_options <- bitwShiftL(1L, 27)
   supported_copy_option <- bitwShiftL(1L, 0)
   supported_init_options <- bitwOr(bitwShiftL(1L, 0), bitwShiftL(1L, 1))
   expect_error(
-    ts_ptr_to_tc_ptr(ts_ptr, options = bitwShiftL(1L, 30)),
+    ts_xptr_to_tc_xptr(ts_xptr, options = bitwShiftL(1L, 30)),
     regexp = "does not support TSK_NO_INIT"
   )
   expect_error(
-    ts_ptr_to_tc_ptr(ts_ptr, options = unsupported_options),
+    ts_xptr_to_tc_xptr(ts_xptr, options = unsupported_options),
     regexp = "only supports copy option TSK_COPY_FILE_UUID"
   )
   expect_true(is(
-    ts_ptr_to_tc_ptr(ts_ptr, options = supported_copy_option),
+    ts_xptr_to_tc_xptr(ts_xptr, options = supported_copy_option),
     "externalptr"
   ))
 
-  # ---- ts_ptr --> tc_ptr --> ts_ptr ----
+  # ---- ts_xptr --> tc_xptr --> ts_xptr ----
 
-  tc_ptr <- ts_ptr_to_tc_ptr(ts_ptr)
-  expect_true(is(tc_ptr, "externalptr"))
-  p <- tc_ptr_print(tc_ptr)
+  tc_xptr <- ts_xptr_to_tc_xptr(ts_xptr)
+  expect_true(is(tc_xptr, "externalptr"))
+  p <- tc_xptr_print(tc_xptr)
   expect_equal(
     p,
     list(
@@ -110,24 +110,24 @@ test_that("TableCollection and TreeSequence round-trip works", {
     )
   )
   expect_error(
-    tc_ptr_to_ts_ptr(tc_ptr, options = bitwShiftL(1L, 28)),
+    tc_xptr_to_ts_xptr(tc_xptr, options = bitwShiftL(1L, 28)),
     regexp = "does not support TSK_TAKE_OWNERSHIP"
   )
   expect_error(
-    tc_ptr_to_ts_ptr(tc_ptr, options = unsupported_options),
+    tc_xptr_to_ts_xptr(tc_xptr, options = unsupported_options),
     regexp = "only supports init options"
   )
   expect_true(is(
-    tc_ptr_to_ts_ptr(tc_ptr, options = supported_init_options),
+    tc_xptr_to_ts_xptr(tc_xptr, options = supported_init_options),
     "externalptr"
   ))
-  ts_ptr2 <- tc_ptr_to_ts_ptr(tc_ptr)
-  p_ts_ptr <- ts_ptr_print(ts_ptr)
-  p_ts_ptr2 <- ts_ptr_print(ts_ptr2)
-  i_file_uuid <- p_ts_ptr$ts$property == "file_uuid"
-  p_ts_ptr$ts$value[i_file_uuid] <- NA_character_
-  p_ts_ptr2$ts$value[p_ts_ptr2$ts$property == "file_uuid"] <- NA_character_
-  expect_equal(p_ts_ptr, p_ts_ptr2)
+  ts_xptr2 <- tc_xptr_to_ts_xptr(tc_xptr)
+  p_ts_xptr <- ts_xptr_print(ts_xptr)
+  p_ts_xptr2 <- ts_xptr_print(ts_xptr2)
+  i_file_uuid <- p_ts_xptr$ts$property == "file_uuid"
+  p_ts_xptr$ts$value[i_file_uuid] <- NA_character_
+  p_ts_xptr2$ts$value[p_ts_xptr2$ts$property == "file_uuid"] <- NA_character_
+  expect_equal(p_ts_xptr, p_ts_xptr2)
 
   # ---- ts --> tc --> ts ----
 
@@ -201,14 +201,14 @@ test_that("TableCollection and TreeSequence round-trip works", {
 
   # Edge cases
   expect_error(
-    test_ts_ptr_to_tc_ptr_forced_error(ts_ptr),
+    test_ts_xptr_to_tc_xptr_forced_error(ts_xptr),
     regexp = "TSK_ERR_BAD_PARAM_VALUE"
   )
-  expect_true(is(ts_ptr_to_tc_ptr(ts_ptr), "externalptr"))
+  expect_true(is(ts_xptr_to_tc_xptr(ts_xptr), "externalptr"))
 
   expect_error(
-    test_tc_ptr_to_ts_ptr_forced_error(tc_ptr),
+    test_tc_xptr_to_ts_xptr_forced_error(tc_xptr),
     regexp = "TSK_ERR_BAD_PARAM_VALUE"
   )
-  expect_true(is(tc_ptr_to_ts_ptr(tc_ptr), "externalptr"))
+  expect_true(is(tc_xptr_to_ts_xptr(tc_xptr), "externalptr"))
 })

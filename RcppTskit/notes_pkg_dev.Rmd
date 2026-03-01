@@ -37,19 +37,19 @@ Python also exposes these `TableCollection` methods:
   - `TSK_TS_INIT_COMPUTE_MUTATION_PARENTS`
 
 `TSK_TS_INIT_BUILD_INDEXES` is a C-level bitwise option and fits naturally in
-the low-level `tc_ptr_to_ts_ptr(..., options)` wrapper.
+the low-level `tc_xptr_to_ts_xptr(..., options)` wrapper.
 
 ### Current `RcppTskit` behavior (as of this note)
 
 - Public R method `TableCollection$tree_sequence()` currently sets
   `TSK_TS_INIT_BUILD_INDEXES` (via `bitwShiftL(1L, 0)`) and passes it to
-  `tc_ptr_to_ts_ptr(...)`.
+  `tc_xptr_to_ts_xptr(...)`.
 - This is functionally fine, but it exposes C-style flag handling in the R
   method implementation.
 
 Important nuance:
 
-- `tc_ptr_to_ts_ptr()` calls `tsk_treeseq_init(...)` without `TSK_TAKE_OWNERSHIP`.
+- `tc_xptr_to_ts_xptr()` calls `tsk_treeseq_init(...)` without `TSK_TAKE_OWNERSHIP`.
 - In tskit C, this means the tree sequence gets its own copied tables.
 - If `TSK_TS_INIT_BUILD_INDEXES` is used there, indexes are built on the copied
   tables (inside the tree sequence init path), not necessarily on the original
@@ -79,8 +79,8 @@ tree_sequence = function() {
   if (!self$has_index()) {
     self$build_index()
   }
-  ts_ptr <- tc_ptr_to_ts_ptr(self$pointer, options = 0L)
-  TreeSequence$new(pointer = ts_ptr)
+  ts_xptr <- tc_xptr_to_ts_xptr(self$pointer, options = 0L)
+  TreeSequence$new(pointer = ts_xptr)
 }
 ```
 
@@ -110,8 +110,8 @@ So:
 
 Add explicit index mutators to R API (matching Python):
 
-- `tc_ptr_build_index()` + `TableCollection$build_index()`
-- `tc_ptr_drop_index()` + `TableCollection$drop_index()`
+- `tc_xptr_build_index()` + `TableCollection$build_index()`
+- `tc_xptr_drop_index()` + `TableCollection$drop_index()`
 
 Then tests become simple and deterministic:
 
@@ -147,12 +147,12 @@ about for users switching between R and Python.
 
 ### Minimal next steps when time allows
 
-1. Add `TableCollection$build_index()` / `$drop_index()` (+ `tc_ptr_*` wrappers).
+1. Add `TableCollection$build_index()` / `$drop_index()` (+ `tc_xptr_*` wrappers).
 2. Add focused tests for `has_index()` false/true transitions.
 3. Refactor `TableCollection$tree_sequence()` to Python-style pre-check and
    `build_index()`.
 4. Add a regression test for `tc$tree_sequence()` behavior after dropping index.
-5. Keep `tc_ptr_to_ts_ptr(..., options)` as low-level C-like API (do not remove).
+5. Keep `tc_xptr_to_ts_xptr(..., options)` as low-level C-like API (do not remove).
 
 ### Optional later (separate concern)
 
@@ -205,8 +205,8 @@ SEXP tc_grow(SEXP tc) {
     //       error using Rcpp::stop(), but should we also do something with the
     //       ts pointer and object? If we delete, we discard/delete past work,
     //       but if we do not, do we risk of returning a corrupted ts?
-    // tsk_table_collection_free(tc_ptr);
-    // delete tc_ptr;
+    // tsk_table_collection_free(tc_xptr);
+    // delete tc_xptr;
     Rcpp::stop(tsk_strerror(ret));
   }
   return tc_xptr;

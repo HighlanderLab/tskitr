@@ -36,4 +36,10 @@ using RcppTskit_table_collection_xptr =
     Rcpp::XPtr<tsk_table_collection_t, Rcpp::PreserveStorage,
                RcppTskit_table_collection_xptr_delete, true>;
 
+// Package implementation files define RCPPTSKIT_IMPL to avoid pulling
+// PUBLIC declarations with default args into the same translation unit.
+#ifndef RCPPTSKIT_IMPL
+#include "RcppTskit_public.hpp"
+#endif
+
 #endif

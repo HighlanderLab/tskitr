@@ -1,10 +1,10 @@
 # RcppTskit news
 
-All notable changes to RcppTskit are documented in this file.
+All notable changes to `RcppTskit` are documented in this file.
 The file format is based on [Keep a Changelog](https://keepachangelog.com),
 and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] 2026-MM-DD
 
 ### Added (new features)
 
@@ -23,7 +23,15 @@ and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
   - `TableCollection$sequence_length()` to query the sequence length.
   - `TableCollection$time_units()` to query the time units.
   - `TableCollection$has_index()` to query whether edge indexes are present.
-  - TODO
+- Added a public header and defaults for downstream use of `C++` functions in
+  `inst/include/RcppTskit_public.hpp`, included by `inst/include/RcppTskit.hpp`.
+- TODO
+
+### Changed
+
+- Renamed low-level external-pointer API names from `*_ptr_*` to `*_xptr_*`
+  (for example, `ts_ptr_load()` to `ts_xptr_load()`) to make external-pointer
+  vs standard/raw-pointer semantics explicit.
 
 ## [0.2.0] - 2026-02-22
 

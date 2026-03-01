@@ -23,136 +23,136 @@ tskit_version <- function() {
     .Call(`_RcppTskit_tskit_version`)
 }
 
-ts_ptr_load <- function(file, options = 0L) {
-    .Call(`_RcppTskit_ts_ptr_load`, file, options)
+ts_xptr_load <- function(file, options = 0L) {
+    .Call(`_RcppTskit_ts_xptr_load`, file, options)
 }
 
-tc_ptr_load <- function(file, options = 0L) {
-    .Call(`_RcppTskit_tc_ptr_load`, file, options)
+tc_xptr_load <- function(file, options = 0L) {
+    .Call(`_RcppTskit_tc_xptr_load`, file, options)
 }
 
-ts_ptr_dump <- function(ts, file, options = 0L) {
-    invisible(.Call(`_RcppTskit_ts_ptr_dump`, ts, file, options))
+ts_xptr_dump <- function(ts, file, options = 0L) {
+    invisible(.Call(`_RcppTskit_ts_xptr_dump`, ts, file, options))
 }
 
-tc_ptr_dump <- function(tc, file, options = 0L) {
-    invisible(.Call(`_RcppTskit_tc_ptr_dump`, tc, file, options))
+tc_xptr_dump <- function(tc, file, options = 0L) {
+    invisible(.Call(`_RcppTskit_tc_xptr_dump`, tc, file, options))
 }
 
-ts_ptr_to_tc_ptr <- function(ts, options = 0L) {
-    .Call(`_RcppTskit_ts_ptr_to_tc_ptr`, ts, options)
+ts_xptr_to_tc_xptr <- function(ts, options = 0L) {
+    .Call(`_RcppTskit_ts_xptr_to_tc_xptr`, ts, options)
 }
 
-tc_ptr_to_ts_ptr <- function(tc, options = 0L) {
-    .Call(`_RcppTskit_tc_ptr_to_ts_ptr`, tc, options)
+tc_xptr_to_ts_xptr <- function(tc, options = 0L) {
+    .Call(`_RcppTskit_tc_xptr_to_ts_xptr`, tc, options)
 }
 
-ts_ptr_num_provenances <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_num_provenances`, ts)
+ts_xptr_num_provenances <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_num_provenances`, ts)
 }
 
-ts_ptr_num_populations <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_num_populations`, ts)
+ts_xptr_num_populations <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_num_populations`, ts)
 }
 
-ts_ptr_num_migrations <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_num_migrations`, ts)
+ts_xptr_num_migrations <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_num_migrations`, ts)
 }
 
-ts_ptr_num_individuals <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_num_individuals`, ts)
+ts_xptr_num_individuals <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_num_individuals`, ts)
 }
 
-ts_ptr_num_samples <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_num_samples`, ts)
+ts_xptr_num_samples <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_num_samples`, ts)
 }
 
-ts_ptr_num_nodes <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_num_nodes`, ts)
+ts_xptr_num_nodes <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_num_nodes`, ts)
 }
 
-ts_ptr_num_edges <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_num_edges`, ts)
+ts_xptr_num_edges <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_num_edges`, ts)
 }
 
-ts_ptr_num_trees <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_num_trees`, ts)
+ts_xptr_num_trees <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_num_trees`, ts)
 }
 
-ts_ptr_num_sites <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_num_sites`, ts)
+ts_xptr_num_sites <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_num_sites`, ts)
 }
 
-ts_ptr_num_mutations <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_num_mutations`, ts)
+ts_xptr_num_mutations <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_num_mutations`, ts)
 }
 
-ts_ptr_sequence_length <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_sequence_length`, ts)
+ts_xptr_sequence_length <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_sequence_length`, ts)
 }
 
-ts_ptr_discrete_genome <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_discrete_genome`, ts)
+ts_xptr_discrete_genome <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_discrete_genome`, ts)
 }
 
-ts_ptr_has_reference_sequence <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_has_reference_sequence`, ts)
+ts_xptr_has_reference_sequence <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_has_reference_sequence`, ts)
 }
 
-ts_ptr_time_units <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_time_units`, ts)
+ts_xptr_time_units <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_time_units`, ts)
 }
 
-ts_ptr_discrete_time <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_discrete_time`, ts)
+ts_xptr_discrete_time <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_discrete_time`, ts)
 }
 
-ts_ptr_min_time <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_min_time`, ts)
+ts_xptr_min_time <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_min_time`, ts)
 }
 
-ts_ptr_max_time <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_max_time`, ts)
+ts_xptr_max_time <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_max_time`, ts)
 }
 
-ts_ptr_file_uuid <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_file_uuid`, ts)
+ts_xptr_file_uuid <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_file_uuid`, ts)
 }
 
-ts_ptr_summary <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_summary`, ts)
+ts_xptr_summary <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_summary`, ts)
 }
 
-ts_ptr_metadata_length <- function(ts) {
-    .Call(`_RcppTskit_ts_ptr_metadata_length`, ts)
+ts_xptr_metadata_length <- function(ts) {
+    .Call(`_RcppTskit_ts_xptr_metadata_length`, ts)
 }
 
-tc_ptr_sequence_length <- function(tc) {
-    .Call(`_RcppTskit_tc_ptr_sequence_length`, tc)
+tc_xptr_sequence_length <- function(tc) {
+    .Call(`_RcppTskit_tc_xptr_sequence_length`, tc)
 }
 
-tc_ptr_has_reference_sequence <- function(tc) {
-    .Call(`_RcppTskit_tc_ptr_has_reference_sequence`, tc)
+tc_xptr_has_reference_sequence <- function(tc) {
+    .Call(`_RcppTskit_tc_xptr_has_reference_sequence`, tc)
 }
 
-tc_ptr_time_units <- function(tc) {
-    .Call(`_RcppTskit_tc_ptr_time_units`, tc)
+tc_xptr_time_units <- function(tc) {
+    .Call(`_RcppTskit_tc_xptr_time_units`, tc)
 }
 
-tc_ptr_file_uuid <- function(tc) {
-    .Call(`_RcppTskit_tc_ptr_file_uuid`, tc)
+tc_xptr_file_uuid <- function(tc) {
+    .Call(`_RcppTskit_tc_xptr_file_uuid`, tc)
 }
 
-tc_ptr_has_index <- function(tc) {
-    .Call(`_RcppTskit_tc_ptr_has_index`, tc)
+tc_xptr_has_index <- function(tc) {
+    .Call(`_RcppTskit_tc_xptr_has_index`, tc)
 }
 
-tc_ptr_summary <- function(tc) {
-    .Call(`_RcppTskit_tc_ptr_summary`, tc)
+tc_xptr_summary <- function(tc) {
+    .Call(`_RcppTskit_tc_xptr_summary`, tc)
 }
 
-tc_ptr_metadata_length <- function(tc) {
-    .Call(`_RcppTskit_tc_ptr_metadata_length`, tc)
+tc_xptr_metadata_length <- function(tc) {
+    .Call(`_RcppTskit_tc_xptr_metadata_length`, tc)
 }
 
 test_tsk_bug_assert_c <- function() {
@@ -175,11 +175,11 @@ tsk_trace_errors_defined <- function() {
     .Call(`_RcppTskit_tsk_trace_errors_defined`)
 }
 
-test_ts_ptr_to_tc_ptr_forced_error <- function(ts) {
-    .Call(`_RcppTskit_test_ts_ptr_to_tc_ptr_forced_error`, ts)
+test_ts_xptr_to_tc_xptr_forced_error <- function(ts) {
+    .Call(`_RcppTskit_test_ts_xptr_to_tc_xptr_forced_error`, ts)
 }
 
-test_tc_ptr_to_ts_ptr_forced_error <- function(tc) {
-    .Call(`_RcppTskit_test_tc_ptr_to_ts_ptr_forced_error`, tc)
+test_tc_xptr_to_ts_xptr_forced_error <- function(tc) {
+    .Call(`_RcppTskit_test_tc_xptr_to_ts_xptr_forced_error`, tc)
 }
 
