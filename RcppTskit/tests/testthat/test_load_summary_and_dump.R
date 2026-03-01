@@ -6,15 +6,15 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
 
   # ---- ts_load() ----
 
-  expect_error(ts_ptr_load())
+  expect_error(ts_xptr_load())
   expect_error(ts_load())
-  expect_error(ts_ptr_load("nonexistent_ts"))
+  expect_error(ts_xptr_load("nonexistent_ts"))
   expect_error(ts_load("nonexistent_ts"))
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 
   expect_error(
-    ts_ptr_load(ts_file, options = bitwShiftL(1L, 30)),
-    regexp = "ts_ptr_load only supports load options"
+    ts_xptr_load(ts_file, options = bitwShiftL(1L, 30)),
+    regexp = "ts_xptr_load only supports load options"
     # TSK_LOAD_SKIP_TABLES (1 << 0) and TSK_LOAD_SKIP_REFERENCE_SEQUENCE (1 << 1)
   )
 
@@ -23,11 +23,11 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
     ts_load(ts_file, skip_tables = "y"),
     regexp = "skip_tables must be TRUE/FALSE!"
   )
-  expect_no_error(ts_ptr_load(ts_file, options = bitwShiftL(1L, 0L)))
+  expect_no_error(ts_xptr_load(ts_file, options = bitwShiftL(1L, 0L)))
   expect_no_error(ts_load(ts_file, skip_tables = TRUE))
-  check_empty_tables_ptr <- function(ts) {
+  check_empty_tables_xptr <- function(ts) {
     # jarl-ignore implicit_assignment: it's just a test
-    tmp <- capture.output(p <- ts_ptr_print(ts))
+    tmp <- capture.output(p <- ts_xptr_print(ts))
     expect_true(all(p$tables$number == 0))
   }
   check_empty_tables <- function(ts) {
@@ -35,8 +35,8 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
     tmp <- capture.output(p <- ts$print())
     expect_true(all(p$tables$number == 0))
   }
-  ts_ptr <- ts_ptr_load(ts_file, options = bitwShiftL(1L, 0L))
-  check_empty_tables_ptr(ts_ptr)
+  ts_xptr <- ts_xptr_load(ts_file, options = bitwShiftL(1L, 0L))
+  check_empty_tables_xptr(ts_xptr)
   ts <- ts_load(ts_file, skip_tables = TRUE)
   check_empty_tables(ts)
   ts <- TreeSequence$new(file = ts_file, skip_tables = TRUE)
@@ -47,15 +47,15 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
     ts_load(ts_file, skip_reference_sequence = 1L),
     regexp = "skip_reference_sequence must be TRUE/FALSE!"
   )
-  expect_no_error(ts_ptr_load(ts_file, options = bitwShiftL(1L, 1L)))
+  expect_no_error(ts_xptr_load(ts_file, options = bitwShiftL(1L, 1L)))
   expect_no_error(ts_load(ts_file, skip_reference_sequence = TRUE))
 
   ts_with_ref_seq_file <- system.file(
     "examples/test_with_ref_seq.trees",
     package = "RcppTskit"
   )
-  expect_no_error(ts_ptr_load(ts_with_ref_seq_file))
-  expect_no_error(ts_ptr_load(
+  expect_no_error(ts_xptr_load(ts_with_ref_seq_file))
+  expect_no_error(ts_xptr_load(
     ts_with_ref_seq_file,
     options = bitwShiftL(1L, 1L)
   ))
@@ -63,20 +63,20 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   expect_no_error(ts_load(ts_with_ref_seq_file, skip_reference_sequence = TRUE))
 
   # For tests below
-  ts_ptr <- ts_ptr_load(ts_file)
+  ts_xptr <- ts_xptr_load(ts_file)
   ts <- ts_load(ts_file)
 
   # ---- tc_load() ----
 
-  expect_error(tc_ptr_load())
+  expect_error(tc_xptr_load())
   expect_error(tc_load())
-  expect_error(tc_ptr_load("nonexistent_ts"))
+  expect_error(tc_xptr_load("nonexistent_ts"))
   expect_error(tc_load("nonexistent_ts"))
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 
   expect_error(
-    tc_ptr_load(ts_file, options = bitwShiftL(1L, 30)),
-    regexp = "tc_ptr_load only supports load options"
+    tc_xptr_load(ts_file, options = bitwShiftL(1L, 30)),
+    regexp = "tc_xptr_load only supports load options"
     # TSK_LOAD_SKIP_TABLES (1 << 0) and TSK_LOAD_SKIP_REFERENCE_SEQUENCE (1 << 1)
   )
 
@@ -85,11 +85,11 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
     tc_load(ts_file, skip_tables = "y"),
     regexp = "skip_tables must be TRUE/FALSE!"
   )
-  expect_no_error(tc_ptr_load(ts_file, options = bitwShiftL(1L, 0L)))
+  expect_no_error(tc_xptr_load(ts_file, options = bitwShiftL(1L, 0L)))
   expect_no_error(tc_load(ts_file, skip_tables = TRUE))
-  check_empty_tables_ptr <- function(tc) {
+  check_empty_tables_xptr <- function(tc) {
     # jarl-ignore implicit_assignment: it's just a test
-    tmp <- capture.output(p <- tc_ptr_print(tc))
+    tmp <- capture.output(p <- tc_xptr_print(tc))
     expect_true(all(p$tables$number == 0))
   }
   check_empty_tables <- function(tc) {
@@ -97,8 +97,8 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
     tmp <- capture.output(p <- tc$print())
     expect_true(all(p$tables$number == 0))
   }
-  tc_ptr <- tc_ptr_load(ts_file, options = bitwShiftL(1L, 0L))
-  check_empty_tables_ptr(tc_ptr)
+  tc_xptr <- tc_xptr_load(ts_file, options = bitwShiftL(1L, 0L))
+  check_empty_tables_xptr(tc_xptr)
   tc <- tc_load(ts_file, skip_tables = TRUE)
   check_empty_tables(tc)
   tc <- TableCollection$new(file = ts_file, skip_tables = TRUE)
@@ -109,15 +109,15 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
     tc_load(ts_file, skip_reference_sequence = 1L),
     regexp = "skip_reference_sequence must be TRUE/FALSE!"
   )
-  expect_no_error(tc_ptr_load(ts_file, options = bitwShiftL(1L, 1L)))
+  expect_no_error(tc_xptr_load(ts_file, options = bitwShiftL(1L, 1L)))
   expect_no_error(tc_load(ts_file, skip_reference_sequence = TRUE))
 
   ts_with_ref_seq_file <- system.file(
     "examples/test_with_ref_seq.trees",
     package = "RcppTskit"
   )
-  expect_no_error(tc_ptr_load(ts_with_ref_seq_file))
-  expect_no_error(tc_ptr_load(
+  expect_no_error(tc_xptr_load(ts_with_ref_seq_file))
+  expect_no_error(tc_xptr_load(
     ts_with_ref_seq_file,
     options = bitwShiftL(1L, 1L)
   ))
@@ -125,16 +125,16 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   expect_no_error(tc_load(ts_with_ref_seq_file, skip_reference_sequence = TRUE))
 
   # For tests below
-  tc_ptr <- tc_ptr_load(ts_file)
+  tc_xptr <- tc_xptr_load(ts_file)
   tc <- tc_load(ts_file)
 
-  # ---- ts_ptr_summary() ----
+  # ---- ts_xptr_summary() ----
 
   # Simple comparison of summaries
-  expect_error(ts_ptr_summary(ts))
-  n_ptr <- ts_ptr_summary(ts_ptr)
+  expect_error(ts_xptr_summary(ts))
+  n_xptr <- ts_xptr_summary(ts_xptr)
   expect_equal(
-    n_ptr,
+    n_xptr,
     list(
       # we got these numbers from inst/examples/create_test.trees.R
       "num_provenances" = 2L,
@@ -158,177 +158,177 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
     )
   )
 
-  expect_error(ts_ptr_num_provenances())
-  expect_error(ts_ptr_num_provenances(ts))
-  n_ptr <- ts_ptr_num_provenances(ts_ptr)
-  expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 2L)
+  expect_error(ts_xptr_num_provenances())
+  expect_error(ts_xptr_num_provenances(ts))
+  n_xptr <- ts_xptr_num_provenances(ts_xptr)
+  expect_true(is.integer(n_xptr))
+  expect_equal(n_xptr, 2L)
   expect_equal(ts$num_provenances(), 2L)
 
-  expect_error(ts_ptr_num_populations())
-  expect_error(ts_ptr_num_populations(ts))
-  n_ptr <- ts_ptr_num_populations(ts_ptr)
-  expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 1L)
+  expect_error(ts_xptr_num_populations())
+  expect_error(ts_xptr_num_populations(ts))
+  n_xptr <- ts_xptr_num_populations(ts_xptr)
+  expect_true(is.integer(n_xptr))
+  expect_equal(n_xptr, 1L)
   expect_equal(ts$num_populations(), 1L)
 
-  expect_error(ts_ptr_num_migrations())
-  expect_error(ts_ptr_num_migrations(ts))
-  n_ptr <- ts_ptr_num_migrations(ts_ptr)
-  expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 0L)
+  expect_error(ts_xptr_num_migrations())
+  expect_error(ts_xptr_num_migrations(ts))
+  n_xptr <- ts_xptr_num_migrations(ts_xptr)
+  expect_true(is.integer(n_xptr))
+  expect_equal(n_xptr, 0L)
   expect_equal(ts$num_migrations(), 0L)
 
-  expect_error(ts_ptr_num_individuals())
-  expect_error(ts_ptr_num_individuals(ts))
-  n_ptr <- ts_ptr_num_individuals(ts_ptr)
-  expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 8L)
+  expect_error(ts_xptr_num_individuals())
+  expect_error(ts_xptr_num_individuals(ts))
+  n_xptr <- ts_xptr_num_individuals(ts_xptr)
+  expect_true(is.integer(n_xptr))
+  expect_equal(n_xptr, 8L)
   expect_equal(ts$num_individuals(), 8L)
 
-  expect_error(ts_ptr_num_samples())
-  expect_error(ts_ptr_num_samples(ts))
-  n_ptr <- ts_ptr_num_samples(ts_ptr)
-  expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 16L)
+  expect_error(ts_xptr_num_samples())
+  expect_error(ts_xptr_num_samples(ts))
+  n_xptr <- ts_xptr_num_samples(ts_xptr)
+  expect_true(is.integer(n_xptr))
+  expect_equal(n_xptr, 16L)
   expect_equal(ts$num_samples(), 16L)
 
-  expect_error(ts_ptr_num_nodes())
-  expect_error(ts_ptr_num_nodes(ts))
-  n_ptr <- ts_ptr_num_nodes(ts_ptr)
-  expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 39L)
+  expect_error(ts_xptr_num_nodes())
+  expect_error(ts_xptr_num_nodes(ts))
+  n_xptr <- ts_xptr_num_nodes(ts_xptr)
+  expect_true(is.integer(n_xptr))
+  expect_equal(n_xptr, 39L)
   expect_equal(ts$num_nodes(), 39L)
 
-  expect_error(ts_ptr_num_edges())
-  expect_error(ts_ptr_num_edges(ts))
-  n_ptr <- ts_ptr_num_edges(ts_ptr)
-  expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 59L)
+  expect_error(ts_xptr_num_edges())
+  expect_error(ts_xptr_num_edges(ts))
+  n_xptr <- ts_xptr_num_edges(ts_xptr)
+  expect_true(is.integer(n_xptr))
+  expect_equal(n_xptr, 59L)
   expect_equal(ts$num_edges(), 59L)
 
-  expect_error(ts_ptr_num_trees())
-  expect_error(ts_ptr_num_trees(ts))
-  n_ptr <- ts_ptr_num_trees(ts_ptr)
-  expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 9L)
+  expect_error(ts_xptr_num_trees())
+  expect_error(ts_xptr_num_trees(ts))
+  n_xptr <- ts_xptr_num_trees(ts_xptr)
+  expect_true(is.integer(n_xptr))
+  expect_equal(n_xptr, 9L)
   expect_equal(ts$num_trees(), 9L)
 
-  expect_error(ts_ptr_num_sites())
-  expect_error(ts_ptr_num_sites(ts))
-  n_ptr <- ts_ptr_num_sites(ts_ptr)
-  expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 25L)
+  expect_error(ts_xptr_num_sites())
+  expect_error(ts_xptr_num_sites(ts))
+  n_xptr <- ts_xptr_num_sites(ts_xptr)
+  expect_true(is.integer(n_xptr))
+  expect_equal(n_xptr, 25L)
   expect_equal(ts$num_sites(), 25L)
 
-  expect_error(ts_ptr_num_mutations())
-  expect_error(ts_ptr_num_mutations(ts))
-  n_ptr <- ts_ptr_num_mutations(ts_ptr)
-  expect_true(is.integer(n_ptr))
-  expect_equal(n_ptr, 30L)
+  expect_error(ts_xptr_num_mutations())
+  expect_error(ts_xptr_num_mutations(ts))
+  n_xptr <- ts_xptr_num_mutations(ts_xptr)
+  expect_true(is.integer(n_xptr))
+  expect_equal(n_xptr, 30L)
   expect_equal(ts$num_mutations(), 30L)
 
-  expect_error(ts_ptr_sequence_length())
-  expect_error(ts_ptr_sequence_length(ts))
-  n_ptr <- ts_ptr_sequence_length(ts_ptr)
-  expect_true(is.numeric(n_ptr))
-  expect_equal(n_ptr, 100)
+  expect_error(ts_xptr_sequence_length())
+  expect_error(ts_xptr_sequence_length(ts))
+  n_xptr <- ts_xptr_sequence_length(ts_xptr)
+  expect_true(is.numeric(n_xptr))
+  expect_equal(n_xptr, 100)
   expect_equal(ts$sequence_length(), 100)
 
-  expect_error(ts_ptr_discrete_genome())
-  expect_error(ts_ptr_discrete_genome(ts))
-  l_ptr <- ts_ptr_discrete_genome(ts_ptr)
-  expect_true(is.logical(l_ptr))
-  expect_true(l_ptr)
+  expect_error(ts_xptr_discrete_genome())
+  expect_error(ts_xptr_discrete_genome(ts))
+  l_xptr <- ts_xptr_discrete_genome(ts_xptr)
+  expect_true(is.logical(l_xptr))
+  expect_true(l_xptr)
   expect_true(ts$discrete_genome())
 
   ts_non_discrete_file <- system.file(
     "examples/test_non_discrete_genome.trees",
     package = "RcppTskit"
   )
-  ts_non_discrete_ptr <- ts_ptr_load(ts_non_discrete_file)
+  ts_non_discrete_xptr <- ts_xptr_load(ts_non_discrete_file)
   ts_non_discrete <- ts_load(ts_non_discrete_file)
-  expect_false(ts_ptr_discrete_genome(ts_non_discrete_ptr))
+  expect_false(ts_xptr_discrete_genome(ts_non_discrete_xptr))
   expect_false(ts_non_discrete$discrete_genome())
 
-  expect_error(ts_ptr_has_reference_sequence())
-  expect_error(ts_ptr_has_reference_sequence(ts))
-  l_ptr <- ts_ptr_has_reference_sequence(ts_ptr)
-  expect_true(is.logical(l_ptr))
-  expect_false(l_ptr)
+  expect_error(ts_xptr_has_reference_sequence())
+  expect_error(ts_xptr_has_reference_sequence(ts))
+  l_xptr <- ts_xptr_has_reference_sequence(ts_xptr)
+  expect_true(is.logical(l_xptr))
+  expect_false(l_xptr)
   expect_false(ts$has_reference_sequence())
 
-  ts_with_ref_seq_ptr <- ts_ptr_load(ts_with_ref_seq_file)
+  ts_with_ref_seq_xptr <- ts_xptr_load(ts_with_ref_seq_file)
   ts_with_ref_seq <- ts_load(ts_with_ref_seq_file)
-  expect_true(ts_ptr_has_reference_sequence(ts_with_ref_seq_ptr))
+  expect_true(ts_xptr_has_reference_sequence(ts_with_ref_seq_xptr))
   expect_true(ts_with_ref_seq$has_reference_sequence())
 
-  f_ptr <- ts_ptr_sequence_length(ts_non_discrete_ptr)
-  expect_true(is.numeric(f_ptr))
-  expect_equal(f_ptr, 10.5)
+  f_xptr <- ts_xptr_sequence_length(ts_non_discrete_xptr)
+  expect_true(is.numeric(f_xptr))
+  expect_equal(f_xptr, 10.5)
   expect_equal(ts_non_discrete$sequence_length(), 10.5)
 
-  expect_error(ts_ptr_time_units())
-  expect_error(ts_ptr_time_units(ts))
-  c_ptr <- ts_ptr_time_units(ts_ptr)
-  expect_true(is.character(c_ptr))
-  expect_equal(c_ptr, "generations")
+  expect_error(ts_xptr_time_units())
+  expect_error(ts_xptr_time_units(ts))
+  c_xptr <- ts_xptr_time_units(ts_xptr)
+  expect_true(is.character(c_xptr))
+  expect_equal(c_xptr, "generations")
   expect_equal(ts$time_units(), "generations")
 
-  expect_error(ts_ptr_discrete_time())
-  expect_error(ts_ptr_discrete_time(ts))
-  l_ptr <- ts_ptr_discrete_time(ts_ptr)
-  expect_true(is.logical(l_ptr))
-  expect_false(l_ptr)
+  expect_error(ts_xptr_discrete_time())
+  expect_error(ts_xptr_discrete_time(ts))
+  l_xptr <- ts_xptr_discrete_time(ts_xptr)
+  expect_true(is.logical(l_xptr))
+  expect_false(l_xptr)
   expect_false(ts$discrete_time())
 
   ts_discrete_time_file <- system.file(
     "examples/test_discrete_time.trees",
     package = "RcppTskit"
   )
-  ts_discrete_time_ptr <- ts_ptr_load(ts_discrete_time_file)
+  ts_discrete_time_xptr <- ts_xptr_load(ts_discrete_time_file)
   ts_discrete_time <- ts_load(ts_discrete_time_file)
-  expect_true(ts_ptr_discrete_time(ts_discrete_time_ptr))
+  expect_true(ts_xptr_discrete_time(ts_discrete_time_xptr))
   expect_true(ts_discrete_time$discrete_time())
 
-  expect_error(ts_ptr_min_time())
-  expect_error(ts_ptr_min_time(ts))
-  d_ptr <- ts_ptr_min_time(ts_ptr)
-  expect_true(is.numeric(d_ptr))
-  expect_equal(d_ptr, 0.0)
+  expect_error(ts_xptr_min_time())
+  expect_error(ts_xptr_min_time(ts))
+  d_xptr <- ts_xptr_min_time(ts_xptr)
+  expect_true(is.numeric(d_xptr))
+  expect_equal(d_xptr, 0.0)
   expect_equal(ts$min_time(), 0.0)
 
-  expect_error(ts_ptr_max_time())
-  expect_error(ts_ptr_max_time(ts))
-  d_ptr <- ts_ptr_max_time(ts_ptr)
-  expect_true(is.numeric(d_ptr))
-  expect_equal(d_ptr, 6.9619933371908083)
+  expect_error(ts_xptr_max_time())
+  expect_error(ts_xptr_max_time(ts))
+  d_xptr <- ts_xptr_max_time(ts_xptr)
+  expect_true(is.numeric(d_xptr))
+  expect_equal(d_xptr, 6.9619933371908083)
   expect_equal(ts$max_time(), 6.9619933371908083)
 
-  expect_error(ts_ptr_file_uuid())
-  expect_error(ts_ptr_file_uuid(ts))
-  c_ptr <- ts_ptr_file_uuid(ts_ptr)
-  expect_true(is.character(c_ptr))
-  expect_equal(length(c_ptr), 1L)
-  expect_equal(c_ptr, test_trees_file_uuid)
-  expect_equal(c_ptr, ts$file_uuid())
+  expect_error(ts_xptr_file_uuid())
+  expect_error(ts_xptr_file_uuid(ts))
+  c_xptr <- ts_xptr_file_uuid(ts_xptr)
+  expect_true(is.character(c_xptr))
+  expect_equal(length(c_xptr), 1L)
+  expect_equal(c_xptr, test_trees_file_uuid)
+  expect_equal(c_xptr, ts$file_uuid())
   expect_equal(
-    ts_ptr_file_uuid(ts_with_ref_seq_ptr),
+    ts_xptr_file_uuid(ts_with_ref_seq_xptr),
     test_with_ref_seq_file_uuid
   )
   expect_equal(ts_with_ref_seq$file_uuid(), test_with_ref_seq_file_uuid)
-  expect_false(identical(c_ptr, ts_ptr_file_uuid(ts_with_ref_seq_ptr)))
+  expect_false(identical(c_xptr, ts_xptr_file_uuid(ts_with_ref_seq_xptr)))
 
   ts_from_tc <- ts$dump_tables()$tree_sequence()
   expect_true(is.na(ts_from_tc$file_uuid()))
-  expect_true(is.na(ts_ptr_file_uuid(ts_from_tc$pointer)))
+  expect_true(is.na(ts_xptr_file_uuid(ts_from_tc$pointer)))
 
-  # ---- tc_ptr_summary() ----
+  # ---- tc_xptr_summary() ----
 
   # Simple comparison of summaries
-  expect_error(tc_ptr_summary(tc))
-  n_ptr_tc <- tc_ptr_summary(tc_ptr)
-  n_ptr_ts <- ts_ptr_summary(ts_ptr)
+  expect_error(tc_xptr_summary(tc))
+  n_xptr_tc <- tc_xptr_summary(tc_xptr)
+  n_xptr_ts <- ts_xptr_summary(ts_xptr)
   shared_items <- c(
     "num_provenances",
     "num_populations",
@@ -343,66 +343,66 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
     "time_units",
     "file_uuid"
   )
-  expect_equal(n_ptr_tc[shared_items], n_ptr_ts[shared_items])
+  expect_equal(n_xptr_tc[shared_items], n_xptr_ts[shared_items])
 
-  expect_error(tc_ptr_sequence_length())
-  expect_error(tc_ptr_sequence_length(ts))
-  n_ptr <- tc_ptr_sequence_length(tc_ptr)
-  expect_true(is.numeric(n_ptr))
-  expect_equal(n_ptr, 100)
+  expect_error(tc_xptr_sequence_length())
+  expect_error(tc_xptr_sequence_length(ts))
+  n_xptr <- tc_xptr_sequence_length(tc_xptr)
+  expect_true(is.numeric(n_xptr))
+  expect_equal(n_xptr, 100)
   expect_equal(tc$sequence_length(), 100)
 
   tc_non_discrete_file <- system.file(
     "examples/test_non_discrete_genome.trees",
     package = "RcppTskit"
   )
-  tc_non_discrete_ptr <- tc_ptr_load(tc_non_discrete_file)
+  tc_non_discrete_xptr <- tc_xptr_load(tc_non_discrete_file)
   tc_non_discrete <- tc_load(tc_non_discrete_file)
-  f_ptr <- tc_ptr_sequence_length(tc_non_discrete_ptr)
-  expect_true(is.numeric(f_ptr))
-  expect_equal(f_ptr, 10.5)
+  f_xptr <- tc_xptr_sequence_length(tc_non_discrete_xptr)
+  expect_true(is.numeric(f_xptr))
+  expect_equal(f_xptr, 10.5)
   expect_equal(tc_non_discrete$sequence_length(), 10.5)
-  expect_error(tc_ptr_has_reference_sequence())
-  expect_error(tc_ptr_has_reference_sequence(ts))
-  l_ptr <- tc_ptr_has_reference_sequence(tc_ptr)
-  expect_true(is.logical(l_ptr))
-  expect_false(l_ptr)
+  expect_error(tc_xptr_has_reference_sequence())
+  expect_error(tc_xptr_has_reference_sequence(ts))
+  l_xptr <- tc_xptr_has_reference_sequence(tc_xptr)
+  expect_true(is.logical(l_xptr))
+  expect_false(l_xptr)
   expect_false(tc$has_reference_sequence())
 
-  expect_error(tc_ptr_time_units())
-  expect_error(tc_ptr_time_units(ts))
-  c_ptr <- tc_ptr_time_units(tc_ptr)
-  expect_true(is.character(c_ptr))
-  expect_equal(c_ptr, "generations")
+  expect_error(tc_xptr_time_units())
+  expect_error(tc_xptr_time_units(ts))
+  c_xptr <- tc_xptr_time_units(tc_xptr)
+  expect_true(is.character(c_xptr))
+  expect_equal(c_xptr, "generations")
   expect_equal(tc$time_units(), "generations")
 
-  expect_error(tc_ptr_file_uuid())
-  expect_error(tc_ptr_file_uuid(ts))
-  c_ptr <- tc_ptr_file_uuid(tc_ptr)
-  expect_true(is.character(c_ptr))
-  expect_equal(length(c_ptr), 1L)
-  expect_equal(c_ptr, test_trees_file_uuid)
-  expect_equal(c_ptr, tc$file_uuid())
+  expect_error(tc_xptr_file_uuid())
+  expect_error(tc_xptr_file_uuid(ts))
+  c_xptr <- tc_xptr_file_uuid(tc_xptr)
+  expect_true(is.character(c_xptr))
+  expect_equal(length(c_xptr), 1L)
+  expect_equal(c_xptr, test_trees_file_uuid)
+  expect_equal(c_xptr, tc$file_uuid())
 
   tc_from_ts <- ts$dump_tables()
   expect_true(is.na(tc_from_ts$file_uuid()))
-  expect_true(is.na(tc_ptr_file_uuid(tc_from_ts$pointer)))
+  expect_true(is.na(tc_xptr_file_uuid(tc_from_ts$pointer)))
 
-  expect_error(tc_ptr_has_index())
-  expect_error(tc_ptr_has_index(ts))
-  l_ptr <- tc_ptr_has_index(tc_ptr)
-  expect_true(is.logical(l_ptr))
-  expect_true(l_ptr)
+  expect_error(tc_xptr_has_index())
+  expect_error(tc_xptr_has_index(ts))
+  l_xptr <- tc_xptr_has_index(tc_xptr)
+  expect_true(is.logical(l_xptr))
+  expect_true(l_xptr)
   expect_true(tc$has_index())
 
-  # ---- ts_ptr_print() and ts$print() ----
+  # ---- ts_xptr_print() and ts$print() ----
 
   # Simple comparison of summaries
   expect_error(
-    ts_ptr_print("not an externalptr object"),
+    ts_xptr_print("not an externalptr object"),
     regexp = "ts must be an object of externalptr class!"
   )
-  p_ptr <- ts_ptr_print(ts_ptr)
+  p_xptr <- ts_xptr_print(ts_xptr)
   # jarl-ignore implicit_assignment: it's just a test
   tmp <- capture.output(p <- ts$print())
   expect_equal(
@@ -461,16 +461,16 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
       )
     )
   )
-  expect_equal(p_ptr, p)
+  expect_equal(p_xptr, p)
 
-  # ---- tc_ptr_print() and tc$print() ----
+  # ---- tc_xptr_print() and tc$print() ----
 
   # Simple comparison of summaries
   expect_error(
-    tc_ptr_print("not an externalptr object"),
+    tc_xptr_print("not an externalptr object"),
     regexp = "tc must be an object of externalptr class!"
   )
-  p_ptr <- tc_ptr_print(tc_ptr)
+  p_xptr <- tc_xptr_print(tc_xptr)
   # jarl-ignore implicit_assignment: it's just a test
   tmp <- capture.output(p <- tc$print())
   expect_equal(
@@ -519,35 +519,35 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
       )
     )
   )
-  expect_equal(p_ptr, p)
+  expect_equal(p_xptr, p)
 
-  # ---- ts_ptr_dump() ----
+  # ---- ts_xptr_dump() ----
 
-  expect_error(ts_ptr_dump())
-  expect_error(ts_ptr_dump(nonexistent_ts))
-  expect_error(ts_ptr_dump(file = 1))
-  expect_error(ts_ptr_dump(nonexistent_ts, file = 1))
-  expect_error(ts_ptr_dump(1, file = 1))
-  expect_error(ts_ptr_dump(1, file = "1"))
-  expect_error(ts_ptr_dump(1, file = 1))
-  expect_error(ts_ptr_dump(ts_ptr))
-  expect_error(ts_ptr_dump(ts))
+  expect_error(ts_xptr_dump())
+  expect_error(ts_xptr_dump(nonexistent_ts))
+  expect_error(ts_xptr_dump(file = 1))
+  expect_error(ts_xptr_dump(nonexistent_ts, file = 1))
+  expect_error(ts_xptr_dump(1, file = 1))
+  expect_error(ts_xptr_dump(1, file = "1"))
+  expect_error(ts_xptr_dump(1, file = 1))
+  expect_error(ts_xptr_dump(ts_xptr))
+  expect_error(ts_xptr_dump(ts))
   bad_path <- file.path(tempdir(), "no_such_dir", "out.trees")
-  expect_error(ts_ptr_dump(ts_ptr, file = bad_path))
+  expect_error(ts_xptr_dump(ts_xptr, file = bad_path))
   expect_error(
-    ts_ptr_dump(ts_ptr, file = tempfile(fileext = ".trees"), options = 1L),
+    ts_xptr_dump(ts_xptr, file = tempfile(fileext = ".trees"), options = 1L),
     regexp = "does not support non-zero options"
   )
 
   # Write ts to disk, read it back, and check that nums are still the same
   dump_file <- tempfile(fileext = ".trees")
-  ts_ptr_dump(ts_ptr, dump_file)
-  rm(ts_ptr)
-  ts_ptr <- ts_ptr_load(dump_file)
+  ts_xptr_dump(ts_xptr, dump_file)
+  rm(ts_xptr)
+  ts_xptr <- ts_xptr_load(dump_file)
   file.remove(dump_file)
 
   # Simple comparison of summaries
-  n <- ts_ptr_summary(ts_ptr)
+  n <- ts_xptr_summary(ts_xptr)
   expect_equal(
     n,
     list(
@@ -569,42 +569,42 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
       "discrete_time" = FALSE,
       "min_time" = 0.0,
       "max_time" = 6.9619933371908083,
-      "file_uuid" = ts_ptr_file_uuid(ts_ptr)
-      # using ts_ptr_file_uuid() here since I don't have UUID
+      "file_uuid" = ts_xptr_file_uuid(ts_xptr)
+      # using ts_xptr_file_uuid() here since I don't have UUID
       # on this file from Python code due to disk serialisation
       # on our end (we test for correctness elsewhere anyway)
     )
   )
 
-  # ---- tc_ptr_dump() ----
+  # ---- tc_xptr_dump() ----
 
-  expect_error(tc_ptr_dump())
-  expect_error(tc_ptr_dump(nonexistent_ts))
-  expect_error(tc_ptr_dump(file = 1))
-  expect_error(tc_ptr_dump(nonexistent_ts, file = 1))
-  expect_error(tc_ptr_dump(1, file = 1))
-  expect_error(tc_ptr_dump(1, file = "1"))
-  expect_error(tc_ptr_dump(1, file = 1))
-  expect_error(tc_ptr_dump(tc_ptr))
-  expect_error(tc_ptr_dump(tc))
+  expect_error(tc_xptr_dump())
+  expect_error(tc_xptr_dump(nonexistent_ts))
+  expect_error(tc_xptr_dump(file = 1))
+  expect_error(tc_xptr_dump(nonexistent_ts, file = 1))
+  expect_error(tc_xptr_dump(1, file = 1))
+  expect_error(tc_xptr_dump(1, file = "1"))
+  expect_error(tc_xptr_dump(1, file = 1))
+  expect_error(tc_xptr_dump(tc_xptr))
+  expect_error(tc_xptr_dump(tc))
   bad_path <- file.path(tempdir(), "no_such_dir", "out.trees")
-  expect_error(tc_ptr_dump(tc_ptr, file = bad_path))
+  expect_error(tc_xptr_dump(tc_xptr, file = bad_path))
   expect_error(
-    tc_ptr_dump(tc_ptr, file = tempfile(fileext = ".trees"), options = 1L),
+    tc_xptr_dump(tc_xptr, file = tempfile(fileext = ".trees"), options = 1L),
     regexp = "does not support non-zero options"
   )
 
   # Write ts to disk, read it back, and check that nums are still the same
   dump_file <- tempfile(fileext = ".trees")
-  tc_ptr_dump(tc_ptr, dump_file)
-  rm(tc_ptr)
-  tc_ptr <- tc_ptr_load(dump_file)
-  ts_ptr <- ts_ptr_load(dump_file)
+  tc_xptr_dump(tc_xptr, dump_file)
+  rm(tc_xptr)
+  tc_xptr <- tc_xptr_load(dump_file)
+  ts_xptr <- ts_xptr_load(dump_file)
   file.remove(dump_file)
 
   # Simple comparison of summaries
-  n_ts <- ts_ptr_summary(ts_ptr)
-  n_tc <- tc_ptr_summary(tc_ptr)
+  n_ts <- ts_xptr_summary(ts_xptr)
+  n_tc <- tc_xptr_summary(tc_xptr)
 
   shared_items <- c(
     "num_provenances",
@@ -642,9 +642,9 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   file.remove(dump_file)
 
   # Simple comparison of summaries
-  n_ptr <- ts_ptr_summary(ts$pointer)
+  n_xptr <- ts_xptr_summary(ts$pointer)
   expect_equal(
-    n_ptr,
+    n_xptr,
     list(
       # we got these numbers from inst/examples/create_test.trees.R
       "num_provenances" = 2L,
@@ -664,8 +664,8 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
       "discrete_time" = FALSE,
       "min_time" = 0.0,
       "max_time" = 6.9619933371908083,
-      "file_uuid" = ts_ptr_file_uuid(ts$pointer)
-      # using ts_ptr_file_uuid() here since I don't have UUID
+      "file_uuid" = ts_xptr_file_uuid(ts$pointer)
+      # using ts_xptr_file_uuid() here since I don't have UUID
       # on this file from Python code due to disk serialisation
       # on our end (we test for correctness elsewhere anyway)
     )
@@ -691,9 +691,9 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   file.remove(dump_file)
 
   # Simple comparison of summaries
-  n_ptr <- tc_ptr_summary(tc$pointer)
+  n_xptr <- tc_xptr_summary(tc$pointer)
   expect_equal(
-    n_ptr,
+    n_xptr,
     list(
       # we got these numbers from inst/examples/create_test.trees.R
       "num_provenances" = 2L,
@@ -707,21 +707,21 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
       "sequence_length" = 100.0,
       "has_reference_sequence" = FALSE,
       "time_units" = "generations",
-      "file_uuid" = tc_ptr_file_uuid(tc$pointer),
+      "file_uuid" = tc_xptr_file_uuid(tc$pointer),
       "has_index" = TRUE
-      # using ts_ptr_file_uuid() here since I don't have UUID
+      # using ts_xptr_file_uuid() here since I don't have UUID
       # on this file from Python code due to disk serialisation
       # on our end (we test for correctness elsewhere anyway)
     )
   )
 
-  # ---- ts_ptr_metadata_length() ----
+  # ---- ts_xptr_metadata_length() ----
 
   # Simple comparison of the lengths of metadata
-  n_ptr <- ts_ptr_metadata_length(ts_ptr)
+  n_xptr <- ts_xptr_metadata_length(ts_xptr)
   n <- ts$metadata_length()
   expect_equal(
-    n_ptr,
+    n_xptr,
     list(
       # we got these numbers from inst/examples/create_test.trees.R
       "ts" = 0L,
@@ -734,15 +734,15 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
       "mutations" = 0L
     )
   )
-  expect_equal(n_ptr, n)
+  expect_equal(n_xptr, n)
 
   ts_file <- system.file("examples/test2.trees", package = "RcppTskit")
-  ts_ptr <- ts_ptr_load(ts_file)
+  ts_xptr <- ts_xptr_load(ts_file)
   ts <- ts_load(ts_file)
 
-  n_ptr <- ts_ptr_summary(ts_ptr)
+  n_xptr <- ts_xptr_summary(ts_xptr)
   expect_equal(
-    n_ptr,
+    n_xptr,
     list(
       # we got these numbers from inst/examples/create_test.trees.{py,R}
       "num_provenances" = 2L,
@@ -766,10 +766,10 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
     )
   )
 
-  m_ptr <- ts_ptr_metadata_length(ts_ptr)
+  m_xptr <- ts_xptr_metadata_length(ts_xptr)
   m <- ts$metadata_length()
   expect_equal(
-    m_ptr,
+    m_xptr,
     list(
       # we got these numbers from inst/examples/create_test.trees.{py,R}
       "ts" = 23L,
@@ -782,13 +782,13 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
       "mutations" = 0L
     )
   )
-  expect_equal(m_ptr, m)
+  expect_equal(m_xptr, m)
 
-  p_ptr <- ts_ptr_print(ts_ptr)
+  p_xptr <- ts_xptr_print(ts_xptr)
   # jarl-ignore implicit_assignment: it's just a test
   tmp <- capture.output(p <- ts$print())
   expect_equal(
-    p_ptr,
+    p_xptr,
     list(
       ts = data.frame(
         property = c(
@@ -843,26 +843,26 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
       )
     )
   )
-  expect_equal(p_ptr, p)
+  expect_equal(p_xptr, p)
 
-  # ---- tc_ptr_metadata_length() ----
+  # ---- tc_xptr_metadata_length() ----
 
   # Simple comparison of the lengths of metadata
-  n_ptr_tc <- tc_ptr_metadata_length(tc_ptr)
+  n_xptr_tc <- tc_xptr_metadata_length(tc_xptr)
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
-  ts_ptr <- ts_ptr_load(ts_file)
-  n_ptr_ts <- ts_ptr_metadata_length(ts_ptr)
-  names(n_ptr_tc)[1] <- "ts"
-  expect_equal(n_ptr_tc, n_ptr_ts)
+  ts_xptr <- ts_xptr_load(ts_file)
+  n_xptr_ts <- ts_xptr_metadata_length(ts_xptr)
+  names(n_xptr_tc)[1] <- "ts"
+  expect_equal(n_xptr_tc, n_xptr_ts)
 
   ts_file <- system.file("examples/test2.trees", package = "RcppTskit")
-  tc_ptr <- tc_ptr_load(ts_file)
+  tc_xptr <- tc_xptr_load(ts_file)
   tc <- tc_load(ts_file)
-  ts_ptr <- ts_ptr_load(ts_file)
+  ts_xptr <- ts_xptr_load(ts_file)
   ts <- ts_load(ts_file)
 
-  n_ptr_tc <- tc_ptr_summary(tc_ptr)
-  n_ptr_ts <- ts_ptr_summary(ts_ptr)
+  n_xptr_tc <- tc_xptr_summary(tc_xptr)
+  n_xptr_ts <- ts_xptr_summary(ts_xptr)
   shared_items <- c(
     "num_provenances",
     "num_populations",
@@ -877,18 +877,18 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
     "time_units",
     "file_uuid"
   )
-  expect_equal(n_ptr_ts[shared_items], n_ptr_tc[shared_items])
+  expect_equal(n_xptr_ts[shared_items], n_xptr_tc[shared_items])
 
-  m_ptr_tc <- tc_ptr_metadata_length(tc_ptr)
-  m_ptr_ts <- ts_ptr_metadata_length(ts_ptr)
-  names(m_ptr_tc)[1] <- "ts"
-  expect_equal(m_ptr_tc, m_ptr_ts)
+  m_xptr_tc <- tc_xptr_metadata_length(tc_xptr)
+  m_xptr_ts <- ts_xptr_metadata_length(ts_xptr)
+  names(m_xptr_tc)[1] <- "ts"
+  expect_equal(m_xptr_tc, m_xptr_ts)
 
-  p_ptr <- tc_ptr_print(tc_ptr)
+  p_xptr <- tc_xptr_print(tc_xptr)
   # jarl-ignore implicit_assignment: it's just a test
   tmp <- capture.output(p <- tc$print())
   expect_equal(
-    p_ptr,
+    p_xptr,
     list(
       tc = data.frame(
         property = c(
@@ -933,5 +933,5 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
       )
     )
   )
-  expect_equal(p_ptr, p)
+  expect_equal(p_xptr, p)
 })

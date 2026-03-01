@@ -386,7 +386,7 @@ remotes::install_github("HighlanderLab/RcppTskitTestLinking")
 library(RcppTskitTestLinking)
 
 # Check the demo function
-print(ts_num_individuals_ptr2)
+print(ts_xptr_num_individuals2)
 
 # Example tree sequence
 ts_file <- system.file("examples", "test.trees", package = "RcppTskit")
@@ -396,7 +396,7 @@ ts <- ts_load(ts_file)
 ts$num_individuals()
 
 # Function from RcppTskitTestLinking (working with externalptr)
-ts_num_individuals_ptr2(ts$pointer)
+ts_xptr_num_individuals2(ts$pointer)
 ```
 
 ## Conclusion

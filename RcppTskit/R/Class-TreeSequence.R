@@ -50,7 +50,7 @@ TreeSequence <- R6Class(
           skip_tables = skip_tables,
           skip_reference_sequence = skip_reference_sequence
         )
-        self$pointer <- ts_ptr_load(file = file, options = options)
+        self$pointer <- ts_xptr_load(file = file, options = options)
       } else {
         if (!is.null(pointer) && !is(pointer, "externalptr")) {
           stop("pointer must be an object of externalptr class!")
@@ -73,7 +73,7 @@ TreeSequence <- R6Class(
     #' ts$write(dump_file) # alias
     #' \dontshow{file.remove(dump_file)}
     dump = function(file) {
-      ts_ptr_dump(self$pointer, file = file, options = 0L)
+      ts_xptr_dump(self$pointer, file = file, options = 0L)
     },
 
     #' @description Alias for \code{\link[=TreeSequence]{TreeSequence$dump}}.
@@ -92,8 +92,8 @@ TreeSequence <- R6Class(
     #' tc <- ts$dump_tables()
     #' is(tc)
     dump_tables = function() {
-      tc_ptr <- ts_ptr_to_tc_ptr(self$pointer)
-      TableCollection$new(pointer = tc_ptr)
+      tc_xptr <- ts_xptr_to_tc_xptr(self$pointer)
+      TableCollection$new(pointer = tc_xptr)
     },
 
     #' @description Print a summary of a tree sequence and its contents.
@@ -106,7 +106,7 @@ TreeSequence <- R6Class(
     #' ts$print()
     #' ts
     print = function() {
-      ret <- ts_ptr_print(self$pointer)
+      ret <- ts_xptr_print(self$pointer)
       # These are not hit since testing is not interactive
       # nocov start
       if (interactive()) {
@@ -146,7 +146,7 @@ TreeSequence <- R6Class(
     #'   }
     #' }
     r_to_py = function(tskit_module = get_tskit_py(), cleanup = TRUE) {
-      ts_ptr_r_to_py(
+      ts_xptr_r_to_py(
         self$pointer,
         tskit_module = tskit_module,
         cleanup = cleanup
@@ -159,7 +159,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$num_provenances()
     num_provenances = function() {
-      ts_ptr_num_provenances(self$pointer)
+      ts_xptr_num_provenances(self$pointer)
     },
 
     #' @description Get the number of populations in a tree sequence.
@@ -168,7 +168,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$num_populations()
     num_populations = function() {
-      ts_ptr_num_populations(self$pointer)
+      ts_xptr_num_populations(self$pointer)
     },
 
     #' @description Get the number of migrations in a tree sequence.
@@ -177,7 +177,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$num_migrations()
     num_migrations = function() {
-      ts_ptr_num_migrations(self$pointer)
+      ts_xptr_num_migrations(self$pointer)
     },
 
     #' @description Get the number of individuals in a tree sequence.
@@ -186,7 +186,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$num_individuals()
     num_individuals = function() {
-      ts_ptr_num_individuals(self$pointer)
+      ts_xptr_num_individuals(self$pointer)
     },
 
     #' @description Get the number of samples (of nodes) in a tree sequence.
@@ -195,7 +195,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$num_samples()
     num_samples = function() {
-      ts_ptr_num_samples(self$pointer)
+      ts_xptr_num_samples(self$pointer)
     },
 
     #' @description Get the number of nodes in a tree sequence.
@@ -204,7 +204,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$num_nodes()
     num_nodes = function() {
-      ts_ptr_num_nodes(self$pointer)
+      ts_xptr_num_nodes(self$pointer)
     },
 
     #' @description Get the number of edges in a tree sequence.
@@ -213,7 +213,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$num_edges()
     num_edges = function() {
-      ts_ptr_num_edges(self$pointer)
+      ts_xptr_num_edges(self$pointer)
     },
 
     #' @description Get the number of trees in a tree sequence.
@@ -222,7 +222,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$num_trees()
     num_trees = function() {
-      ts_ptr_num_trees(self$pointer)
+      ts_xptr_num_trees(self$pointer)
     },
 
     #' @description Get the number of sites in a tree sequence.
@@ -231,7 +231,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$num_sites()
     num_sites = function() {
-      ts_ptr_num_sites(self$pointer)
+      ts_xptr_num_sites(self$pointer)
     },
 
     #' @description Get the number of mutations in a tree sequence.
@@ -240,7 +240,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$num_mutations()
     num_mutations = function() {
-      ts_ptr_num_mutations(self$pointer)
+      ts_xptr_num_mutations(self$pointer)
     },
 
     #' @description Get the sequence length.
@@ -249,7 +249,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$sequence_length()
     sequence_length = function() {
-      ts_ptr_sequence_length(self$pointer)
+      ts_xptr_sequence_length(self$pointer)
     },
 
     #' @description Get the discrete genome status.
@@ -263,7 +263,7 @@ TreeSequence <- R6Class(
     #' ts2 <- ts_load(ts_file2)
     #' ts2$discrete_genome()
     discrete_genome = function() {
-      ts_ptr_discrete_genome(self$pointer)
+      ts_xptr_discrete_genome(self$pointer)
     },
 
     #' @description Get whether the tree sequence has a reference genome sequence.
@@ -275,7 +275,7 @@ TreeSequence <- R6Class(
     #' ts2 <- ts_load(ts_file2)
     #' ts2$has_reference_sequence()
     has_reference_sequence = function() {
-      ts_ptr_has_reference_sequence(self$pointer)
+      ts_xptr_has_reference_sequence(self$pointer)
     },
 
     #' @description Get the time units string.
@@ -284,7 +284,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$time_units()
     time_units = function() {
-      ts_ptr_time_units(self$pointer)
+      ts_xptr_time_units(self$pointer)
     },
 
     #' @description Get the discrete time status.
@@ -298,7 +298,7 @@ TreeSequence <- R6Class(
     #' ts2 <- ts_load(ts_file2)
     #' ts2$discrete_time()
     discrete_time = function() {
-      ts_ptr_discrete_time(self$pointer)
+      ts_xptr_discrete_time(self$pointer)
     },
 
     #' @description Get the min time in node table and mutation table.
@@ -307,7 +307,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$min_time()
     min_time = function() {
-      ts_ptr_min_time(self$pointer)
+      ts_xptr_min_time(self$pointer)
     },
 
     #' @description Get the max time in node table and mutation table.
@@ -316,7 +316,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$max_time()
     max_time = function() {
-      ts_ptr_max_time(self$pointer)
+      ts_xptr_max_time(self$pointer)
     },
 
     #' @description Get the length of metadata in a tree sequence and its tables.
@@ -326,7 +326,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$metadata_length()
     metadata_length = function() {
-      ts_ptr_metadata_length(self$pointer)
+      ts_xptr_metadata_length(self$pointer)
     },
 
     #' @description Get the file UUID string.
@@ -337,7 +337,7 @@ TreeSequence <- R6Class(
     #' ts <- ts_load(ts_file)
     #' ts$file_uuid()
     file_uuid = function() {
-      ts_ptr_file_uuid(self$pointer)
+      ts_xptr_file_uuid(self$pointer)
     }
   )
 )
