@@ -247,7 +247,7 @@ ts$file_uuid()
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{pointer}}{external pointer to the tree sequence}
+\item{\code{xptr}}{external pointer to the tree sequence}
 }
 \if{html}{\out{</div>}}
 }
@@ -286,14 +286,14 @@ ts$file_uuid()
 \if{html}{\out{<a id="method-TreeSequence-new"></a>}}
 \if{latex}{\out{\hypertarget{method-TreeSequence-new}{}}}
 \subsection{Method \code{new()}}{
-Create a \code{\link{TreeSequence}} from a file or a pointer.
+Create a \code{\link{TreeSequence}} from a file or an external pointer.
   See \code{\link{ts_load}} for details and examples.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TreeSequence$new(
   file,
   skip_tables = FALSE,
   skip_reference_sequence = FALSE,
-  pointer = NULL
+  xptr = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -307,7 +307,7 @@ Create a \code{\link{TreeSequence}} from a file or a pointer.
 \item{\code{skip_reference_sequence}}{logical; if \code{TRUE}, skip loading
 reference genome sequence information.}
 
-\item{\code{pointer}}{an external pointer (\code{externalptr}) to a tree sequence.}
+\item{\code{xptr}}{an external pointer (\code{externalptr}) to a tree sequence.}
 }
 \if{html}{\out{</div>}}
 }

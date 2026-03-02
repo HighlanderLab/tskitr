@@ -39,23 +39,23 @@
 #undef tsk_trace_error
 #ifdef TSK_TRACE_ERRORS
 #ifdef __cplusplus
-static inline int _RcppTskit_trace_error_cpp(int err, int line,
-                                             const char *file) {
+static inline int _rtsk_trace_error_cpp(int err, int line,
+                                        const char *file) {
   Rcpp::warning("tskit-trace-error: %d='%s' at line %d in %s\n", err,
                 tsk_strerror(err), line, file);
   return err;
 }
 #define tsk_trace_error(err)                                                   \
-  (_RcppTskit_trace_error_cpp((err), __LINE__, __FILE__))
+  (_rtsk_trace_error_cpp((err), __LINE__, __FILE__))
 #else
-static inline int _RcppTskit_trace_error_c(int err, int line,
-                                           const char *file) {
+static inline int _rtsk_trace_error_c(int err, int line,
+                                      const char *file) {
   Rf_warning("tskit-trace-error: %d='%s' at line %d in %s\n", err,
              tsk_strerror(err), line, file);
   return err;
 }
 #define tsk_trace_error(err)                                                   \
-  (_RcppTskit_trace_error_c((err), __LINE__, __FILE__))
+  (_rtsk_trace_error_c((err), __LINE__, __FILE__))
 #endif
 #else
 #define tsk_trace_error(err) (err)

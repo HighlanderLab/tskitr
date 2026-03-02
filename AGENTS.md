@@ -167,7 +167,7 @@ Hook responsibilities:
 * `air format .`: format R, Rmd, and qmd files.
 * `jarl check .`: lint R, Rmd, and qmd files.
 * `clang-format -i --style=file`: format C/C++ sources and headers.
-* `python RcppTskit/tools/clang-tidy.py`: run clang-tidy checks for C/C++.
+* `python RcppTskit/tools/clang_tidy.py`: run clang-tidy checks for C/C++.
 * Standard pre-commit hygiene hooks:
   whitespace, line endings, YAML checks,
   merge-conflict markers, and large-file checks.
@@ -202,7 +202,7 @@ export CLANG_TIDY="$(brew --prefix llvm)/bin/clang-tidy"
 Then you can run the wrapper script directly:
 
 ```sh
-python RcppTskit/tools/clang-tidy.py RcppTskit/src/RcppTskit.cpp
+python RcppTskit/tools/clang_tidy.py RcppTskit/src/RcppTskit.cpp
 ```
 
 ### Coverage with covr

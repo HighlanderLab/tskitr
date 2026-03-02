@@ -206,8 +206,8 @@ tc_read <- tc_load
 # @title Print a summary of a tree sequence and its contents
 # @param ts an external pointer (\code{externalptr}) to a \code{tsk_treeseq_t}
 #   object.
-# @details It uses \code{\link{ts_xptr_summary}} and
-#   \code{\link{ts_xptr_metadata_length}}.
+# @details It uses \code{\link{rtsk_treeseq_summary}} and
+#   \code{\link{rtsk_treeseq_metadata_length}}.
 #   Note that \code{nbytes} property is not available in \code{tskit} C API
 #   compared to Python API, so also not available here.
 # @return A list with two data.frames; the first contains tree sequence
@@ -217,14 +217,14 @@ tc_read <- tc_load
 #   function is used and presented to users.
 # @examples
 # ts_file <- system.file("examples/test.trees", package = "RcppTskit")
-# ts_xptr <- ts_xptr_load(ts_file)
-# RcppTskit:::ts_xptr_print(ts_xptr)
-ts_xptr_print <- function(ts) {
+# ts_xptr <- rtsk_treeseq_load(ts_file)
+# RcppTskit:::rtsk_treeseq_print(ts_xptr)
+rtsk_treeseq_print <- function(ts) {
   if (!is(ts, "externalptr")) {
     stop("ts must be an object of externalptr class!")
   }
-  tmp_summary <- ts_xptr_summary(ts)
-  tmp_metadata <- ts_xptr_metadata_length(ts)
+  tmp_summary <- rtsk_treeseq_summary(ts)
+  tmp_metadata <- rtsk_treeseq_metadata_length(ts)
   ret <- list(
     ts = data.frame(
       property = c(
@@ -293,8 +293,8 @@ ts_xptr_print <- function(ts) {
 # @title Print a summary of a table collection and its contents
 # @param tc an external pointer (\code{externalptr}) to a
 #   \code{tsk_table_collection_t} object.
-# @details It uses \code{\link{tc_xptr_summary}} and
-#   \code{\link{tc_xptr_metadata_length}}.
+# @details It uses \code{\link{rtsk_table_collection_summary}} and
+#   \code{\link{rtsk_table_collection_metadata_length}}.
 # @return A list with two data.frames; the first contains table collection
 #   properties and their value; the second contains the numbers of rows in
 #   tables and the length of their metadata.
@@ -302,14 +302,14 @@ ts_xptr_print <- function(ts) {
 #   function is used and presented to users.
 # @examples
 # ts_file <- system.file("examples/test.trees", package = "RcppTskit")
-# tc_xptr <- tc_xptr_load(ts_file)
-# RcppTskit:::tc_xptr_print(tc_xptr)
-tc_xptr_print <- function(tc) {
+# tc_xptr <- rtsk_table_collection_load(ts_file)
+# RcppTskit:::rtsk_table_collection_print(tc_xptr)
+rtsk_table_collection_print <- function(tc) {
   if (!is(tc, "externalptr")) {
     stop("tc must be an object of externalptr class!")
   }
-  tmp_summary <- tc_xptr_summary(tc)
-  tmp_metadata <- tc_xptr_metadata_length(tc)
+  tmp_summary <- rtsk_table_collection_summary(tc)
+  tmp_metadata <- rtsk_table_collection_metadata_length(tc)
   ret <- list(
     tc = data.frame(
       property = c(
@@ -379,17 +379,17 @@ tc_xptr_print <- function(tc) {
 # @seealso \code{\link{ts_py_to_r}}, \code{\link{ts_load}}, and
 #   \code{\link[=TreeSequence]{TreeSequence$dump}} on how this function
 #   is used and presented to users,
-#   and \code{\link{ts_xptr_py_to_r}}, \code{\link{ts_xptr_load}}, and
-#   \code{ts_xptr_dump} (Rcpp) for underlying pointer functions.
+#   and \code{\link{rtsk_treeseq_py_to_r}}, \code{\link{rtsk_treeseq_load}}, and
+#   \code{rtsk_treeseq_dump} (Rcpp) for underlying pointer functions.
 # @examples
 # \dontrun{
 #   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 #   ts_r <- ts_load(ts_file)
-#   ts_xptr_r <- ts_r$pointer
-#   is(ts_xptr_r)
-#   RcppTskit:::ts_xptr_num_samples(ts_xptr_r) # 16
+#   ts_rtsk <- ts_r$xptr
+#   is(ts_rtsk)
+#   RcppTskit:::rtsk_treeseq_get_num_samples(ts_rtsk) # 16
 #   # Transfer the tree sequence to reticulate Python and use tskit Python API
-#   ts_py <- RcppTskit:::ts_xptr_r_to_py(ts_xptr_r)
+#   ts_py <- RcppTskit:::rtsk_treeseq_r_to_py(ts_rtsk)
 #   is(ts_py)
 #   ts_py$num_individuals # 8
 #   ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
@@ -398,7 +398,11 @@ tc_xptr_print <- function(tc) {
 #   ts2_py$num_nodes # 8
 #   ts2_py$tables$nodes$time # 0.0 ... 5.0093910
 # }
-ts_xptr_r_to_py <- function(ts, tskit_module = get_tskit_py(), cleanup = TRUE) {
+rtsk_treeseq_r_to_py <- function(
+  ts,
+  tskit_module = get_tskit_py(),
+  cleanup = TRUE
+) {
   if (!is(ts, "externalptr")) {
     stop("ts must be an object of externalptr class!")
   }
@@ -407,7 +411,7 @@ ts_xptr_r_to_py <- function(ts, tskit_module = get_tskit_py(), cleanup = TRUE) {
   if (cleanup) {
     on.exit(file.remove(ts_file))
   }
-  ts_xptr_dump(ts, file = ts_file)
+  rtsk_treeseq_dump(ts, filename = ts_file)
   ts_py <- tskit_module$load(ts_file)
   return(ts_py)
 }
@@ -429,17 +433,17 @@ ts_xptr_r_to_py <- function(ts, tskit_module = get_tskit_py(), cleanup = TRUE) {
 # @seealso \code{\link{tc_py_to_r}}, \code{\link{tc_load}}, and
 #   \code{\link[=TableCollection]{TableCollection$dump}} on how this function
 #   is used and presented to users,
-#   and \code{\link{tc_xptr_py_to_r}}, \code{\link{tc_xptr_load}}, and
-#   \code{tc_xptr_dump} (Rcpp) for underlying pointer functions.
+#   and \code{\link{rtsk_table_collection_py_to_r}}, \code{\link{rtsk_table_collection_load}}, and
+#   \code{rtsk_table_collection_dump} (Rcpp) for underlying pointer functions.
 # @examples
 # \dontrun{
 #   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 #   tc_r <- tc_load(ts_file)
-#   tc_xptr_r <- tc_r$pointer
-#   is(tc_xptr_r)
-#   RcppTskit:::tc_xptr_summary(tc_xptr_r)
+#   tc_rtsk <- tc_r$xptr
+#   is(tc_rtsk)
+#   RcppTskit:::rtsk_table_collection_summary(tc_rtsk)
 #   # Transfer the table collection to reticulate Python and use tskit Python API
-#   tc_py <- RcppTskit:::tc_xptr_r_to_py(tc_xptr_r)
+#   tc_py <- RcppTskit:::rtsk_table_collection_r_to_py(tc_rtsk)
 #   is(tc_py)
 #   tc_py$individuals$num_rows # 8
 #   tmp <- tc_py$simplify(samples = c(0L, 1L, 2L, 3L))
@@ -448,7 +452,11 @@ ts_xptr_r_to_py <- function(ts, tskit_module = get_tskit_py(), cleanup = TRUE) {
 #   tc_py$nodes$num_rows # 8
 #   tc_py$nodes$time # 0.0 ... 5.0093910
 # }
-tc_xptr_r_to_py <- function(tc, tskit_module = get_tskit_py(), cleanup = TRUE) {
+rtsk_table_collection_r_to_py <- function(
+  tc,
+  tskit_module = get_tskit_py(),
+  cleanup = TRUE
+) {
   if (!is(tc, "externalptr")) {
     stop("tc must be an object of externalptr class!")
   }
@@ -457,7 +465,7 @@ tc_xptr_r_to_py <- function(tc, tskit_module = get_tskit_py(), cleanup = TRUE) {
   if (cleanup) {
     on.exit(file.remove(tc_file))
   }
-  tc_xptr_dump(tc, file = tc_file)
+  rtsk_table_collection_dump(tc, filename = tc_file)
   tc_py <- tskit_module$TableCollection$load(tc_file)
   return(tc_py)
 }
@@ -473,8 +481,8 @@ tc_xptr_r_to_py <- function(tc, tskit_module = get_tskit_py(), cleanup = TRUE) {
 # @seealso \code{\link[=TreeSequence]{TreeSequence$r_to_py}},
 #   \code{\link{ts_load}}, and \code{\link[=TreeSequence]{TreeSequence$dump}}
 #   on how this function is used and presented to users,
-#   and \code{\link{ts_xptr_r_to_py}}, \code{\link{ts_xptr_load}}, and
-#   \code{ts_xptr_dump} (Rcpp) for underlying pointer functions.
+#   and \code{\link{rtsk_treeseq_r_to_py}}, \code{\link{rtsk_treeseq_load}}, and
+#   \code{rtsk_treeseq_dump} (Rcpp) for underlying pointer functions.
 # @examples
 # \dontrun{
 #   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
@@ -492,12 +500,12 @@ tc_xptr_r_to_py <- function(tc, tskit_module = get_tskit_py(), cleanup = TRUE) {
 #     ts2_py$tables$nodes$time # 0.0 ... 5.0093910
 #
 #     # Transfer the tree sequence to R and use RcppTskit
-#     ts2_xptr_r <- RcppTskit:::ts_xptr_py_to_r(ts2_py)
+#     ts2_xptr_r <- RcppTskit:::rtsk_treeseq_py_to_r(ts2_py)
 #     is(ts2_xptr_r)
-#     RcppTskit:::ts_xptr_num_individuals(ts2_xptr_r) # 2
+#     RcppTskit:::rtsk_treeseq_get_num_individuals(ts2_xptr_r) # 2
 #   }
 # }
-ts_xptr_py_to_r <- function(ts, cleanup = TRUE) {
+rtsk_treeseq_py_to_r <- function(ts, cleanup = TRUE) {
   if (!reticulate::is_py_object(ts)) {
     stop("ts must be a reticulate Python object!")
   }
@@ -506,7 +514,7 @@ ts_xptr_py_to_r <- function(ts, cleanup = TRUE) {
     on.exit(file.remove(ts_file))
   }
   ts$dump(ts_file)
-  ts_r <- ts_xptr_load(ts_file)
+  ts_r <- rtsk_treeseq_load(filename = ts_file)
   return(ts_r)
 }
 
@@ -522,8 +530,8 @@ ts_xptr_py_to_r <- function(ts, cleanup = TRUE) {
 # @seealso \code{\link[=TableCollection]{TableCollection$r_to_py}},
 #   \code{\link{tc_load}}, and \code{\link[=TableCollection]{TableCollection$dump}}
 #   on how this function is used and presented to users,
-#   and \code{\link{tc_xptr_r_to_py}}, \code{\link{tc_xptr_load}}, and
-#   \code{tc_xptr_dump} (Rcpp) for underlying pointer functions.
+#   and \code{\link{rtsk_table_collection_r_to_py}}, \code{\link{rtsk_table_collection_load}}, and
+#   \code{rtsk_table_collection_dump} (Rcpp) for underlying pointer functions.
 # @examples
 # \dontrun{
 #   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
@@ -541,12 +549,12 @@ ts_xptr_py_to_r <- function(ts, cleanup = TRUE) {
 #     tc_py$nodes$time # 0.0 ... 5.0093910
 #
 #     # Transfer the table collection to R and use RcppTskit
-#     tc2_xptr_r <- RcppTskit:::tc_xptr_py_to_r(tc_py)
+#     tc2_xptr_r <- RcppTskit:::rtsk_table_collection_py_to_r(tc_py)
 #     is(tc2_xptr_r)
-#     RcppTskit:::tc_xptr_summary(tc2_xptr_r)
+#     RcppTskit:::rtsk_table_collection_summary(tc2_xptr_r)
 #   }
 # }
-tc_xptr_py_to_r <- function(tc, cleanup = TRUE) {
+rtsk_table_collection_py_to_r <- function(tc, cleanup = TRUE) {
   if (!reticulate::is_py_object(tc)) {
     stop("tc must be a reticulate Python object!")
   }
@@ -555,7 +563,7 @@ tc_xptr_py_to_r <- function(tc, cleanup = TRUE) {
     on.exit(file.remove(tc_file))
   }
   tc$dump(tc_file)
-  tc_r <- tc_xptr_load(tc_file)
+  tc_r <- rtsk_table_collection_load(filename = tc_file)
   return(tc_r)
 }
 
@@ -593,8 +601,8 @@ tc_xptr_py_to_r <- function(tc, cleanup = TRUE) {
 #' }
 #' @export
 ts_py_to_r <- function(ts, cleanup = TRUE) {
-  xptr <- ts_xptr_py_to_r(ts = ts, cleanup = cleanup)
-  ts_r <- TreeSequence$new(pointer = xptr)
+  xptr <- rtsk_treeseq_py_to_r(ts = ts, cleanup = cleanup)
+  ts_r <- TreeSequence$new(xptr = xptr)
   return(ts_r)
 }
 
@@ -632,7 +640,7 @@ ts_py_to_r <- function(ts, cleanup = TRUE) {
 #' }
 #' @export
 tc_py_to_r <- function(tc, cleanup = TRUE) {
-  xptr <- tc_xptr_py_to_r(tc = tc, cleanup = cleanup)
-  tc_r <- TableCollection$new(pointer = xptr)
+  xptr <- rtsk_table_collection_py_to_r(tc = tc, cleanup = cleanup)
+  tc_r <- TableCollection$new(xptr = xptr)
   return(tc_r)
 }

@@ -4,11 +4,11 @@ All notable changes to `RcppTskit` are documented in this file.
 The file format is based on [Keep a Changelog](https://keepachangelog.com),
 and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.0] 2026-MM-DD
+## [0.3.0] 2026-03-02
 
 ### Added (new features)
 
-- Added the following scalar getters to match tskit C/Python API
+- Added the following scalar getters to match `tskit C/Python` API
   - `TreeSequence$discrete_genome()` to query whether genome coordinates
     are discrete integer values.
   - `TreeSequence$has_reference_sequence()` to query whether a tree sequence
@@ -25,41 +25,56 @@ and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
   - `TableCollection$has_index()` to query whether edge indexes are present.
 - Added a public header and defaults for downstream use of `C++` functions in
   `inst/include/RcppTskit_public.hpp`, included by `inst/include/RcppTskit.hpp`.
+- Added `TableCollection$build_index()` to build indexes and
+  `TableCollection$drop_index()` to drop indexes.
 - TODO
 
 ### Changed
 
-- Renamed low-level external-pointer API names from `*_ptr_*` to `*_xptr_*`
-  (for example, `ts_ptr_load()` to `ts_xptr_load()`) to make external-pointer
-  vs standard/raw-pointer semantics explicit.
+- Renamed low-level C++ and R API names such that we map onto `tskit C` API,
+  for example, `ts_ptr_load()` to `rtsk_treeseq_load()`.
+  This is an internal breaking change, but in a good direction now that the
+  package is still young and in experimental mode.
+- Renamed `TreeSequence` and `TableCollection` external-pointer field and
+  constructor argument from `pointer` to `xptr`.
+- Ensured `TableCollection$tree_sequence()` matches `tskit Python` API:
+  it now builds indexes on the `TableCollection`, if indexes are not present.
+- TODO
+
+### Maintenance
+
+- Turn vignette URL as hyperlinks and similar cosmetics.
+- State mirroring of the `R/Python` APIs and `C++/C` APIs across the package.
+- TODO
 
 ## [0.2.0] - 2026-02-22
 
 ### Added (new features)
 
-- Added TableCollection R6 class alongside `tc_load()` or `TableCollection$new()`,
-  as well as `dump()`, `tree_sequence()`, and `print()` methods.
+- Added `TableCollection` `R6` class alongside `tc_load()` or
+  `TableCollection$new()`, as well as `dump()`, `tree_sequence()`, and
+  `print()` methods.
 
-- Added `TreeSequence$dump_tables()` to copy tables into a TableCollection.
+- Added `TreeSequence$dump_tables()` to copy tables into a `TableCollection`.
 
-- Added TableCollection and reticulate Python round-trip helpers:
+- Added `TableCollection` and reticulate `Python` round-trip helpers:
   `TableCollection$r_to_py()` and `tc_py_to_r()`.
 
-- Changed the R API to follow tskit Python API for loading:
+- Changed the `R` API to follow `tskit Python` API for loading:
   `ts_load()`, `tc_load()`, `TreeSequence$new()`, and `TableCollection$new()`
   now use `skip_tables` and `skip_reference_sequence` logical arguments instead
   of an integer `options` bitmask.
 
 - Removed user-facing `options` from `TreeSequence$dump()`,
   `TreeSequence$dump_tables()`, `TableCollection$dump()`, and
-  `TableCollection$tree_sequence()` to match R API with the tskit Python API,
-  while C++ API has the bitwise `options` like the tskit C API.
+  `TableCollection$tree_sequence()` to match `R` API with the `tskit Python` API,
+  while `C++` API has the bitwise `options` like the `tskit C` API.
 
-- The bitwise options passed to C++ are now validated.
+- The bitwise options passed to `C++` are now validated.
 
 ### Changed
 
-- We now specify C++20 standard to go around the CRAN Windows issue,
+- We now specify `C++20` standard to go around the CRAN Windows issue,
   see #63 for further details.
 
 ### Maintenance
@@ -81,21 +96,21 @@ This is the first release.
 
 ### Added (new features)
 
-- Initial version of RcppTskit using the tskit C API (1.3.0).
+- Initial version of `RcppTskit` using the `tskit C` API (1.3.0).
 
-- TreeSequence R6 class so R code looks Pythonic.
+- `TreeSequence R6` class so `R` code looks Pythonic.
 
-- `ts_load()` or `TreeSequence$new()` to load a tree sequence from file into R.
+- `ts_load()` or `TreeSequence$new()` to load a tree sequence from file into `R`.
 
 - Methods to summarise a tree sequence and its contents `ts$print()`,
   `ts$num_nodes()`, etc.
 
 - Method to save a tree sequence to a file `ts$dump()`.
 
-- Method to push tree sequence between R and reticulate Python
+- Method to push tree sequence between `R` and reticulate `Python`
   `ts$r_to_py()` and `ts_py_to_r()`.
 
-- Most methods have an underlying (unexported) C++ function that works with
+- Most methods have an underlying (unexported) `C++` function that works with
   a pointer to tree sequence object, for example, `RcppTskit:::ts_ptr_load()`.
 
 - All implemented functionality is documented and demonstrated with a vignette.

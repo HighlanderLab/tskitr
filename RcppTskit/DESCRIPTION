@@ -2,7 +2,7 @@ Type: Package
 Package: RcppTskit
 Title: 'R' Access to the 'tskit C' API
 Version: 0.3.0
-Date: 2026-01-27
+Date: 2026-03-01
 Authors@R: c(
     person("Gregor", "Gorjanc", , "gregor.gorjanc@gmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0001-8008-2787")),
@@ -16,14 +16,16 @@ Description: 'Tskit' enables efficient storage, manipulation, and analysis
     described in Jeffrey et al. (2026) <doi:10.48550/arXiv.2602.09649>.
     See also <https://tskit.dev> for project news, documentation, and
     tutorials. 'Tskit' provides 'Python', 'C', and 'Rust' application
-    programming interfaces (APIs). The 'Python' API can be called from 'R' via
-    the 'reticulate' package to load and analyse tree sequences as
+    programming interfaces (APIs). The 'Python' API can be called from 'R'
+    via the 'reticulate' package to load and analyse tree sequences as
     described at <https://tskit.dev/tutorials/tskitr.html>. 'RcppTskit'
     provides 'R' access to the 'tskit C' API for cases where the
     'reticulate' option is not optimal; for example, high-performance or
     low-level work with tree sequences. Currently, 'RcppTskit' provides a
-    limited set of 'R' functions because the 'Python' API and 'reticulate'
-    already covers most needs.
+    limited set of functions because the 'Python' API and 'reticulate'
+    already cover most needs. The provided `RcppTskit R` API mirrors the
+    `tskit Python` API, while the `RcppTskit C++` API mirrors the `tskit
+    C` API.
 License: MIT + file LICENSE
 URL: https://github.com/HighlanderLab/RcppTskit
 BugReports: https://github.com/HighlanderLab/RcppTskit/issues

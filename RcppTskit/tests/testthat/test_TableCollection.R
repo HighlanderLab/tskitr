@@ -2,11 +2,11 @@ test_that("TableCollection$new() works", {
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
   expect_error(
     TableCollection$new(),
-    regexp = "Provide a file or a pointer!"
+    regexp = "Provide a file or an external pointer \\(xptr\\)!"
   )
   expect_error(
-    TableCollection$new(file = "xyz", pointer = "y"),
-    regexp = "Provide either a file or a pointer, but not both!"
+    TableCollection$new(file = "xyz", xptr = "y"),
+    regexp = "Provide either a file or an external pointer \\(xptr\\), but not both!"
   )
   expect_error(
     TableCollection$new(file = 1L),
@@ -36,40 +36,40 @@ test_that("TableCollection$new() works", {
   )
   expect_no_error(TableCollection$new(ts_file))
   expect_error(
-    TableCollection$new(pointer = 1L),
-    regexp = "pointer must be an object of externalptr class!"
+    TableCollection$new(xptr = 1L),
+    regexp = "external pointer \\(xptr\\) must be an object of externalptr class!"
   )
 })
 
 test_that("TableCollection and TreeSequence round-trip works", {
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
   test_trees_file_uuid <- "79ec383f-a57d-b44f-2a5c-f0feecbbcb32"
-  ts_xptr <- ts_xptr_load(ts_file)
+  ts_xptr <- rtsk_treeseq_load(ts_file)
 
   # ---- Integer bitmask of tskit flags ----
 
-  # See ts_xptr_to_tc_xptr() and tc_xptr_to_ts_xptr() documentation
+  # See rtsk_treeseq_copy_tables() and rtsk_treeseq_init() documentation
   unsupported_options <- bitwShiftL(1L, 27)
   supported_copy_option <- bitwShiftL(1L, 0)
   supported_init_options <- bitwOr(bitwShiftL(1L, 0), bitwShiftL(1L, 1))
   expect_error(
-    ts_xptr_to_tc_xptr(ts_xptr, options = bitwShiftL(1L, 30)),
+    rtsk_treeseq_copy_tables(ts_xptr, options = bitwShiftL(1L, 30)),
     regexp = "does not support TSK_NO_INIT"
   )
   expect_error(
-    ts_xptr_to_tc_xptr(ts_xptr, options = unsupported_options),
+    rtsk_treeseq_copy_tables(ts_xptr, options = unsupported_options),
     regexp = "only supports copy option TSK_COPY_FILE_UUID"
   )
   expect_true(is(
-    ts_xptr_to_tc_xptr(ts_xptr, options = supported_copy_option),
+    rtsk_treeseq_copy_tables(ts_xptr, options = supported_copy_option),
     "externalptr"
   ))
 
   # ---- ts_xptr --> tc_xptr --> ts_xptr ----
 
-  tc_xptr <- ts_xptr_to_tc_xptr(ts_xptr)
+  tc_xptr <- rtsk_treeseq_copy_tables(ts_xptr)
   expect_true(is(tc_xptr, "externalptr"))
-  p <- tc_xptr_print(tc_xptr)
+  p <- rtsk_table_collection_print(tc_xptr)
   expect_equal(
     p,
     list(
@@ -110,20 +110,20 @@ test_that("TableCollection and TreeSequence round-trip works", {
     )
   )
   expect_error(
-    tc_xptr_to_ts_xptr(tc_xptr, options = bitwShiftL(1L, 28)),
+    rtsk_treeseq_init(tc_xptr, options = bitwShiftL(1L, 28)),
     regexp = "does not support TSK_TAKE_OWNERSHIP"
   )
   expect_error(
-    tc_xptr_to_ts_xptr(tc_xptr, options = unsupported_options),
+    rtsk_treeseq_init(tc_xptr, options = unsupported_options),
     regexp = "only supports init options"
   )
   expect_true(is(
-    tc_xptr_to_ts_xptr(tc_xptr, options = supported_init_options),
+    rtsk_treeseq_init(tc_xptr, options = supported_init_options),
     "externalptr"
   ))
-  ts_xptr2 <- tc_xptr_to_ts_xptr(tc_xptr)
-  p_ts_xptr <- ts_xptr_print(ts_xptr)
-  p_ts_xptr2 <- ts_xptr_print(ts_xptr2)
+  ts_xptr2 <- rtsk_treeseq_init(tc_xptr)
+  p_ts_xptr <- rtsk_treeseq_print(ts_xptr)
+  p_ts_xptr2 <- rtsk_treeseq_print(ts_xptr2)
   i_file_uuid <- p_ts_xptr$ts$property == "file_uuid"
   p_ts_xptr$ts$value[i_file_uuid] <- NA_character_
   p_ts_xptr2$ts$value[p_ts_xptr2$ts$property == "file_uuid"] <- NA_character_
@@ -201,14 +201,56 @@ test_that("TableCollection and TreeSequence round-trip works", {
 
   # Edge cases
   expect_error(
-    test_ts_xptr_to_tc_xptr_forced_error(ts_xptr),
+    test_rtsk_treeseq_copy_tables_forced_error(ts_xptr),
     regexp = "TSK_ERR_BAD_PARAM_VALUE"
   )
-  expect_true(is(ts_xptr_to_tc_xptr(ts_xptr), "externalptr"))
+  expect_true(is(rtsk_treeseq_copy_tables(ts_xptr), "externalptr"))
 
   expect_error(
-    test_tc_xptr_to_ts_xptr_forced_error(tc_xptr),
+    test_rtsk_treeseq_init_forced_error(tc_xptr),
     regexp = "TSK_ERR_BAD_PARAM_VALUE"
   )
-  expect_true(is(tc_xptr_to_ts_xptr(tc_xptr), "externalptr"))
+  expect_true(is(rtsk_treeseq_init(tc_xptr), "externalptr"))
+
+  expect_error(
+    test_rtsk_table_collection_build_index_forced_error(tc_xptr),
+    regexp = "TSK_ERR_NODE_OUT_OF_BOUNDS"
+  )
+})
+
+test_that("TableCollection index lifecycle and tree_sequence index handling works", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  ts <- ts_load(ts_file)
+  tc <- ts$dump_tables()
+  tc_xptr <- tc$xptr
+  build_index_option <- bitwShiftL(1L, 0)
+
+  expect_error(rtsk_table_collection_build_index())
+  expect_error(rtsk_table_collection_build_index(tc))
+  expect_error(rtsk_table_collection_drop_index())
+  expect_error(rtsk_table_collection_drop_index(tc))
+
+  expect_true(tc$has_index())
+  expect_no_error(tc$drop_index())
+  expect_false(tc$has_index())
+
+  expect_error(
+    rtsk_treeseq_init(tc_xptr, options = 0L),
+    regexp = "TSK_ERR_TABLES_NOT_INDEXED"
+  )
+  expect_true(is(
+    rtsk_treeseq_init(tc_xptr, options = build_index_option),
+    "externalptr"
+  ))
+  # rtsk_treeseq_init() builds indexes in an internal ts, not in tc itself,
+  # so the tc in this environment will not have indexes here
+  expect_false(tc$has_index())
+  ts2 <- tc$tree_sequence()
+  expect_true(is(ts2, "TreeSequence"))
+  expect_true(tc$has_index())
+
+  expect_no_error(tc$drop_index())
+  expect_false(tc$has_index())
+  expect_no_error(tc$build_index())
+  expect_true(tc$has_index())
 })
