@@ -20,6 +20,8 @@ https://tskit.dev/tutorials/tskitr.html.
 \code{reticulate} option is not optimal; for example; high-performance or low-level
 work with tree sequences. Currently, \code{RcppTskit} provides a limited set of
 R functions because the Python API and \code{reticulate} already covers most needs.
+The provided \code{RcppTskit R} API mirrors the \code{tskit Python} API,
+while the \code{RcppTskit C++} API mirrors the \code{tskit C} API.
 }
 \examples{
 vignette("RcppTskit_intro")

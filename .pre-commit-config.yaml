@@ -28,14 +28,14 @@ repos:
     hooks:
       - id: air-format
         name: air format
-        entry: RcppTskit/tools/run-local-tool.sh air format .
+        entry: RcppTskit/tools/run_local_tool.sh air format .
         language: system
         pass_filenames: false
         files: '\.(R|Rmd|rmd|qmd|Qmd)$'
 
       - id: jarl-lint
         name: jarl lint
-        entry: RcppTskit/tools/run-local-tool.sh jarl check .
+        entry: RcppTskit/tools/run_local_tool.sh jarl check .
         language: system
         pass_filenames: false
         files: '\.(R|Rmd|rmd|qmd|Qmd)$'
@@ -48,6 +48,13 @@ repos:
 
       - id: clang-tidy
         name: clang-tidy for RcppTskit
-        entry: python RcppTskit/tools/clang-tidy.py
-        language: python
+        entry: RcppTskit/tools/clang_tidy.py
+        language: system
         files: '\.(c|cc|cpp|cxx|h|hh|hpp|hxx)$'
+
+      - id: check-sync-between-cpp-and-hpp
+        name: check sync between cpp and hpp options and defaults
+        entry: RcppTskit/tools/check_sync_between_cpp_and_hpp.R
+        language: system
+        pass_filenames: false
+        files: '^(RcppTskit/src/RcppTskit\.cpp|RcppTskit/inst/include/RcppTskit_public\.hpp)$'

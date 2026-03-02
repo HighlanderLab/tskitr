@@ -1,9 +1,12 @@
 test_that("TreeSequence$new() works", {
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
-  expect_error(TreeSequence$new(), regexp = "Provide a file or a pointer!")
   expect_error(
-    TreeSequence$new(file = "xyz", pointer = "y"),
-    regexp = "Provide either a file or a pointer, but not both!"
+    TreeSequence$new(),
+    regexp = "Provide a file or an external pointer \\(xptr\\)!"
+  )
+  expect_error(
+    TreeSequence$new(file = "xyz", xptr = "y"),
+    regexp = "Provide either a file or an external pointer \\(xptr\\), but not both!"
   )
   expect_error(
     TreeSequence$new(file = 1L),
@@ -33,7 +36,7 @@ test_that("TreeSequence$new() works", {
   )
   expect_no_error(TreeSequence$new(ts_file))
   expect_error(
-    TreeSequence$new(pointer = 1L),
-    regexp = "pointer must be an object of externalptr class!"
+    TreeSequence$new(xptr = 1L),
+    regexp = "external pointer \\(xptr\\) must be an object of externalptr class!"
   )
 })

@@ -42,15 +42,13 @@ With this in mind,
 [@jeffrey2026population],
 for cases where the `reticulate` option is not optimal;
 for example, high-performance or low-level work with tree sequences.
-As a result, `RcppTskit` currently provides a limited set of `R` functions
+As a result, `RcppTskit` currently provides a limited set of functions
 because the `Python` API (and `reticulate`) already covers most needs.
 As the name suggests, `RcppTskit` leverages the `R` package `Rcpp`
 [@eddelbuettel2026rcpp] <https://www.rcpp.org/>,
-which significantly lowers the barrier to using `C++` in `R`.
+which significantly lowers the barrier to using `C++` with `R`.
 However, we still need to write `C++` wrappers and expose them to `R`,
 so we recommend using `reticulate` first.
-The implemented `R` functions in `RcppTskit` closely mimic
-`tskit Python` functions to streamline the use of both the `R` and `Python` APIs.
 
 ## State of the tree sequence ecosystem
 
@@ -158,37 +156,57 @@ The four typical use cases are:
 4. Call the `tskit C` API from `C++` in another `R` package.
 
 Examples for all of these cases are provided below
-after we describe the implemented data and class model.
+after we describe the implemented data and class model,
+and API mirroring across the languages.
 
 ## Data and class model
 
 `RcppTskit` represents a tree sequence as a
 lightweight `R6` object of class `TreeSequence`.
-The `R6` class was chosen in part so that `TreeSequence` method calls in `R`
+The `R6` interface is used so that `TreeSequence` method calls in `R`
 resemble the `tskit Python` API,
 particularly when compared to reticulate `Python`.
-`TreeSequence` wraps an external pointer (`externalptr`) to
-the `tskit C` object structure `tsk_treeseq_t`.
+Internally, `TreeSequence` stores an external pointer (`externalptr`)
+to a heap-allocated object `tsk_treeseq_t`
+from the `tskit C` API.
+
 Most methods (for example, `ts$num_individuals()` and `ts$dump()`)
 call the `tskit C` API via `Rcpp`,
 so the calls are fast.
-The underlying pointer is exposed as `TreeSequence$pointer`
+The external pointer is exposed as `TreeSequence$xptr`
 for developers and advanced users who work with `C++`.
-In `C++`, the pointer has type `RcppTskit_treeseq_xptr`,
+In `C++`, the external pointer has type `rtsk_treeseq_t`,
 and the tree sequence memory is released by the `Rcpp::XPtr`
 finaliser when the pointer is garbage-collected in `R`.
 
 `RcppTskit` also provides a lightweight `TableCollection` `R6` class,
-which wraps an an external pointer to the `tskit C` object structure
-`tsk_table_collection_t`.
-In `C++`, the pointer has type `RcppTskit_table_collection_xptr` with
-the same memory management as `RcppTskit_treeseq_xptr`.
+which stores an external pointer to a heap-allocated object
+`tsk_table_collection_t` from the `tskit C` API.
+In `C++`, the external pointer has type `rtsk_table_collection_t`
+with the same memory management as `rtsk_treeseq_t`.
 
 While tree sequence (`tsk_treeseq_t`) is an immutable object,
 table collection (`tsk_table_collection_t`) is a mutable object,
 which can be edited.
 No `R` functions for expanding and editing are implemented to date,
 so all editing should happen in `C/C++` or `Python`.
+
+## API mirroring across the languages
+
+The provided `RcppTskit R` API mirrors the `tskit Python` API,
+while .
+
+`RcppTskit` aims to keep naming, arguments, defaults, and behaviour aligned
+with upstream `tskit` APIs whenever practical.
+Specifically,
+the provided `RcppTskit R` API mirrors the `tskit Python` API,
+that is the functions and `R6` classes (with their methods) aim to mirror
+`tskit Python` functions and classes (with their methods).
+Note that the `RcppTskit R` API is far more limited than the `tskit Python` API.
+The `RcppTskit C++` API aims to mirror the `tskit C` API functions and semantics,
+but is deliberately `R` oriented
+When we intentionally deviate (for example, to support `R` idioms or safety),
+we document the rationale and test the chosen behaviour.
 
 ## Four typical use cases
 
@@ -305,7 +323,7 @@ if (check_tskit_py(tskit)) {
 codeString <- '
   #include <RcppTskit.hpp>
   int ts_num_individuals(SEXP ts) {
-      RcppTskit_treeseq_xptr ts_xptr(ts);
+      rtsk_treeseq_t ts_xptr(ts);
     return (int) tsk_treeseq_get_num_individuals(ts_xptr);
   }'
 
@@ -323,7 +341,7 @@ ts <- ts_load(ts_file)
 
 # Apply the compiled function
 # (on the pointer)
-ts_num_individuals2(ts$pointer)
+ts_num_individuals2(ts$xptr)
 
 # An identical RcppTskit implementation
 # (available as the method of the TreeSequence class)
@@ -333,10 +351,14 @@ ts$num_individuals()
 ### 4) Call the `tskit C` API from `C++` in another `R` package
 
 To call the `tskit C` API in your own `R` package via `Rcpp`
-you can leverage `RcppTskit`, which simplifies installation
-and provides the linking flags you need.
-To do this, follow the steps below and check how these are implemented in
-the demo `R` package `RcppTskitTestLinkingTo` at
+you can leverage `RcppTskit`,
+which simplifies installation,
+provides the required linking flags,
+bootstraps your work by providing some `RcppTskit C++` functions
+that interface `tskit C` API and `R`, etc.
+To leverage `RcppTskit`,
+follow the steps below and check how they are implemented in
+the demo `R` package `RcppTskitTestLinking` at
 <https://github.com/HighlanderLab/RcppTskitTestLinking/>.
 
 a) Open the `DESCRIPTION` file and
@@ -376,7 +398,7 @@ h) You should now be ready to build, check, and install your package using
   `devtools::build()`, `devtools::check()`, and `devtools::install()`
   or their `R CMD` equivalents.
 
-Here is code you can run to check out `RcppTskitTestLinkingTo`:
+Here is code you can run to check out `RcppTskitTestLinking`:
 
 ```{r}
 #| label: use_case_4
@@ -386,7 +408,7 @@ remotes::install_github("HighlanderLab/RcppTskitTestLinking")
 library(RcppTskitTestLinking)
 
 # Check the demo function
-print(ts_xptr_num_individuals2)
+print(rtsk_treeseq_get_num_individuals2)
 
 # Example tree sequence
 ts_file <- system.file("examples", "test.trees", package = "RcppTskit")
@@ -396,19 +418,19 @@ ts <- ts_load(ts_file)
 ts$num_individuals()
 
 # Function from RcppTskitTestLinking (working with externalptr)
-ts_xptr_num_individuals2(ts$pointer)
+rtsk_treeseq_get_num_individuals2(ts$xptr)
 ```
 
 ## Conclusion
 
 `RcppTskit` provides `R` access to the `tskit C` API with a simple installation
 and a lightweight interface.
-It provides a limited number of `R` functions because most users can and should use
-`reticulate` to call the `tskit` `Python` API from `R`.
-The implemented `R` functions closely mimic `tskit` `Python` functions
-to streamline the use of both the `R` and `Python` APIs.
-When this option is not optimal, developers and advanced users can call
-the `tskit C` API via `Rcpp`.
+It provides a limited number of functions because most users can and should use
+`reticulate` to call the `tskit Python` API from `R`.
+The implemented `RcppTskit R` API closely mimics `tskit Python` API
+to streamline their use.
+When this option is not optimal, developers and advanced users
+can easily use the `RcppTskit C++` API and `tskit C` API.
 
 ## Session information
 

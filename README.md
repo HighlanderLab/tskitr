@@ -17,10 +17,12 @@ The `Python` API can be called from `R` via the `reticulate` `R` package to
 seamlessly load and analyse a tree sequence, as described at
 https://tskit.dev/tutorials/RcppTskit.html.
 `RcppTskit` provides `R` access to the `tskit C` API for use cases where the
-`reticulate` option is not optimal. For example, for high-performance and
-low-level work with tree sequences. Currently, `RcppTskit` provides a limited
-number of `R` functions due to the availability of extensive `Python` API and
-the `reticulate` option.
+`reticulate` option is not optimal.
+For example, for high-performance and low-level work with tree sequences.
+Currently, `RcppTskit` provides a limited number of functions
+due to the availability of extensive `Python` API and the `reticulate` option.
+The provided `RcppTskit R` API mirrors the `tskit Python` API,
+while the `RcppTskit C++` API mirrors the `tskit C` API.
 
 See more details on the state of the tree sequence ecosystem and aims of
 `RcppTskit` in [the introduction vignette](https://highlanderlab.r-universe.dev/articles/RcppTskit/RcppTskit_intro.html) ([source](RcppTskit/vignettes/RcppTskit_intro.qmd)).
@@ -153,8 +155,12 @@ Specifically, we use:
 To install the hooks, run:
 
 ```
-pre-commit install
+pre-commit install --install-hooks
+pre-commit install --hook-type pre-push
 ```
+
+Run these once per clone.
+This enables automatic checks on `commit` and `push`.
 
 ### tskit
 
@@ -203,12 +209,18 @@ On Windows, replace `tar.gz` with `zip`.
 
 ### Pre-commit run
 
-Before committing your changes, run the `pre-commit` hooks to ensure code quality:
+When committing your changes,
+`pre-commit` hooks should kick-in automatically
+to ensure code quality.
+Manually, you can run them using:
 
 ```
-# pre-commit autoupdate # to update the hooks
-pre-commit run --all-files
-# pre-commit run <hook_id>
+pre-commit autoupdate # to update the hooks
+pre-commit run # on changed files
+pre-commit run --all-files # on all files
+pre-commit run <hook_id> # just a specific hook
+pre-commit run <hook_id> --all-files # ... on all files
+# see also --hook-stage option
 ```
 
 ### Continuous integration

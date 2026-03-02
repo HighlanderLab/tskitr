@@ -2,160 +2,6 @@
 
 ## Next TODOs
 
-## TableCollection indexes and `tree_sequence()` (notes for future work)
-
-### Why this note exists
-
-I got a bit hazy on how indexes are handled across tskit C, tskit Python,
-and `RcppTskit` when converting a `TableCollection` to a `TreeSequence`.
-This note Codex summarised the current understanding and suggests a future path.
-We have to study this and decide how to move onwards.
-
-### tskit Python API behavior (reference behavior for R API)
-
-- `TableCollection.tree_sequence()` is user-facing and Pythonic (no bitwise flags).
-- It checks `self.has_index()`.
-- If indexes are missing, it calls `self.build_index()`.
-- Then it calls `tskit.TreeSequence.load_tables(self)`.
-
-In other words: Python handles index preparation explicitly at the
-`TableCollection` layer before creating a `TreeSequence`.
-
-Python also exposes these `TableCollection` methods:
-
-- `has_index()`
-- `build_index()`
-- `drop_index()`
-
-### tskit C API behavior (reference behavior for low-level C++ wrappers)
-
-- `tsk_table_collection_has_index(...)`
-- `tsk_table_collection_build_index(...)`
-- `tsk_table_collection_drop_index(...)`
-- `tsk_treeseq_init(..., options)` where `options` may include:
-  - `TSK_TS_INIT_BUILD_INDEXES`
-  - `TSK_TS_INIT_COMPUTE_MUTATION_PARENTS`
-
-`TSK_TS_INIT_BUILD_INDEXES` is a C-level bitwise option and fits naturally in
-the low-level `tc_xptr_to_ts_xptr(..., options)` wrapper.
-
-### Current `RcppTskit` behavior (as of this note)
-
-- Public R method `TableCollection$tree_sequence()` currently sets
-  `TSK_TS_INIT_BUILD_INDEXES` (via `bitwShiftL(1L, 0)`) and passes it to
-  `tc_xptr_to_ts_xptr(...)`.
-- This is functionally fine, but it exposes C-style flag handling in the R
-  method implementation.
-
-Important nuance:
-
-- `tc_xptr_to_ts_xptr()` calls `tsk_treeseq_init(...)` without `TSK_TAKE_OWNERSHIP`.
-- In tskit C, this means the tree sequence gets its own copied tables.
-- If `TSK_TS_INIT_BUILD_INDEXES` is used there, indexes are built on the copied
-  tables (inside the tree sequence init path), not necessarily on the original
-  R `TableCollection` object.
-
-This differs from Python `TableCollection.tree_sequence()` behavior, which
-builds indexes on the table collection itself before conversion.
-
-### Consistency goal (recommended)
-
-Use two layers with different styles on purpose:
-
-- R public API: Python-like, simple methods / logical arguments
-- C++ low-level wrappers: C-like, bitwise `options` allowed
-
-That gives:
-
-- R-Python consistency for user-facing behavior
-- C-C++ consistency for thin wrappers
-
-### Suggested future refactor for `TableCollection$tree_sequence()`
-
-Refactor R method to follow Python semantics explicitly:
-
-```r
-tree_sequence = function() {
-  if (!self$has_index()) {
-    self$build_index()
-  }
-  ts_xptr <- tc_xptr_to_ts_xptr(self$pointer, options = 0L)
-  TreeSequence$new(pointer = ts_xptr)
-}
-```
-
-Benefits:
-
-- No bitwise flag logic in R method implementation
-- Easier to read and explain
-- Matches Python behavior more closely
-- Makes `has_index()` tests and state transitions clearer
-
-### Why `skip_tables = TRUE` is not a good "no index" test case
-
-I initially wondered whether loading a table collection with empty tables would
-imply `has_index() == FALSE`. It does not reliably do that.
-
-Observation from local Python check:
-
-- `TableCollection.load(..., skip_tables=True)` can still report `has_index() == TRUE`
-  even when `num_edges == 0`.
-
-So:
-
-- "no rows" does not necessarily mean "no index"
-- `skip_tables=TRUE` is not a robust negative test for `has_index()`
-
-### Best way to test `has_index()` false cases
-
-Add explicit index mutators to R API (matching Python):
-
-- `tc_xptr_build_index()` + `TableCollection$build_index()`
-- `tc_xptr_drop_index()` + `TableCollection$drop_index()`
-
-Then tests become simple and deterministic:
-
-1. Load `tc`
-2. `expect_true(tc$has_index())`
-3. `tc$drop_index()`
-4. `expect_false(tc$has_index())`
-5. `tc$build_index()`
-6. `expect_true(tc$has_index())`
-
-And for `tree_sequence()` behavior:
-
-1. Load `tc`
-2. `tc$drop_index()`
-3. `expect_false(tc$has_index())`
-4. `ts <- tc$tree_sequence()`
-5. Decide/document expected side effect:
-   - Python-consistent target: `tc$has_index()` becomes `TRUE`
-   - Current C-flag-inside-init approach may leave `tc` unchanged
-
-### Design decision to make explicitly (before implementing)
-
-Choose one and document it:
-
-- **Python-consistent behavior (recommended)**:
-  `TableCollection$tree_sequence()` may build indexes on `self` if missing.
-- **Non-mutating conversion behavior**:
-  `TableCollection$tree_sequence()` builds indexes only in the transient treeseq
-  init path and leaves `self` as-is.
-
-The first option is more consistent with tskit Python and easier to reason
-about for users switching between R and Python.
-
-### Minimal next steps when time allows
-
-1. Add `TableCollection$build_index()` / `$drop_index()` (+ `tc_xptr_*` wrappers).
-2. Add focused tests for `has_index()` false/true transitions.
-3. Refactor `TableCollection$tree_sequence()` to Python-style pre-check and
-   `build_index()`.
-4. Add a regression test for `tc$tree_sequence()` behavior after dropping index.
-5. Keep `tc_xptr_to_ts_xptr(..., options)` as low-level C-like API (do not remove).
-
-### Optional later (separate concern)
-
 If needed, consider a Python-style logical argument on the R method for
 mutation-parent computation instead of exposing bitwise flags, e.g.
 `compute_mutation_parents = FALSE`, while still translating to
@@ -172,7 +18,7 @@ extern/tskit/c/examples/multichrom_wright_fisher.c
 
 // [[Rcpp::export]]
 SEXP tc_grow(SEXP tc) {
-  RcppTskit_table_collection_xptr tc_xptr(tc);
+  rtsk_table_collection_t tc_xptr(tc);
   int ret;
   ret = 0;
   // Minimal example: grow the table collection in place by appending one child
@@ -405,9 +251,9 @@ https://clang.llvm.org/extra/clang-tidy/
 echo $(brew --prefix llvm)/bin/clang-tidy
 # /opt/homebrew/opt/llvm/bin/clang-tidy
 export CLANG_TIDY="$(brew --prefix llvm)/bin/clang-tidy"
-./tools/clang-tidy.py src/RcppTskit.cpp
-./RcppTskit/tools/clang-tidy.py RcppTskit/src/test_tsk_abort_stderr.cpp -- -system-headers '-header-filter=.*'   -extra-arg=-Wno-unknown-warning-option
-./tools/clang-tidy.py src/test_tsk_abort_stderr.cpp -- -system-headers '-header-filter=.*'   -extra-arg=-Wno-unknown-warning-option
+./tools/clang_tidy.py src/RcppTskit.cpp
+./RcppTskit/tools/clang_tidy.py RcppTskit/src/test_tsk_abort_stderr.cpp -- -system-headers '-header-filter=.*'   -extra-arg=-Wno-unknown-warning-option
+./tools/clang_tidy.py src/test_tsk_abort_stderr.cpp -- -system-headers '-header-filter=.*'   -extra-arg=-Wno-unknown-warning-option
 ```
 
 or

@@ -23,136 +23,144 @@ tskit_version <- function() {
     .Call(`_RcppTskit_tskit_version`)
 }
 
-ts_xptr_load <- function(file, options = 0L) {
-    .Call(`_RcppTskit_ts_xptr_load`, file, options)
+rtsk_treeseq_load <- function(filename, options = 0L) {
+    .Call(`_RcppTskit_rtsk_treeseq_load`, filename, options)
 }
 
-tc_xptr_load <- function(file, options = 0L) {
-    .Call(`_RcppTskit_tc_xptr_load`, file, options)
+rtsk_table_collection_load <- function(filename, options = 0L) {
+    .Call(`_RcppTskit_rtsk_table_collection_load`, filename, options)
 }
 
-ts_xptr_dump <- function(ts, file, options = 0L) {
-    invisible(.Call(`_RcppTskit_ts_xptr_dump`, ts, file, options))
+rtsk_treeseq_dump <- function(ts, filename, options = 0L) {
+    invisible(.Call(`_RcppTskit_rtsk_treeseq_dump`, ts, filename, options))
 }
 
-tc_xptr_dump <- function(tc, file, options = 0L) {
-    invisible(.Call(`_RcppTskit_tc_xptr_dump`, tc, file, options))
+rtsk_table_collection_dump <- function(tc, filename, options = 0L) {
+    invisible(.Call(`_RcppTskit_rtsk_table_collection_dump`, tc, filename, options))
 }
 
-ts_xptr_to_tc_xptr <- function(ts, options = 0L) {
-    .Call(`_RcppTskit_ts_xptr_to_tc_xptr`, ts, options)
+rtsk_treeseq_copy_tables <- function(ts, options = 0L) {
+    .Call(`_RcppTskit_rtsk_treeseq_copy_tables`, ts, options)
 }
 
-tc_xptr_to_ts_xptr <- function(tc, options = 0L) {
-    .Call(`_RcppTskit_tc_xptr_to_ts_xptr`, tc, options)
+rtsk_treeseq_init <- function(tc, options = 0L) {
+    .Call(`_RcppTskit_rtsk_treeseq_init`, tc, options)
 }
 
-ts_xptr_num_provenances <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_num_provenances`, ts)
+rtsk_treeseq_get_num_provenances <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_num_provenances`, ts)
 }
 
-ts_xptr_num_populations <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_num_populations`, ts)
+rtsk_treeseq_get_num_populations <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_num_populations`, ts)
 }
 
-ts_xptr_num_migrations <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_num_migrations`, ts)
+rtsk_treeseq_get_num_migrations <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_num_migrations`, ts)
 }
 
-ts_xptr_num_individuals <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_num_individuals`, ts)
+rtsk_treeseq_get_num_individuals <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_num_individuals`, ts)
 }
 
-ts_xptr_num_samples <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_num_samples`, ts)
+rtsk_treeseq_get_num_samples <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_num_samples`, ts)
 }
 
-ts_xptr_num_nodes <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_num_nodes`, ts)
+rtsk_treeseq_get_num_nodes <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_num_nodes`, ts)
 }
 
-ts_xptr_num_edges <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_num_edges`, ts)
+rtsk_treeseq_get_num_edges <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_num_edges`, ts)
 }
 
-ts_xptr_num_trees <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_num_trees`, ts)
+rtsk_treeseq_get_num_trees <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_num_trees`, ts)
 }
 
-ts_xptr_num_sites <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_num_sites`, ts)
+rtsk_treeseq_get_num_sites <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_num_sites`, ts)
 }
 
-ts_xptr_num_mutations <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_num_mutations`, ts)
+rtsk_treeseq_get_num_mutations <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_num_mutations`, ts)
 }
 
-ts_xptr_sequence_length <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_sequence_length`, ts)
+rtsk_treeseq_get_sequence_length <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_sequence_length`, ts)
 }
 
-ts_xptr_discrete_genome <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_discrete_genome`, ts)
+rtsk_treeseq_get_discrete_genome <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_discrete_genome`, ts)
 }
 
-ts_xptr_has_reference_sequence <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_has_reference_sequence`, ts)
+rtsk_treeseq_has_reference_sequence <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_has_reference_sequence`, ts)
 }
 
-ts_xptr_time_units <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_time_units`, ts)
+rtsk_treeseq_get_time_units <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_time_units`, ts)
 }
 
-ts_xptr_discrete_time <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_discrete_time`, ts)
+rtsk_treeseq_get_discrete_time <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_discrete_time`, ts)
 }
 
-ts_xptr_min_time <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_min_time`, ts)
+rtsk_treeseq_get_min_time <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_min_time`, ts)
 }
 
-ts_xptr_max_time <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_max_time`, ts)
+rtsk_treeseq_get_max_time <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_max_time`, ts)
 }
 
-ts_xptr_file_uuid <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_file_uuid`, ts)
+rtsk_treeseq_get_file_uuid <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_file_uuid`, ts)
 }
 
-ts_xptr_summary <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_summary`, ts)
+rtsk_treeseq_summary <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_summary`, ts)
 }
 
-ts_xptr_metadata_length <- function(ts) {
-    .Call(`_RcppTskit_ts_xptr_metadata_length`, ts)
+rtsk_treeseq_metadata_length <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_metadata_length`, ts)
 }
 
-tc_xptr_sequence_length <- function(tc) {
-    .Call(`_RcppTskit_tc_xptr_sequence_length`, tc)
+rtsk_table_collection_get_sequence_length <- function(tc) {
+    .Call(`_RcppTskit_rtsk_table_collection_get_sequence_length`, tc)
 }
 
-tc_xptr_has_reference_sequence <- function(tc) {
-    .Call(`_RcppTskit_tc_xptr_has_reference_sequence`, tc)
+rtsk_table_collection_has_reference_sequence <- function(tc) {
+    .Call(`_RcppTskit_rtsk_table_collection_has_reference_sequence`, tc)
 }
 
-tc_xptr_time_units <- function(tc) {
-    .Call(`_RcppTskit_tc_xptr_time_units`, tc)
+rtsk_table_collection_get_time_units <- function(tc) {
+    .Call(`_RcppTskit_rtsk_table_collection_get_time_units`, tc)
 }
 
-tc_xptr_file_uuid <- function(tc) {
-    .Call(`_RcppTskit_tc_xptr_file_uuid`, tc)
+rtsk_table_collection_get_file_uuid <- function(tc) {
+    .Call(`_RcppTskit_rtsk_table_collection_get_file_uuid`, tc)
 }
 
-tc_xptr_has_index <- function(tc) {
-    .Call(`_RcppTskit_tc_xptr_has_index`, tc)
+rtsk_table_collection_has_index <- function(tc, options = 0L) {
+    .Call(`_RcppTskit_rtsk_table_collection_has_index`, tc, options)
 }
 
-tc_xptr_summary <- function(tc) {
-    .Call(`_RcppTskit_tc_xptr_summary`, tc)
+rtsk_table_collection_build_index <- function(tc, options = 0L) {
+    invisible(.Call(`_RcppTskit_rtsk_table_collection_build_index`, tc, options))
 }
 
-tc_xptr_metadata_length <- function(tc) {
-    .Call(`_RcppTskit_tc_xptr_metadata_length`, tc)
+rtsk_table_collection_drop_index <- function(tc, options = 0L) {
+    invisible(.Call(`_RcppTskit_rtsk_table_collection_drop_index`, tc, options))
+}
+
+rtsk_table_collection_summary <- function(tc) {
+    .Call(`_RcppTskit_rtsk_table_collection_summary`, tc)
+}
+
+rtsk_table_collection_metadata_length <- function(tc) {
+    .Call(`_RcppTskit_rtsk_table_collection_metadata_length`, tc)
 }
 
 test_tsk_bug_assert_c <- function() {
@@ -175,11 +183,15 @@ tsk_trace_errors_defined <- function() {
     .Call(`_RcppTskit_tsk_trace_errors_defined`)
 }
 
-test_ts_xptr_to_tc_xptr_forced_error <- function(ts) {
-    .Call(`_RcppTskit_test_ts_xptr_to_tc_xptr_forced_error`, ts)
+test_rtsk_treeseq_copy_tables_forced_error <- function(ts) {
+    .Call(`_RcppTskit_test_rtsk_treeseq_copy_tables_forced_error`, ts)
 }
 
-test_tc_xptr_to_ts_xptr_forced_error <- function(tc) {
-    .Call(`_RcppTskit_test_tc_xptr_to_ts_xptr_forced_error`, tc)
+test_rtsk_treeseq_init_forced_error <- function(tc) {
+    .Call(`_RcppTskit_test_rtsk_treeseq_init_forced_error`, tc)
+}
+
+test_rtsk_table_collection_build_index_forced_error <- function(tc) {
+    invisible(.Call(`_RcppTskit_test_rtsk_table_collection_build_index_forced_error`, tc))
 }
 

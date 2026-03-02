@@ -65,6 +65,28 @@ tc <- tc_load(tc_file)
 tc$has_index()
 
 ## ------------------------------------------------
+## Method `TableCollection$build_index`
+## ------------------------------------------------
+
+tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(tc_file)
+tc$has_index()
+tc$drop_index()
+tc$has_index()
+tc$build_index()
+tc$has_index()
+
+## ------------------------------------------------
+## Method `TableCollection$drop_index`
+## ------------------------------------------------
+
+tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(tc_file)
+tc$has_index()
+tc$drop_index()
+tc$has_index()
+
+## ------------------------------------------------
 ## Method `TableCollection$has_reference_sequence`
 ## ------------------------------------------------
 
@@ -122,7 +144,7 @@ tc
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{pointer}}{external pointer to the table collection}
+\item{\code{xptr}}{external pointer to the table collection}
 }
 \if{html}{\out{</div>}}
 }
@@ -136,6 +158,8 @@ tc
 \item \href{#method-TableCollection-sequence_length}{\code{TableCollection$sequence_length()}}
 \item \href{#method-TableCollection-time_units}{\code{TableCollection$time_units()}}
 \item \href{#method-TableCollection-has_index}{\code{TableCollection$has_index()}}
+\item \href{#method-TableCollection-build_index}{\code{TableCollection$build_index()}}
+\item \href{#method-TableCollection-drop_index}{\code{TableCollection$drop_index()}}
 \item \href{#method-TableCollection-has_reference_sequence}{\code{TableCollection$has_reference_sequence()}}
 \item \href{#method-TableCollection-file_uuid}{\code{TableCollection$file_uuid()}}
 \item \href{#method-TableCollection-r_to_py}{\code{TableCollection$r_to_py()}}
@@ -147,13 +171,13 @@ tc
 \if{html}{\out{<a id="method-TableCollection-new"></a>}}
 \if{latex}{\out{\hypertarget{method-TableCollection-new}{}}}
 \subsection{Method \code{new()}}{
-Create a \code{\link{TableCollection}} from a file or a pointer.
+Create a \code{\link{TableCollection}} from a file or an external pointer.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TableCollection$new(
   file,
   skip_tables = FALSE,
   skip_reference_sequence = FALSE,
-  pointer = NULL
+  xptr = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -167,7 +191,7 @@ Create a \code{\link{TableCollection}} from a file or a pointer.
 \item{\code{skip_reference_sequence}}{logical; if \code{TRUE}, skip loading
 reference genome sequence information.}
 
-\item{\code{pointer}}{an external pointer (\code{externalptr}) to a table collection.}
+\item{\code{xptr}}{an external pointer (\code{externalptr}) to a table collection.}
 }
 \if{html}{\out{</div>}}
 }
@@ -328,6 +352,68 @@ Get whether the table collection has edge indexes.
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{tc_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(tc_file)
+tc$has_index()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-build_index"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-build_index}{}}}
+\subsection{Method \code{build_index()}}{
+Build edge indexes for this table collection.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$build_index()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+See the corresponding Python function at
+  \url{https://tskit.dev/tskit/docs/latest/python-api.html#tskit.TableCollection.build_index}.
+}
+
+\subsection{Returns}{
+No return value; called for side effects.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(tc_file)
+tc$has_index()
+tc$drop_index()
+tc$has_index()
+tc$build_index()
+tc$has_index()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-drop_index"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-drop_index}{}}}
+\subsection{Method \code{drop_index()}}{
+Drop edge indexes for this table collection.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$drop_index()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+See the corresponding Python function at
+  \url{https://tskit.dev/tskit/docs/latest/python-api.html#tskit.TableCollection.drop_index}.
+}
+
+\subsection{Returns}{
+No return value; called for side effects.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{tc_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(tc_file)
+tc$has_index()
+tc$drop_index()
 tc$has_index()
 }
 \if{html}{\out{</div>}}

@@ -38,6 +38,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Commit and push changes
+        working-directory: RcppTskit
         run: |
           git config --local user.name "$GITHUB_ACTOR"
           git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"

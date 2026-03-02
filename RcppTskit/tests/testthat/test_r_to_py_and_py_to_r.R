@@ -15,8 +15,8 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
 
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
   ts_r <- ts_load(ts_file)
-  n <- ts_xptr_summary(ts_r$pointer)
-  m <- ts_xptr_metadata_length(ts_r$pointer)
+  n <- rtsk_treeseq_summary(ts_r$xptr)
+  m <- rtsk_treeseq_metadata_length(ts_r$xptr)
 
   expect_error(
     ts_r$r_to_py(tskit_module = "bla"),
@@ -61,14 +61,14 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
   expect_equal(length(ts_py$tables$mutations$metadata), m$mutations)
 
   expect_error(
-    ts_xptr_r_to_py("not_an_externalptr_object"),
+    rtsk_treeseq_r_to_py("not_an_externalptr_object"),
     regexp = "ts must be an object of externalptr class!"
   )
   expect_error(
-    ts_xptr_r_to_py(ts_r$pointer, tskit_module = "not_a_module"),
+    rtsk_treeseq_r_to_py(ts_r$xptr, tskit_module = "not_a_module"),
     regexp = "object must be a reticulate Python module object!"
   )
-  ts_py <- ts_xptr_r_to_py(ts_r$pointer)
+  ts_py <- rtsk_treeseq_r_to_py(ts_r$xptr)
 
   # Simple comparison of summaries and of the lengths of metadata
   expect_equal(ts_py$num_provenances, n$num_provenances)
@@ -97,7 +97,7 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
   # ---- ts_py_to_r() ----
 
   expect_error(
-    ts_xptr_py_to_r(1L),
+    rtsk_treeseq_py_to_r(1L),
     regexp = "ts must be a reticulate Python object!"
   )
   expect_error(
@@ -105,7 +105,7 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
     regexp = "ts must be a reticulate Python object!"
   )
   expect_error(
-    ts_xptr_py_to_r(ts_r),
+    rtsk_treeseq_py_to_r(ts_r),
     regexp = "ts must be a reticulate Python object!"
   )
   expect_error(
@@ -113,10 +113,10 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
     regexp = "ts must be a reticulate Python object!"
   )
   ts2_py <- ts_py$simplify(samples = c(0L, 1L, 2L, 3L))
-  ts_xptr2_r <- ts_xptr_py_to_r(ts2_py)
+  ts_xptr2_r <- rtsk_treeseq_py_to_r(ts2_py)
   ts2_r <- ts_py_to_r(ts2_py)
-  n2 <- ts_xptr_summary(ts_xptr2_r)
-  m2 <- ts_xptr_metadata_length(ts_xptr2_r)
+  n2 <- rtsk_treeseq_summary(ts_xptr2_r)
+  m2 <- rtsk_treeseq_metadata_length(ts_xptr2_r)
 
   # Simple comparison of summaries and of the lengths of metadata
   expect_equal(ts2_py$num_provenances, n2$num_provenances)
@@ -145,7 +145,7 @@ test_that("ts_r_to_py() and ts_py_to_r() work", {
   # jarl-ignore implicit_assignment:  it's just a test
   tmp <- capture.output(ts2_r_print <- ts2_r$print())
   # jarl-ignore implicit_assignment:  it's just a test
-  tmp <- capture.output(ts_xptr2_r_print <- ts_xptr_print(ts_xptr2_r))
+  tmp <- capture.output(ts_xptr2_r_print <- rtsk_treeseq_print(ts_xptr2_r))
   sel <- ts2_r_print$ts$property == "file_uuid"
   ts2_r_print$ts$value[sel] <- NA_character_
   sel <- ts_xptr2_r_print$ts$property == "file_uuid"
@@ -160,8 +160,8 @@ test_that("tc_r_to_py() and tc_py_to_r() work", {
 
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
   tc_r <- tc_load(ts_file)
-  n <- tc_xptr_summary(tc_r$pointer)
-  m <- tc_xptr_metadata_length(tc_r$pointer)
+  n <- rtsk_table_collection_summary(tc_r$xptr)
+  m <- rtsk_table_collection_metadata_length(tc_r$xptr)
 
   expect_error(
     tc_r$r_to_py(tskit_module = "bla"),
@@ -191,14 +191,14 @@ test_that("tc_r_to_py() and tc_py_to_r() work", {
   expect_equal(length(tc_py$mutations$metadata), m$mutations)
 
   expect_error(
-    tc_xptr_r_to_py("not_an_externalptr_object"),
+    rtsk_table_collection_r_to_py("not_an_externalptr_object"),
     regexp = "tc must be an object of externalptr class!"
   )
   expect_error(
-    tc_xptr_r_to_py(tc_r$pointer, tskit_module = "not_a_module"),
+    rtsk_table_collection_r_to_py(tc_r$xptr, tskit_module = "not_a_module"),
     regexp = "object must be a reticulate Python module object!"
   )
-  tc_py <- tc_xptr_r_to_py(tc_r$pointer)
+  tc_py <- rtsk_table_collection_r_to_py(tc_r$xptr)
 
   # Simple comparison of summaries and of the lengths of metadata
   expect_equal(tc_py$provenances$num_rows, n$num_provenances)
@@ -224,7 +224,7 @@ test_that("tc_r_to_py() and tc_py_to_r() work", {
   # ---- tc_py_to_r() ----
 
   expect_error(
-    tc_xptr_py_to_r(1L),
+    rtsk_table_collection_py_to_r(1L),
     regexp = "tc must be a reticulate Python object!"
   )
   expect_error(
@@ -232,7 +232,7 @@ test_that("tc_r_to_py() and tc_py_to_r() work", {
     regexp = "tc must be a reticulate Python object!"
   )
   expect_error(
-    tc_xptr_py_to_r(tc_r),
+    rtsk_table_collection_py_to_r(tc_r),
     regexp = "tc must be a reticulate Python object!"
   )
   expect_error(
@@ -243,10 +243,10 @@ test_that("tc_r_to_py() and tc_py_to_r() work", {
   tskit <- get_tskit_py()
   ts2_py <- tskit$load(ts_file)$simplify(samples = c(0L, 1L, 2L, 3L))
   tc2_py <- ts2_py$dump_tables()
-  tc_xptr2_r <- tc_xptr_py_to_r(tc2_py)
+  tc_xptr2_r <- rtsk_table_collection_py_to_r(tc2_py)
   tc2_r <- tc_py_to_r(tc2_py)
-  n2 <- tc_xptr_summary(tc_xptr2_r)
-  m2 <- tc_xptr_metadata_length(tc_xptr2_r)
+  n2 <- rtsk_table_collection_summary(tc_xptr2_r)
+  m2 <- rtsk_table_collection_metadata_length(tc_xptr2_r)
 
   # Simple comparison of summaries and of the lengths of metadata
   expect_equal(tc2_py$provenances$num_rows, n2$num_provenances)
@@ -273,7 +273,7 @@ test_that("tc_r_to_py() and tc_py_to_r() work", {
   # jarl-ignore implicit_assignment: it's just a test
   tmp <- capture.output(tc2_r_print <- tc2_r$print())
   # jarl-ignore implicit_assignment: it's just a test
-  tmp <- capture.output(tc_xptr2_r <- tc_xptr_print(tc_xptr2_r))
+  tmp <- capture.output(tc_xptr2_r <- rtsk_table_collection_print(tc_xptr2_r))
   sel <- tc2_r_print$tc$property == "file_uuid"
   tc2_r_print$tc$value[sel] <- NA_character_
   sel <- tc_xptr2_r$tc$property == "file_uuid"
