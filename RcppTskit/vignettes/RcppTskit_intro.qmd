@@ -23,24 +23,31 @@ If you are new to tree sequences and the broader concept of ancestral
 recombination graphs (ARGs),
 see @brandt2024promise, @lewanski2024era, @nielsen2024inference, and @wong2024general.
 Before showing how to use `RcppTskit`,
-we summarise the now extensive tree sequence ecosystem,
-because this has shaped the aim and design of `RcppTskit`.
-We then highlight the aims of `RcppTskit`,
+we highlight the targeted users and
+summarise the now extensive tree sequence ecosystem,
+as this has shaped the aim and design of `RcppTskit`.
+We then describe specific aims of `RcppTskit`,
 describe the implemented data and class model, and
 show four typical use cases.
 
+## Who is `RcppTskit` for?
+
 As summarised below,
 `Python` is the most widely used environment for working with tree sequences.
-Using the `R` package `reticulate` [@ushey2025reticulate]
-<https://rstudio.github.io/reticulate/>,
-most `R` users can and should leverage the large ecosystem of `Python` packages,
-in particular the popular `tskit Python` API
+Most `R` users who want to work with tree sequences
+are advised to start with the `tskit Python` API via
+the `R` package `reticulate` [@ushey2025reticulate]
+<https://rstudio.github.io/reticulate/>.
+See <https://tskit.dev/tutorials/tskitr.html>
+for a tutorial.
+This approach provides access to the most complete and mature API
 [@jeffrey2026population]
-<https://tskit.dev/tskit/docs/stable/python-api.html>.
-With this in mind,
+<https://tskit.dev/tskit/docs/stable/python-api.html>
+and interoperability with other `Python` packages.
+
 `RcppTskit` is primarily geared towards providing `R` access to the `tskit C` API
 [@jeffrey2026population],
-for cases where the `reticulate` option is not optimal;
+for cases where the `reticulate` approach is not optimal;
 for example, high-performance or low-level work with tree sequences.
 As a result, `RcppTskit` currently provides a limited set of functions
 because the `Python` API (and `reticulate`) already covers most needs.
@@ -115,7 +122,8 @@ with comprehensive packages for simulation and analysis.
 There is interest in working with tree sequences in `R`.
 Because we can call `Python` from within `R` using the `reticulate R` package,
 there is no pressing need for a dedicated `R` API for work with tree sequences.
-See <https://tskit.dev/tutorials/tskitr.html> for an example of this approach.
+As noted above, see <https://tskit.dev/tutorials/tskitr.html>
+for an example of this approach.
 This keeps the community focused on the `Python` collection of packages.
 While there are differences between `Python` and `R`,
 many `R` users should be able to follow

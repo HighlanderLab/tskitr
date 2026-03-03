@@ -40,7 +40,7 @@ General: [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-expe
 
 <!-- Row 2 -->
 Release: [![CRAN version](https://www.r-pkg.org/badges/version/RcppTskit)](https://CRAN.R-project.org/package=RcppTskit) <!-- Col-1-End -->
-[![Downloads - total](https://cranlogs.r-pkg.org/badges/grand-total/RcppTskit)](https://cranlogs.r-pkg.org/badges/grand-total/RcppTskit) <!-- Col-2-End -->
+[![Downloads - total](https://cranlogs.r-pkg.org/badges/grand-total/RcppTskit)](https://cranlogs.r-pkg.org/#rpackage) <!-- Col-2-End -->
 [![GitHub version (main)](https://img.shields.io/github/r-package/v/HighlanderLab/RcppTskit/main?filename=RcppTskit%2FDESCRIPTION&label=Github)](https://github.com/HighlanderLab/RcppTskit) <!-- Col-3-End -->
 
 <!-- Row 3 -->
