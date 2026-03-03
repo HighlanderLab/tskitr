@@ -13,6 +13,10 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 
   expect_error(
+    rtsk_treeseq_load(ts_file, options = -1),
+    regexp = "rtsk_treeseq_load does not support negative options"
+  )
+  expect_error(
     rtsk_treeseq_load(ts_file, options = bitwShiftL(1L, 30)),
     regexp = "rtsk_treeseq_load only supports load options"
     # TSK_LOAD_SKIP_TABLES (1 << 0) and TSK_LOAD_SKIP_REFERENCE_SEQUENCE (1 << 1)
@@ -167,70 +171,70 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
   expect_error(rtsk_treeseq_get_num_provenances())
   expect_error(rtsk_treeseq_get_num_provenances(ts))
   n_xptr <- rtsk_treeseq_get_num_provenances(ts_xptr)
-  expect_true(is.integer(n_xptr))
+  expect_true(bit64::is.integer64(n_xptr))
   expect_equal(n_xptr, 2L)
   expect_equal(ts$num_provenances(), 2L)
 
   expect_error(rtsk_treeseq_get_num_populations())
   expect_error(rtsk_treeseq_get_num_populations(ts))
   n_xptr <- rtsk_treeseq_get_num_populations(ts_xptr)
-  expect_true(is.integer(n_xptr))
+  expect_true(bit64::is.integer64(n_xptr))
   expect_equal(n_xptr, 1L)
   expect_equal(ts$num_populations(), 1L)
 
   expect_error(rtsk_treeseq_get_num_migrations())
   expect_error(rtsk_treeseq_get_num_migrations(ts))
   n_xptr <- rtsk_treeseq_get_num_migrations(ts_xptr)
-  expect_true(is.integer(n_xptr))
+  expect_true(bit64::is.integer64(n_xptr))
   expect_equal(n_xptr, 0L)
   expect_equal(ts$num_migrations(), 0L)
 
   expect_error(rtsk_treeseq_get_num_individuals())
   expect_error(rtsk_treeseq_get_num_individuals(ts))
   n_xptr <- rtsk_treeseq_get_num_individuals(ts_xptr)
-  expect_true(is.integer(n_xptr))
+  expect_true(bit64::is.integer64(n_xptr))
   expect_equal(n_xptr, 8L)
   expect_equal(ts$num_individuals(), 8L)
 
   expect_error(rtsk_treeseq_get_num_samples())
   expect_error(rtsk_treeseq_get_num_samples(ts))
   n_xptr <- rtsk_treeseq_get_num_samples(ts_xptr)
-  expect_true(is.integer(n_xptr))
+  expect_true(bit64::is.integer64(n_xptr))
   expect_equal(n_xptr, 16L)
   expect_equal(ts$num_samples(), 16L)
 
   expect_error(rtsk_treeseq_get_num_nodes())
   expect_error(rtsk_treeseq_get_num_nodes(ts))
   n_xptr <- rtsk_treeseq_get_num_nodes(ts_xptr)
-  expect_true(is.integer(n_xptr))
+  expect_true(bit64::is.integer64(n_xptr))
   expect_equal(n_xptr, 39L)
   expect_equal(ts$num_nodes(), 39L)
 
   expect_error(rtsk_treeseq_get_num_edges())
   expect_error(rtsk_treeseq_get_num_edges(ts))
   n_xptr <- rtsk_treeseq_get_num_edges(ts_xptr)
-  expect_true(is.integer(n_xptr))
+  expect_true(bit64::is.integer64(n_xptr))
   expect_equal(n_xptr, 59L)
   expect_equal(ts$num_edges(), 59L)
 
   expect_error(rtsk_treeseq_get_num_trees())
   expect_error(rtsk_treeseq_get_num_trees(ts))
   n_xptr <- rtsk_treeseq_get_num_trees(ts_xptr)
-  expect_true(is.integer(n_xptr))
+  expect_true(bit64::is.integer64(n_xptr))
   expect_equal(n_xptr, 9L)
   expect_equal(ts$num_trees(), 9L)
 
   expect_error(rtsk_treeseq_get_num_sites())
   expect_error(rtsk_treeseq_get_num_sites(ts))
   n_xptr <- rtsk_treeseq_get_num_sites(ts_xptr)
-  expect_true(is.integer(n_xptr))
+  expect_true(bit64::is.integer64(n_xptr))
   expect_equal(n_xptr, 25L)
   expect_equal(ts$num_sites(), 25L)
 
   expect_error(rtsk_treeseq_get_num_mutations())
   expect_error(rtsk_treeseq_get_num_mutations(ts))
   n_xptr <- rtsk_treeseq_get_num_mutations(ts_xptr)
-  expect_true(is.integer(n_xptr))
+  expect_true(bit64::is.integer64(n_xptr))
   expect_equal(n_xptr, 30L)
   expect_equal(ts$num_mutations(), 30L)
 
@@ -431,7 +435,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "has_metadata",
           "file_uuid"
         ),
-        value = c(
+        value = as.character(c(
           16,
           9,
           100,
@@ -443,7 +447,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           6.9619933371908083,
           FALSE,
           test_trees_file_uuid
-        )
+        ))
       ),
       tables = data.frame(
         table = c(
@@ -456,8 +460,8 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "sites",
           "mutations"
         ),
-        number = c(2, 1, 0, 8, 39, 59, 25, 30),
-        has_metadata = c(
+        number = as.character(c(2, 1, 0, 8, 39, 59, 25, 30)),
+        has_metadata = as.character(c(
           NA, # provenances have no metadata
           TRUE,
           FALSE,
@@ -466,7 +470,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           FALSE,
           FALSE,
           FALSE
-        )
+        ))
       )
     )
   )
@@ -494,14 +498,14 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "file_uuid",
           "has_index"
         ),
-        value = c(
+        value = as.character(c(
           100,
           FALSE,
           "generations",
           FALSE,
           test_trees_file_uuid,
           TRUE
-        )
+        ))
       ),
       tables = data.frame(
         table = c(
@@ -514,8 +518,8 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "sites",
           "mutations"
         ),
-        number = c(2, 1, 0, 8, 39, 59, 25, 30),
-        has_metadata = c(
+        number = as.character(c(2, 1, 0, 8, 39, 59, 25, 30)),
+        has_metadata = as.character(c(
           NA, # provenances have no metadata
           TRUE,
           FALSE,
@@ -524,7 +528,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           FALSE,
           FALSE,
           FALSE
-        )
+        ))
       )
     )
   )
@@ -821,7 +825,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "has_metadata",
           "file_uuid"
         ),
-        value = c(
+        value = as.character(c(
           16,
           9,
           100,
@@ -833,7 +837,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           6.9619933371908083,
           TRUE,
           test2_trees_file_uuid
-        )
+        ))
       ),
       tables = data.frame(
         table = c(
@@ -846,8 +850,8 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "sites",
           "mutations"
         ),
-        number = c(2, 1, 0, 9, 39, 59, 25, 30),
-        has_metadata = c(
+        number = as.character(c(2, 1, 0, 9, 39, 59, 25, 30)),
+        has_metadata = as.character(c(
           NA, # provenances have no metadata
           TRUE,
           FALSE,
@@ -856,7 +860,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           FALSE,
           FALSE,
           FALSE
-        )
+        ))
       )
     )
   )
@@ -916,14 +920,14 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "file_uuid",
           "has_index"
         ),
-        value = c(
+        value = as.character(c(
           100,
           FALSE,
           "generations",
           TRUE,
           test2_trees_file_uuid,
           TRUE
-        )
+        ))
       ),
       tables = data.frame(
         table = c(
@@ -936,8 +940,8 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           "sites",
           "mutations"
         ),
-        number = c(2, 1, 0, 9, 39, 59, 25, 30),
-        has_metadata = c(
+        number = as.character(c(2, 1, 0, 9, 39, 59, 25, 30)),
+        has_metadata = as.character(c(
           NA, # provenances have no metadata
           TRUE,
           FALSE,
@@ -946,7 +950,7 @@ test_that("ts/tc_load(), ts/tc_summary*(), and ts/tc_dump(x) work", {
           FALSE,
           FALSE,
           FALSE
-        )
+        ))
       )
     )
   )

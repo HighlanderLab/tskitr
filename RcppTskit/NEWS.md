@@ -39,6 +39,9 @@ and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
   constructor argument from `pointer` to `xptr`.
 - Ensured `TableCollection$tree_sequence()` matches `tskit Python` API:
   it now builds indexes on the `TableCollection`, if indexes are not present.
+- We now use `bit64::integer64` (signed 64 bit integer) instead of `int` aiming
+  to approach `tsk_size_t` in `tskit C` (unsigned 64 bit integer); in low-level
+  `rtsk_treeseq_get_num_*()` wrappers and count/metadata-length fields.
 - TODO
 
 ### Maintenance

@@ -32,6 +32,7 @@ BugReports: https://github.com/HighlanderLab/RcppTskit/issues
 Depends:
     R (>= 4.0.0)
 Imports:
+    bit64,
     methods,
     R6,
     Rcpp (>= 1.0.8),

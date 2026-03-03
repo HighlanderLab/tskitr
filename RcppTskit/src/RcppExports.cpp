@@ -10,6 +10,30 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// test_validate_options
+int test_validate_options(const int options, const int supported);
+RcppExport SEXP _RcppTskit_test_validate_options(SEXP optionsSEXP, SEXP supportedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int >::type options(optionsSEXP);
+    Rcpp::traits::input_parameter< const int >::type supported(supportedSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_validate_options(options, supported));
+    return rcpp_result_gen;
+END_RCPP
+}
+// test_rtsk_wrap_tsk_size_t_as_integer64
+SEXP test_rtsk_wrap_tsk_size_t_as_integer64(const std::string value, const bool force_range_error);
+RcppExport SEXP _RcppTskit_test_rtsk_wrap_tsk_size_t_as_integer64(SEXP valueSEXP, SEXP force_range_errorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string >::type value(valueSEXP);
+    Rcpp::traits::input_parameter< const bool >::type force_range_error(force_range_errorSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_rtsk_wrap_tsk_size_t_as_integer64(value, force_range_error));
+    return rcpp_result_gen;
+END_RCPP
+}
 // kastore_version
 Rcpp::IntegerVector kastore_version();
 RcppExport SEXP _RcppTskit_kastore_version() {
@@ -103,7 +127,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // rtsk_treeseq_get_num_provenances
-int rtsk_treeseq_get_num_provenances(const SEXP ts);
+SEXP rtsk_treeseq_get_num_provenances(const SEXP ts);
 RcppExport SEXP _RcppTskit_rtsk_treeseq_get_num_provenances(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -114,7 +138,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // rtsk_treeseq_get_num_populations
-int rtsk_treeseq_get_num_populations(const SEXP ts);
+SEXP rtsk_treeseq_get_num_populations(const SEXP ts);
 RcppExport SEXP _RcppTskit_rtsk_treeseq_get_num_populations(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -125,7 +149,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // rtsk_treeseq_get_num_migrations
-int rtsk_treeseq_get_num_migrations(const SEXP ts);
+SEXP rtsk_treeseq_get_num_migrations(const SEXP ts);
 RcppExport SEXP _RcppTskit_rtsk_treeseq_get_num_migrations(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -136,7 +160,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // rtsk_treeseq_get_num_individuals
-int rtsk_treeseq_get_num_individuals(const SEXP ts);
+SEXP rtsk_treeseq_get_num_individuals(const SEXP ts);
 RcppExport SEXP _RcppTskit_rtsk_treeseq_get_num_individuals(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -147,7 +171,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // rtsk_treeseq_get_num_samples
-int rtsk_treeseq_get_num_samples(const SEXP ts);
+SEXP rtsk_treeseq_get_num_samples(const SEXP ts);
 RcppExport SEXP _RcppTskit_rtsk_treeseq_get_num_samples(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -158,7 +182,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // rtsk_treeseq_get_num_nodes
-int rtsk_treeseq_get_num_nodes(const SEXP ts);
+SEXP rtsk_treeseq_get_num_nodes(const SEXP ts);
 RcppExport SEXP _RcppTskit_rtsk_treeseq_get_num_nodes(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -169,7 +193,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // rtsk_treeseq_get_num_edges
-int rtsk_treeseq_get_num_edges(const SEXP ts);
+SEXP rtsk_treeseq_get_num_edges(const SEXP ts);
 RcppExport SEXP _RcppTskit_rtsk_treeseq_get_num_edges(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -180,7 +204,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // rtsk_treeseq_get_num_trees
-int rtsk_treeseq_get_num_trees(const SEXP ts);
+SEXP rtsk_treeseq_get_num_trees(const SEXP ts);
 RcppExport SEXP _RcppTskit_rtsk_treeseq_get_num_trees(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -191,7 +215,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // rtsk_treeseq_get_num_sites
-int rtsk_treeseq_get_num_sites(const SEXP ts);
+SEXP rtsk_treeseq_get_num_sites(const SEXP ts);
 RcppExport SEXP _RcppTskit_rtsk_treeseq_get_num_sites(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -202,7 +226,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // rtsk_treeseq_get_num_mutations
-int rtsk_treeseq_get_num_mutations(const SEXP ts);
+SEXP rtsk_treeseq_get_num_mutations(const SEXP ts);
 RcppExport SEXP _RcppTskit_rtsk_treeseq_get_num_mutations(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -502,6 +526,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_RcppTskit_test_validate_options", (DL_FUNC) &_RcppTskit_test_validate_options, 2},
+    {"_RcppTskit_test_rtsk_wrap_tsk_size_t_as_integer64", (DL_FUNC) &_RcppTskit_test_rtsk_wrap_tsk_size_t_as_integer64, 2},
     {"_RcppTskit_kastore_version", (DL_FUNC) &_RcppTskit_kastore_version, 0},
     {"_RcppTskit_tskit_version", (DL_FUNC) &_RcppTskit_tskit_version, 0},
     {"_RcppTskit_rtsk_treeseq_load", (DL_FUNC) &_RcppTskit_rtsk_treeseq_load, 2},

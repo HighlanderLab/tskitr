@@ -19,16 +19,16 @@ void rtsk_table_collection_dump(SEXP tc, std::string &filename,
 SEXP rtsk_treeseq_copy_tables(SEXP ts, int options = 0);
 SEXP rtsk_treeseq_init(SEXP tc, int options = 0);
 
-int rtsk_treeseq_get_num_provenances(SEXP ts);
-int rtsk_treeseq_get_num_populations(SEXP ts);
-int rtsk_treeseq_get_num_migrations(SEXP ts);
-int rtsk_treeseq_get_num_individuals(SEXP ts);
-int rtsk_treeseq_get_num_samples(SEXP ts);
-int rtsk_treeseq_get_num_nodes(SEXP ts);
-int rtsk_treeseq_get_num_edges(SEXP ts);
-int rtsk_treeseq_get_num_trees(SEXP ts);
-int rtsk_treeseq_get_num_sites(SEXP ts);
-int rtsk_treeseq_get_num_mutations(SEXP ts);
+SEXP rtsk_treeseq_get_num_provenances(SEXP ts);
+SEXP rtsk_treeseq_get_num_populations(SEXP ts);
+SEXP rtsk_treeseq_get_num_migrations(SEXP ts);
+SEXP rtsk_treeseq_get_num_individuals(SEXP ts);
+SEXP rtsk_treeseq_get_num_samples(SEXP ts);
+SEXP rtsk_treeseq_get_num_nodes(SEXP ts);
+SEXP rtsk_treeseq_get_num_edges(SEXP ts);
+SEXP rtsk_treeseq_get_num_trees(SEXP ts);
+SEXP rtsk_treeseq_get_num_sites(SEXP ts);
+SEXP rtsk_treeseq_get_num_mutations(SEXP ts);
 double rtsk_treeseq_get_sequence_length(SEXP ts);
 bool rtsk_treeseq_get_discrete_genome(SEXP ts);
 bool rtsk_treeseq_has_reference_sequence(SEXP ts);

@@ -214,7 +214,9 @@ tc_read <- tc_load
 #   compared to Python API, so also not available here.
 # @return A list with two data.frames; the first contains tree sequence
 #   properties and their value; the second contains the numbers of rows in
-#   tables and the length of their metadata.
+#   tables and the length of their metadata. All columns are character as they
+#   contain different types of values. Use specific functions if you want to
+#   obtain non-character values
 # @seealso \code{\link[=TreeSequence]{TreeSequence$print}} on how this
 #   function is used and presented to users.
 # @examples
@@ -243,17 +245,17 @@ rtsk_treeseq_print <- function(ts) {
         "file_uuid"
       ),
       value = c(
-        tmp_summary[["num_samples"]],
-        tmp_summary[["num_trees"]],
-        tmp_summary[["sequence_length"]],
-        tmp_summary[["discrete_genome"]],
-        tmp_summary[["has_reference_sequence"]],
-        tmp_summary[["time_units"]],
-        tmp_summary[["discrete_time"]],
-        tmp_summary[["min_time"]],
-        tmp_summary[["max_time"]],
-        tmp_metadata[["ts"]] > 0,
-        tmp_summary[["file_uuid"]]
+        as.character(tmp_summary[["num_samples"]]),
+        as.character(tmp_summary[["num_trees"]]),
+        as.character(tmp_summary[["sequence_length"]]),
+        as.character(tmp_summary[["discrete_genome"]]),
+        as.character(tmp_summary[["has_reference_sequence"]]),
+        as.character(tmp_summary[["time_units"]]),
+        as.character(tmp_summary[["discrete_time"]]),
+        as.character(tmp_summary[["min_time"]]),
+        as.character(tmp_summary[["max_time"]]),
+        as.character(tmp_metadata[["ts"]] > 0),
+        as.character(tmp_summary[["file_uuid"]])
       )
     ),
     tables = data.frame(
@@ -268,24 +270,24 @@ rtsk_treeseq_print <- function(ts) {
         "mutations"
       ),
       number = c(
-        tmp_summary[["num_provenances"]],
-        tmp_summary[["num_populations"]],
-        tmp_summary[["num_migrations"]],
-        tmp_summary[["num_individuals"]],
-        tmp_summary[["num_nodes"]],
-        tmp_summary[["num_edges"]],
-        tmp_summary[["num_sites"]],
-        tmp_summary[["num_mutations"]]
+        as.character(tmp_summary[["num_provenances"]]),
+        as.character(tmp_summary[["num_populations"]]),
+        as.character(tmp_summary[["num_migrations"]]),
+        as.character(tmp_summary[["num_individuals"]]),
+        as.character(tmp_summary[["num_nodes"]]),
+        as.character(tmp_summary[["num_edges"]]),
+        as.character(tmp_summary[["num_sites"]]),
+        as.character(tmp_summary[["num_mutations"]])
       ),
       has_metadata = c(
         NA, # provenances have no metadata
-        tmp_metadata[["populations"]] > 0,
-        tmp_metadata[["migrations"]] > 0,
-        tmp_metadata[["individuals"]] > 0,
-        tmp_metadata[["nodes"]] > 0,
-        tmp_metadata[["edges"]] > 0,
-        tmp_metadata[["sites"]] > 0,
-        tmp_metadata[["mutations"]] > 0
+        as.character(tmp_metadata[["populations"]] > 0),
+        as.character(tmp_metadata[["migrations"]] > 0),
+        as.character(tmp_metadata[["individuals"]] > 0),
+        as.character(tmp_metadata[["nodes"]] > 0),
+        as.character(tmp_metadata[["edges"]] > 0),
+        as.character(tmp_metadata[["sites"]] > 0),
+        as.character(tmp_metadata[["mutations"]] > 0)
       )
     )
   )
@@ -299,7 +301,9 @@ rtsk_treeseq_print <- function(ts) {
 #   \code{\link{rtsk_table_collection_metadata_length}}.
 # @return A list with two data.frames; the first contains table collection
 #   properties and their value; the second contains the numbers of rows in
-#   tables and the length of their metadata.
+#   tables and the length of their metadata.  All columns are character as they
+#   contain different types of values. Use specific functions if you want to
+#   obtain non-character values
 # @seealso \code{\link[=TableCollection]{TableCollection$print}} on how this
 #   function is used and presented to users.
 # @examples
@@ -323,12 +327,12 @@ rtsk_table_collection_print <- function(tc) {
         "has_index"
       ),
       value = c(
-        tmp_summary[["sequence_length"]],
-        tmp_summary[["has_reference_sequence"]],
-        tmp_summary[["time_units"]],
-        tmp_metadata[["tc"]] > 0,
-        tmp_summary[["file_uuid"]],
-        tmp_summary[["has_index"]]
+        as.character(tmp_summary[["sequence_length"]]),
+        as.character(tmp_summary[["has_reference_sequence"]]),
+        as.character(tmp_summary[["time_units"]]),
+        as.character(tmp_metadata[["tc"]] > 0),
+        as.character(tmp_summary[["file_uuid"]]),
+        as.character(tmp_summary[["has_index"]])
       )
     ),
     tables = data.frame(
@@ -343,24 +347,24 @@ rtsk_table_collection_print <- function(tc) {
         "mutations"
       ),
       number = c(
-        tmp_summary[["num_provenances"]],
-        tmp_summary[["num_populations"]],
-        tmp_summary[["num_migrations"]],
-        tmp_summary[["num_individuals"]],
-        tmp_summary[["num_nodes"]],
-        tmp_summary[["num_edges"]],
-        tmp_summary[["num_sites"]],
-        tmp_summary[["num_mutations"]]
+        as.character(tmp_summary[["num_provenances"]]),
+        as.character(tmp_summary[["num_populations"]]),
+        as.character(tmp_summary[["num_migrations"]]),
+        as.character(tmp_summary[["num_individuals"]]),
+        as.character(tmp_summary[["num_nodes"]]),
+        as.character(tmp_summary[["num_edges"]]),
+        as.character(tmp_summary[["num_sites"]]),
+        as.character(tmp_summary[["num_mutations"]])
       ),
       has_metadata = c(
         NA, # provenances have no metadata
-        tmp_metadata[["populations"]] > 0,
-        tmp_metadata[["migrations"]] > 0,
-        tmp_metadata[["individuals"]] > 0,
-        tmp_metadata[["nodes"]] > 0,
-        tmp_metadata[["edges"]] > 0,
-        tmp_metadata[["sites"]] > 0,
-        tmp_metadata[["mutations"]] > 0
+        as.character(tmp_metadata[["populations"]] > 0),
+        as.character(tmp_metadata[["migrations"]] > 0),
+        as.character(tmp_metadata[["individuals"]] > 0),
+        as.character(tmp_metadata[["nodes"]] > 0),
+        as.character(tmp_metadata[["edges"]] > 0),
+        as.character(tmp_metadata[["sites"]] > 0),
+        as.character(tmp_metadata[["mutations"]] > 0)
       )
     )
   )

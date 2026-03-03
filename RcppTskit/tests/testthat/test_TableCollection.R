@@ -53,6 +53,10 @@ test_that("TableCollection and TreeSequence round-trip works", {
   supported_copy_option <- bitwShiftL(1L, 0)
   supported_init_options <- bitwOr(bitwShiftL(1L, 0), bitwShiftL(1L, 1))
   expect_error(
+    rtsk_treeseq_copy_tables(ts_xptr, options = -1),
+    regexp = "rtsk_treeseq_copy_tables does not support negative options"
+  )
+  expect_error(
     rtsk_treeseq_copy_tables(ts_xptr, options = bitwShiftL(1L, 30)),
     regexp = "does not support TSK_NO_INIT"
   )
@@ -82,7 +86,14 @@ test_that("TableCollection and TreeSequence round-trip works", {
           "file_uuid",
           "has_index"
         ),
-        value = c(100, FALSE, "generations", FALSE, NA_character_, TRUE)
+        value = as.character(c(
+          100,
+          FALSE,
+          "generations",
+          FALSE,
+          NA_character_,
+          TRUE
+        ))
       ),
       tables = data.frame(
         table = c(
@@ -95,8 +106,8 @@ test_that("TableCollection and TreeSequence round-trip works", {
           "sites",
           "mutations"
         ),
-        number = c(2, 1, 0, 8, 39, 59, 25, 30),
-        has_metadata = c(
+        number = as.character(c(2, 1, 0, 8, 39, 59, 25, 30)),
+        has_metadata = as.character(c(
           NA, # provenances have no metadata
           TRUE,
           FALSE,
@@ -105,9 +116,13 @@ test_that("TableCollection and TreeSequence round-trip works", {
           FALSE,
           FALSE,
           FALSE
-        )
+        ))
       )
     )
+  )
+  expect_error(
+    rtsk_treeseq_init(tc_xptr, options = -1),
+    regexp = "rtsk_treeseq_init does not support negative options"
   )
   expect_error(
     rtsk_treeseq_init(tc_xptr, options = bitwShiftL(1L, 28)),
@@ -154,7 +169,14 @@ test_that("TableCollection and TreeSequence round-trip works", {
           "file_uuid",
           "has_index"
         ),
-        value = c(100, FALSE, "generations", FALSE, NA_character_, TRUE)
+        value = as.character(c(
+          100,
+          FALSE,
+          "generations",
+          FALSE,
+          NA_character_,
+          TRUE
+        ))
       ),
       tables = data.frame(
         table = c(
@@ -167,8 +189,8 @@ test_that("TableCollection and TreeSequence round-trip works", {
           "sites",
           "mutations"
         ),
-        number = c(2, 1, 0, 8, 39, 59, 25, 30),
-        has_metadata = c(
+        number = as.character(c(2, 1, 0, 8, 39, 59, 25, 30)),
+        has_metadata = as.character(c(
           NA, # provenances have no metadata
           TRUE,
           FALSE,
@@ -177,7 +199,7 @@ test_that("TableCollection and TreeSequence round-trip works", {
           FALSE,
           FALSE,
           FALSE
-        )
+        ))
       )
     )
   )

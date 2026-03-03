@@ -20,6 +20,7 @@
 #' @keywords internal
 #'
 #' @useDynLib RcppTskit, .registration = TRUE
+#' @importFrom bit64 as.integer64 is.integer64
 #' @importFrom methods is
 #' @importFrom R6 R6Class
 #' @importFrom Rcpp cppFunction registerPlugin

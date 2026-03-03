@@ -4,6 +4,9 @@
 // they are synced!
 #define RCPPTSKIT_IMPL
 #include <RcppTskit.hpp>
+#include <cstdint>
+#include <exception>
+#include <limits>
 
 namespace {
 // namespace to keep the contents local to this file
@@ -25,6 +28,7 @@ constexpr tsk_flags_t kTreeseqInitSupportedFlags =
 //   The \code{rtsk_treeseq_load} and \code{rtsk_table_collection_load} allocate
 //   objects, so we can't work with \code{TSK_NO_INIT}
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.TSK_NO_INIT}.
+// @return Validated flags as bitwise options.
 tsk_flags_t validate_load_options(const int options, const char *caller) {
   if (options < 0) {
     Rcpp::stop("%s does not support negative options", caller);
@@ -52,6 +56,7 @@ tsk_flags_t validate_load_options(const int options, const char *caller) {
 //   The \code{rtsk_treeseq_copy_tables} allocates table collection, so
 //   we can't work with \code{TSK_NO_INIT}
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.TSK_NO_INIT}.
+// @return Validated flags as bitwise options.
 tsk_flags_t validate_copy_tables_options(const int options,
                                          const char *caller) {
   if (options < 0) {
@@ -83,6 +88,7 @@ tsk_flags_t validate_copy_tables_options(const int options,
 //   \code{malloc()/free()}, while this wrapper manages that outer struct with
 //   C++ \code{new()/delete()}.
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.TSK_TAKE_OWNERSHIP}.
+// @return Validated flags as bitwise options.
 tsk_flags_t validate_treeseq_init_options(const int options,
                                           const char *caller) {
   if (options < 0) {
@@ -112,6 +118,7 @@ tsk_flags_t validate_treeseq_init_options(const int options,
 //   and
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_table_collection_dump},
 //   which currently expects \code{0}.
+// @return Validated flags as bitwise options.
 tsk_flags_t validate_options(const int options, const tsk_flags_t supported,
                              const char *caller) {
   if (options < 0) {
@@ -130,7 +137,77 @@ tsk_flags_t validate_options(const int options, const tsk_flags_t supported,
   return flags;
 }
 
+constexpr tsk_size_t kMaxBit64Integer64 =
+    static_cast<tsk_size_t>(std::numeric_limits<int64_t>::max());
+
+// INTERNAL
+// @title Wrap \code{C tsk_size_t / uint64_t} to \code{R bit64::integer64}
+// @param value \code{C tsk_size_t / uint64_t} value
+// @param caller function name
+// @details See
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_size_t},
+//   an unsigned 64 bit integer with range from 0 to 2^64 - 1
+//   (that is, 0 to 18,446,744,073,709,551,615).
+//   On the other hand, the R bit64::integer64 is
+//   a signed 64 bit integer with range from -2^63 to 2^63 - 1
+//   (that is, -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807)
+// @return \code{R bit64::integer64} object.
+SEXP rtsk_wrap_tsk_size_t_as_integer64(const tsk_size_t value,
+                                       const char *caller) {
+  const std::string value_str =
+      std::to_string(static_cast<unsigned long long>(value));
+  if (value > kMaxBit64Integer64) {
+    const std::string max_str =
+        std::to_string(static_cast<unsigned long long>(kMaxBit64Integer64));
+    Rcpp::stop("%s returned tsk_size_t value %s, which exceeds "
+               "bit64::integer64 maximum %s",
+               caller, value_str.c_str(), max_str.c_str());
+  }
+  static Rcpp::Function as_integer64 =
+      Rcpp::Environment::namespace_env("bit64")["as.integer64"];
+  return as_integer64(value_str);
+}
+
 } // namespace
+
+// TEST-ONLY
+// @title Test helper for validating tskit flags
+// @param options integer options
+// @param supported integer bitmask for supported options
+// @return Validated flags as integer.
+// [[Rcpp::export]]
+int test_validate_options(const int options, const int supported) {
+  const tsk_flags_t out = validate_options(
+      options, static_cast<tsk_flags_t>(supported), "test_validate_options");
+  return static_cast<int>(out);
+}
+
+// TEST-ONLY
+// @title Test helper for integer64 wrapping of \code{tsk_size_t}
+// @param value character representation of unsigned integer
+// @param force_range_error logical flag for testing range-check branch
+// @return \code{R bit64::integer64} object.
+// [[Rcpp::export]]
+SEXP test_rtsk_wrap_tsk_size_t_as_integer64(
+    const std::string value, const bool force_range_error = false) {
+  unsigned long long parsed = 0;
+  std::size_t parsed_chars = 0;
+  try {
+    parsed = std::stoull(value, &parsed_chars, 10);
+  } catch (const std::exception &) {
+    Rcpp::stop("value must be a valid base-10 unsigned integer string");
+  }
+  if (parsed_chars != value.size()) {
+    Rcpp::stop("value must be a valid base-10 unsigned integer string");
+  }
+  const tsk_size_t tsk_value = static_cast<tsk_size_t>(parsed);
+  if (force_range_error ||
+      static_cast<unsigned long long>(tsk_value) != parsed) {
+    Rcpp::stop("value is out of range for tsk_size_t");
+  }
+  return rtsk_wrap_tsk_size_t_as_integer64(
+      tsk_value, "test_rtsk_wrap_tsk_size_t_as_integer64");
+}
 
 // PUBLIC
 //' @title Report the version of installed kastore C API
@@ -421,36 +498,44 @@ SEXP rtsk_treeseq_init(const SEXP tc, const int options = 0) {
 // @describeIn rtsk_treeseq_summary Get the number of provenances in a tree
 // sequence
 // [[Rcpp::export]]
-int rtsk_treeseq_get_num_provenances(const SEXP ts) {
+SEXP rtsk_treeseq_get_num_provenances(const SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
-  return static_cast<int>(tsk_treeseq_get_num_provenances(ts_xptr));
+  return rtsk_wrap_tsk_size_t_as_integer64(
+      tsk_treeseq_get_num_provenances(ts_xptr),
+      "rtsk_treeseq_get_num_provenances");
 }
 
 // PUBLIC, wrapper for tsk_treeseq_get_num_populations
 // @describeIn rtsk_treeseq_summary Get the number of populations in a tree
 // sequence
 // [[Rcpp::export]]
-int rtsk_treeseq_get_num_populations(const SEXP ts) {
+SEXP rtsk_treeseq_get_num_populations(const SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
-  return static_cast<int>(tsk_treeseq_get_num_populations(ts_xptr));
+  return rtsk_wrap_tsk_size_t_as_integer64(
+      tsk_treeseq_get_num_populations(ts_xptr),
+      "rtsk_treeseq_get_num_populations");
 }
 
 // PUBLIC, wrapper for tsk_treeseq_get_num_migrations
 // @describeIn rtsk_treeseq_summary Get the number of migrations in a tree
 // sequence
 // [[Rcpp::export]]
-int rtsk_treeseq_get_num_migrations(const SEXP ts) {
+SEXP rtsk_treeseq_get_num_migrations(const SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
-  return static_cast<int>(tsk_treeseq_get_num_migrations(ts_xptr));
+  return rtsk_wrap_tsk_size_t_as_integer64(
+      tsk_treeseq_get_num_migrations(ts_xptr),
+      "rtsk_treeseq_get_num_migrations");
 }
 
 // PUBLIC, wrapper for tsk_treeseq_get_num_individuals
 // @describeIn rtsk_treeseq_summary Get the number of individuals in a tree
 // sequence
 // [[Rcpp::export]]
-int rtsk_treeseq_get_num_individuals(const SEXP ts) {
+SEXP rtsk_treeseq_get_num_individuals(const SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
-  return static_cast<int>(tsk_treeseq_get_num_individuals(ts_xptr));
+  return rtsk_wrap_tsk_size_t_as_integer64(
+      tsk_treeseq_get_num_individuals(ts_xptr),
+      "rtsk_treeseq_get_num_individuals");
 }
 
 // PUBLIC, wrapper for tsk_treeseq_get_num_samples
@@ -458,50 +543,56 @@ int rtsk_treeseq_get_num_individuals(const SEXP ts) {
 // tree
 //   sequence
 // [[Rcpp::export]]
-int rtsk_treeseq_get_num_samples(const SEXP ts) {
+SEXP rtsk_treeseq_get_num_samples(const SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
-  return static_cast<int>(tsk_treeseq_get_num_samples(ts_xptr));
+  return rtsk_wrap_tsk_size_t_as_integer64(tsk_treeseq_get_num_samples(ts_xptr),
+                                           "rtsk_treeseq_get_num_samples");
 }
 
 // PUBLIC, wrapper for tsk_treeseq_get_num_nodes
 // @describeIn rtsk_treeseq_summary Get the number of nodes in a tree sequence
 // [[Rcpp::export]]
-int rtsk_treeseq_get_num_nodes(const SEXP ts) {
+SEXP rtsk_treeseq_get_num_nodes(const SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
-  return static_cast<int>(tsk_treeseq_get_num_nodes(ts_xptr));
+  return rtsk_wrap_tsk_size_t_as_integer64(tsk_treeseq_get_num_nodes(ts_xptr),
+                                           "rtsk_treeseq_get_num_nodes");
 }
 
 // PUBLIC, wrapper for tsk_treeseq_get_num_edges
 // @describeIn rtsk_treeseq_summary Get the number of edges in a tree sequence
 // [[Rcpp::export]]
-int rtsk_treeseq_get_num_edges(const SEXP ts) {
+SEXP rtsk_treeseq_get_num_edges(const SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
-  return static_cast<int>(tsk_treeseq_get_num_edges(ts_xptr));
+  return rtsk_wrap_tsk_size_t_as_integer64(tsk_treeseq_get_num_edges(ts_xptr),
+                                           "rtsk_treeseq_get_num_edges");
 }
 
 // PUBLIC, wrapper for tsk_treeseq_get_num_trees
 // @describeIn rtsk_treeseq_summary Get the number of trees in a tree sequence
 // [[Rcpp::export]]
-int rtsk_treeseq_get_num_trees(const SEXP ts) {
+SEXP rtsk_treeseq_get_num_trees(const SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
-  return static_cast<int>(tsk_treeseq_get_num_trees(ts_xptr));
+  return rtsk_wrap_tsk_size_t_as_integer64(tsk_treeseq_get_num_trees(ts_xptr),
+                                           "rtsk_treeseq_get_num_trees");
 }
 
 // PUBLIC, wrapper for tsk_treeseq_get_num_sites
 // @describeIn rtsk_treeseq_summary Get the number of sites in a tree sequence
 // [[Rcpp::export]]
-int rtsk_treeseq_get_num_sites(const SEXP ts) {
+SEXP rtsk_treeseq_get_num_sites(const SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
-  return static_cast<int>(tsk_treeseq_get_num_sites(ts_xptr));
+  return rtsk_wrap_tsk_size_t_as_integer64(tsk_treeseq_get_num_sites(ts_xptr),
+                                           "rtsk_treeseq_get_num_sites");
 }
 
 // PUBLIC, wrapper for tsk_treeseq_get_num_mutations
 // @describeIn rtsk_treeseq_summary Get the number of mutations in a tree
 // sequence
 // [[Rcpp::export]]
-int rtsk_treeseq_get_num_mutations(const SEXP ts) {
+SEXP rtsk_treeseq_get_num_mutations(const SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
-  return static_cast<int>(tsk_treeseq_get_num_mutations(ts_xptr));
+  return rtsk_wrap_tsk_size_t_as_integer64(
+      tsk_treeseq_get_num_mutations(ts_xptr), "rtsk_treeseq_get_num_mutations");
 }
 
 // PUBLIC, wrapper for tsk_treeseq_get_sequence_length
@@ -615,7 +706,9 @@ Rcpp::String rtsk_treeseq_get_file_uuid(const SEXP ts) {
 // \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_get_file_uuid},
 // @return \code{rtsk_treeseq_summary} returns a named list with numbers and
 //   values, while functions \code{rtsk_treeseq_*} return the number or value
-//   for each item.
+//   for each item. Count-like values are returned as \code{R bit64::integer64}
+//   to approach range in \code{C tsk_size_t / uint64_t}
+//   (see \code{rtsk_wrap_tsk_size_t_as_integer64} for more details).
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // ts_xptr <- RcppTskit:::rtsk_treeseq_load(ts_file)
@@ -643,16 +736,36 @@ Rcpp::String rtsk_treeseq_get_file_uuid(const SEXP ts) {
 Rcpp::List rtsk_treeseq_summary(const SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
   return Rcpp::List::create(
-      Rcpp::_["num_provenances"] = tsk_treeseq_get_num_provenances(ts_xptr),
-      Rcpp::_["num_populations"] = tsk_treeseq_get_num_populations(ts_xptr),
-      Rcpp::_["num_migrations"] = tsk_treeseq_get_num_migrations(ts_xptr),
-      Rcpp::_["num_individuals"] = tsk_treeseq_get_num_individuals(ts_xptr),
-      Rcpp::_["num_samples"] = tsk_treeseq_get_num_samples(ts_xptr),
-      Rcpp::_["num_nodes"] = tsk_treeseq_get_num_nodes(ts_xptr),
-      Rcpp::_["num_edges"] = tsk_treeseq_get_num_edges(ts_xptr),
-      Rcpp::_["num_trees"] = tsk_treeseq_get_num_trees(ts_xptr),
-      Rcpp::_["num_sites"] = tsk_treeseq_get_num_sites(ts_xptr),
-      Rcpp::_["num_mutations"] = tsk_treeseq_get_num_mutations(ts_xptr),
+      Rcpp::_["num_provenances"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tsk_treeseq_get_num_provenances(ts_xptr),
+          "rtsk_treeseq_summary/tsk_treeseq_get_num_provenances"),
+      Rcpp::_["num_populations"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tsk_treeseq_get_num_populations(ts_xptr),
+          "rtsk_treeseq_summary/tsk_treeseq_get_num_populations"),
+      Rcpp::_["num_migrations"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tsk_treeseq_get_num_migrations(ts_xptr),
+          "rtsk_treeseq_summary/tsk_treeseq_get_num_migrations"),
+      Rcpp::_["num_individuals"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tsk_treeseq_get_num_individuals(ts_xptr),
+          "rtsk_treeseq_summary/tsk_treeseq_get_num_individuals"),
+      Rcpp::_["num_samples"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tsk_treeseq_get_num_samples(ts_xptr),
+          "rtsk_treeseq_summary/tsk_treeseq_get_num_samples"),
+      Rcpp::_["num_nodes"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tsk_treeseq_get_num_nodes(ts_xptr),
+          "rtsk_treeseq_summary/tsk_treeseq_get_num_nodes"),
+      Rcpp::_["num_edges"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tsk_treeseq_get_num_edges(ts_xptr),
+          "rtsk_treeseq_summary/tsk_treeseq_get_num_edges"),
+      Rcpp::_["num_trees"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tsk_treeseq_get_num_trees(ts_xptr),
+          "rtsk_treeseq_summary/tsk_treeseq_get_num_trees"),
+      Rcpp::_["num_sites"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tsk_treeseq_get_num_sites(ts_xptr),
+          "rtsk_treeseq_summary/tsk_treeseq_get_num_sites"),
+      Rcpp::_["num_mutations"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tsk_treeseq_get_num_mutations(ts_xptr),
+          "rtsk_treeseq_summary/tsk_treeseq_get_num_mutations"),
       Rcpp::_["sequence_length"] = tsk_treeseq_get_sequence_length(ts_xptr),
       Rcpp::_["discrete_genome"] = tsk_treeseq_get_discrete_genome(ts_xptr),
       Rcpp::_["has_reference_sequence"] =
@@ -673,7 +786,8 @@ Rcpp::List rtsk_treeseq_summary(const SEXP ts) {
 //   \code{ts->tables->metadata_length} and
 //   \code{ts->tables->x->metadata_length} on each table \code{x}, e.g.,
 // \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_population_table_t.metadata_length}.
-// @return A named list with the length of metadata.
+// @return A named list with the length of metadata as \code{R bit64::integer64}
+//   values.
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // ts_xptr <- RcppTskit:::rtsk_treeseq_load(ts_file)
@@ -688,18 +802,30 @@ Rcpp::List rtsk_treeseq_metadata_length(const SEXP ts) {
       // Rcpp::_["ts"] =
       //    static_cast<int>(tsk_treeseq_get_metadata_length(ts_xptr)),
       // hence we just use that here
-      Rcpp::_["ts"] = static_cast<int>(tables->metadata_length),
-      Rcpp::_["populations"] =
-          static_cast<int>(tables->populations.metadata_length),
-      Rcpp::_["migrations"] =
-          static_cast<int>(tables->migrations.metadata_length),
-      Rcpp::_["individuals"] =
-          static_cast<int>(tables->individuals.metadata_length),
-      Rcpp::_["nodes"] = static_cast<int>(tables->nodes.metadata_length),
-      Rcpp::_["edges"] = static_cast<int>(tables->edges.metadata_length),
-      Rcpp::_["sites"] = static_cast<int>(tables->sites.metadata_length),
-      Rcpp::_["mutations"] =
-          static_cast<int>(tables->mutations.metadata_length));
+      Rcpp::_["ts"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->metadata_length,
+          "rtsk_treeseq_metadata_length/tables->metadata_length"),
+      Rcpp::_["populations"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->populations.metadata_length,
+          "rtsk_treeseq_metadata_length/tables->populations.metadata_length"),
+      Rcpp::_["migrations"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->migrations.metadata_length,
+          "rtsk_treeseq_metadata_length/tables->migrations.metadata_length"),
+      Rcpp::_["individuals"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->individuals.metadata_length,
+          "rtsk_treeseq_metadata_length/tables->individuals.metadata_length"),
+      Rcpp::_["nodes"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->nodes.metadata_length,
+          "rtsk_treeseq_metadata_length/tables->nodes.metadata_length"),
+      Rcpp::_["edges"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->edges.metadata_length,
+          "rtsk_treeseq_metadata_length/tables->edges.metadata_length"),
+      Rcpp::_["sites"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->sites.metadata_length,
+          "rtsk_treeseq_metadata_length/tables->sites.metadata_length"),
+      Rcpp::_["mutations"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->mutations.metadata_length,
+          "rtsk_treeseq_metadata_length/tables->mutations.metadata_length"));
 }
 
 // INTERNAL (for now)
@@ -905,7 +1031,9 @@ void rtsk_table_collection_drop_index(const SEXP tc, const int options = 0) {
 // \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_table_collection_has_index}
 // @return \code{rtsk_table_collection_summary} returns a named list with
 //   numbers and values, while functions \code{rtsk_table_collection_*} return
-//   the number or value for each item.
+//   the number or value for each item. Count-like values are returned as
+//   \code{R bit64::integer64} to approach range in \code{C tsk_size_t /
+//   uint64_t} (see \code{rtsk_wrap_tsk_size_t_as_integer64} for more details).
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
@@ -920,14 +1048,30 @@ Rcpp::List rtsk_table_collection_summary(const SEXP tc) {
   rtsk_table_collection_t tc_xptr(tc);
   const tsk_table_collection_t *tables = tc_xptr;
   return Rcpp::List::create(
-      Rcpp::_["num_provenances"] = tables->provenances.num_rows,
-      Rcpp::_["num_populations"] = tables->populations.num_rows,
-      Rcpp::_["num_migrations"] = tables->migrations.num_rows,
-      Rcpp::_["num_individuals"] = tables->individuals.num_rows,
-      Rcpp::_["num_nodes"] = tables->nodes.num_rows,
-      Rcpp::_["num_edges"] = tables->edges.num_rows,
-      Rcpp::_["num_sites"] = tables->sites.num_rows,
-      Rcpp::_["num_mutations"] = tables->mutations.num_rows,
+      Rcpp::_["num_provenances"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->provenances.num_rows,
+          "rtsk_table_collection_summary/tables->provenances.num_rows"),
+      Rcpp::_["num_populations"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->populations.num_rows,
+          "rtsk_table_collection_summary/tables->populations.num_rows"),
+      Rcpp::_["num_migrations"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->migrations.num_rows,
+          "rtsk_table_collection_summary/tables->migrations.num_rows"),
+      Rcpp::_["num_individuals"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->individuals.num_rows,
+          "rtsk_table_collection_summary/tables->individuals.num_rows"),
+      Rcpp::_["num_nodes"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->nodes.num_rows,
+          "rtsk_table_collection_summary/tables->nodes.num_rows"),
+      Rcpp::_["num_edges"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->edges.num_rows,
+          "rtsk_table_collection_summary/tables->edges.num_rows"),
+      Rcpp::_["num_sites"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->sites.num_rows,
+          "rtsk_table_collection_summary/tables->sites.num_rows"),
+      Rcpp::_["num_mutations"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tables->mutations.num_rows,
+          "rtsk_table_collection_summary/tables->mutations.num_rows"),
       Rcpp::_["sequence_length"] = tables->sequence_length,
       Rcpp::_["has_reference_sequence"] =
           rtsk_table_collection_has_reference_sequence(tc),
@@ -940,7 +1084,9 @@ Rcpp::List rtsk_table_collection_summary(const SEXP tc) {
 // @title Get the length of metadata in a table collection and its tables
 // @param tc an external pointer to table collection as a
 //   \code{tsk_table_collection_t} object.
-// @return A named list with the length of metadata.
+// @return A named list with the length of metadata as \code{R bit64::integer64}
+//   values to approach range in \code{C tsk_size_t / uint64_t}
+//   (see \code{rtsk_wrap_tsk_size_t_as_integer64} for more details).
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
@@ -951,18 +1097,37 @@ Rcpp::List rtsk_table_collection_summary(const SEXP tc) {
 Rcpp::List rtsk_table_collection_metadata_length(const SEXP tc) {
   rtsk_table_collection_t tc_xptr(tc);
   return Rcpp::List::create(
-      Rcpp::_["tc"] = static_cast<int>(tc_xptr->metadata_length),
-      Rcpp::_["populations"] =
-          static_cast<int>(tc_xptr->populations.metadata_length),
-      Rcpp::_["migrations"] =
-          static_cast<int>(tc_xptr->migrations.metadata_length),
-      Rcpp::_["individuals"] =
-          static_cast<int>(tc_xptr->individuals.metadata_length),
-      Rcpp::_["nodes"] = static_cast<int>(tc_xptr->nodes.metadata_length),
-      Rcpp::_["edges"] = static_cast<int>(tc_xptr->edges.metadata_length),
-      Rcpp::_["sites"] = static_cast<int>(tc_xptr->sites.metadata_length),
-      Rcpp::_["mutations"] =
-          static_cast<int>(tc_xptr->mutations.metadata_length));
+      Rcpp::_["tc"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tc_xptr->metadata_length, "rtsk_table_collection_metadata_length/"
+                                    "tc_xptr->metadata_length"),
+      Rcpp::_["populations"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tc_xptr->populations.metadata_length,
+          "rtsk_table_collection_metadata_length/"
+          "tc_xptr->populations.metadata_length"),
+      Rcpp::_["migrations"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tc_xptr->migrations.metadata_length,
+          "rtsk_table_collection_metadata_length/"
+          "tc_xptr->migrations.metadata_length"),
+      Rcpp::_["individuals"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tc_xptr->individuals.metadata_length,
+          "rtsk_table_collection_metadata_length/"
+          "tc_xptr->individuals.metadata_length"),
+      Rcpp::_["nodes"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tc_xptr->nodes.metadata_length,
+          "rtsk_table_collection_metadata_length/"
+          "tc_xptr->nodes.metadata_length"),
+      Rcpp::_["edges"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tc_xptr->edges.metadata_length,
+          "rtsk_table_collection_metadata_length/"
+          "tc_xptr->edges.metadata_length"),
+      Rcpp::_["sites"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tc_xptr->sites.metadata_length,
+          "rtsk_table_collection_metadata_length/"
+          "tc_xptr->sites.metadata_length"),
+      Rcpp::_["mutations"] = rtsk_wrap_tsk_size_t_as_integer64(
+          tc_xptr->mutations.metadata_length,
+          "rtsk_table_collection_metadata_length/"
+          "tc_xptr->mutations.metadata_length"));
 }
 
 // TODO: Metadata notes if we do anything with metadata #36
