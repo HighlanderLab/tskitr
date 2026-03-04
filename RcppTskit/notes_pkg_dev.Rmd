@@ -93,8 +93,25 @@ PATCH version when you make backward compatible bug fixes
 ## Prepare for release
 
 ```
-use_upkeep_issue(year = NULL) # https://usethis.r-lib.org/reference/use_upkeep_issue.html
-use_release_issue(version = NULL) # https://usethis.r-lib.org/reference/use_release_issue.html
+
+setwd("ggs_path_to/RcppTskit/RcppTskit/RcppTskit")
+# yes, RcppTskit/RcppTskit/RcppTskit is correct! ;)
+getwd()
+dir()
+
+# https://usethis.r-lib.org/reference/use_upkeep_issue.html
+use_upkeep_issue(year = NULL)
+# ... this did not work for me
+usethis::with_project(".", usethis::use_upkeep_issue(year = NULL))
+# ... this did     work for me
+usethis::with_project(".", usethis::use_upkeep_issue(year = NULL), force=TRUE)
+
+# https://usethis.r-lib.org/reference/use_release_issue.html
+# ... this did not work for me
+usethis::with_project(".", usethis::use_release_issue("0.3.0"))
+# ... this did     work for me
+usethis::with_project(".", usethis::use_release_issue("0.3.0"), force=TRUE)
+
 # just follow tasks in there;)
 ```
 
