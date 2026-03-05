@@ -96,7 +96,7 @@ SEXP test_rtsk_treeseq_init_forced_error(const SEXP tc) {
 
 // TEST-ONLY
 // @title Force tskit-level error path in
-// \code{rtsk_table_collection_build_index}
+//   \code{rtsk_table_collection_build_index}
 // @param tc an external pointer to table collection as a
 //   \code{tsk_table_collection_t} object.
 // @return No return value; called for side effects - testing.
@@ -118,6 +118,34 @@ void test_rtsk_table_collection_build_index_forced_error(const SEXP tc) {
     // # nocov end
   } catch (...) {
     edges.parent[0] = saved_parent;
+    throw;
+  }
+}
+
+// TEST-ONLY
+// @title Force tskit-level error path in \code{rtsk_individual_table_add_row}
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @return No return value; called for side effects - testing.
+// [[Rcpp::export]]
+void test_rtsk_individual_table_add_row_forced_error(const SEXP tc) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_individual_table_t &individuals = tc_xptr->individuals;
+  tsk_size_t saved_max_rows = individuals.max_rows;
+  tsk_size_t saved_max_rows_increment = individuals.max_rows_increment;
+  individuals.max_rows = 1;
+  individuals.max_rows_increment = static_cast<tsk_size_t>(TSK_MAX_ID) + 1;
+  try {
+    (void)rtsk_individual_table_add_row(tc);
+    // Lines below not hit by tests because rtsk_individual_table_add_row()
+    // throws error # nocov start
+    individuals.max_rows = saved_max_rows;
+    individuals.max_rows_increment = saved_max_rows_increment;
+    return;
+    // # nocov end
+  } catch (...) {
+    individuals.max_rows = saved_max_rows;
+    individuals.max_rows_increment = saved_max_rows_increment;
     throw;
   }
 }

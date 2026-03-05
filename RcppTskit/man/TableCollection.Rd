@@ -74,6 +74,21 @@ tc <- tc_load(tc_file)
 tc$num_individuals()
 
 ## ------------------------------------------------
+## Method `TableCollection$individual_table_add_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+n_before <- tc$num_individuals()
+new_id <- tc$individual_table_add_row()
+new_id <- tc$individual_table_add_row(location = c(5, 8))
+new_id <- tc$individual_table_add_row(flags = 0L)
+new_id <- tc$individual_table_add_row(parents = c(0L, 2L))
+new_id <- tc$individual_table_add_row(metadata = "abc")
+new_id <- tc$individual_table_add_row(metadata = charToRaw("cba"))
+n_after <- tc$num_individuals()
+
+## ------------------------------------------------
 ## Method `TableCollection$num_nodes`
 ## ------------------------------------------------
 
@@ -224,6 +239,7 @@ tc
 \item \href{#method-TableCollection-num_populations}{\code{TableCollection$num_populations()}}
 \item \href{#method-TableCollection-num_migrations}{\code{TableCollection$num_migrations()}}
 \item \href{#method-TableCollection-num_individuals}{\code{TableCollection$num_individuals()}}
+\item \href{#method-TableCollection-individual_table_add_row}{\code{TableCollection$individual_table_add_row()}}
 \item \href{#method-TableCollection-num_nodes}{\code{TableCollection$num_nodes()}}
 \item \href{#method-TableCollection-num_edges}{\code{TableCollection$num_edges()}}
 \item \href{#method-TableCollection-num_sites}{\code{TableCollection$num_sites()}}
@@ -460,6 +476,61 @@ A signed 64 bit integer \code{bit64::integer64}.
 \preformatted{tc_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(tc_file)
 tc$num_individuals()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-individual_table_add_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-individual_table_add_row}{}}}
+\subsection{Method \code{individual_table_add_row()}}{
+Add a row to the individuals table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$individual_table_add_row(
+  flags = 0L,
+  location = NULL,
+  parents = NULL,
+  metadata = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{flags}}{integer flags for the new individual.}
+
+\item{\code{location}}{numeric vector with the location of the new individual.}
+
+\item{\code{parents}}{integer vector with parent individual IDs (0-based).}
+
+\item{\code{metadata}}{for the new individual; accepts \code{NULL},
+a raw vector, or a character of length 1.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.IndividualTable.add_row}.
+  The function casts inputs to the expected class.
+}
+
+\subsection{Returns}{
+Integer row ID (0-based) of the newly added individual.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+n_before <- tc$num_individuals()
+new_id <- tc$individual_table_add_row()
+new_id <- tc$individual_table_add_row(location = c(5, 8))
+new_id <- tc$individual_table_add_row(flags = 0L)
+new_id <- tc$individual_table_add_row(parents = c(0L, 2L))
+new_id <- tc$individual_table_add_row(metadata = "abc")
+new_id <- tc$individual_table_add_row(metadata = charToRaw("cba"))
+n_after <- tc$num_individuals()
 }
 \if{html}{\out{</div>}}
 
