@@ -28,6 +28,9 @@ and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 - Added `TableCollection$build_index()` to build indexes and
   `TableCollection$drop_index()` to drop indexes.
 - Added ``TableCollection$num_*()` getters for the number of rows in the tables.
+- Added `rtsk_individual_table_add_row()` and
+  `TableCollection$individual_table_add_row()` to append individual rows from
+  \code{R}, mirroring `tsk_individual_table_add_row()`.
 - TODO
 
 ### Changed

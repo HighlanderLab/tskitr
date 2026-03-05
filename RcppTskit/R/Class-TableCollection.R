@@ -143,6 +143,55 @@ TableCollection <- R6Class(
       rtsk_table_collection_get_num_individuals(self$xptr)
     },
 
+    #' @description Add a row to the individuals table.
+    #' @param flags integer flags for the new individual.
+    #' @param location numeric vector with the location of the new individual.
+    #' @param parents integer vector with parent individual IDs (0-based).
+    #' @param metadata for the new individual; accepts \code{NULL},
+    #'   a raw vector, or a character of length 1.
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.IndividualTable.add_row}.
+    #'   The function casts inputs to the expected class.
+    #' @return Integer row ID (0-based) of the newly added individual.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' n_before <- tc$num_individuals()
+    #' new_id <- tc$individual_table_add_row()
+    #' new_id <- tc$individual_table_add_row(location = c(5, 8))
+    #' new_id <- tc$individual_table_add_row(flags = 0L)
+    #' new_id <- tc$individual_table_add_row(parents = c(0L, 2L))
+    #' new_id <- tc$individual_table_add_row(metadata = "abc")
+    #' new_id <- tc$individual_table_add_row(metadata = charToRaw("cba"))
+    #' n_after <- tc$num_individuals()
+    individual_table_add_row = function(
+      flags = 0L,
+      location = NULL,
+      parents = NULL,
+      metadata = NULL
+    ) {
+      if (is.null(metadata)) {
+        metadata_raw <- NULL
+      } else if (is.raw(metadata)) {
+        metadata_raw <- metadata
+      } else if (
+        is.character(metadata) && length(metadata) == 1L && !is.na(metadata)
+      ) {
+        metadata_raw <- charToRaw(metadata)
+      } else {
+        stop(
+          "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+        )
+      }
+      rtsk_individual_table_add_row(
+        tc = self$xptr,
+        flags = as.integer(flags),
+        location = if (is.null(location)) NULL else as.numeric(location),
+        parents = if (is.null(parents)) NULL else as.integer(parents),
+        metadata = metadata_raw
+      )
+    },
+
     #' @description Get the number of nodes in a table collection.
     #' @return A signed 64 bit integer \code{bit64::integer64}.
     #' @examples

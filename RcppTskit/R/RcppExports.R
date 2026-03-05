@@ -203,6 +203,10 @@ rtsk_table_collection_metadata_length <- function(tc) {
     .Call(`_RcppTskit_rtsk_table_collection_metadata_length`, tc)
 }
 
+rtsk_individual_table_add_row <- function(tc, flags = 0L, location = NULL, parents = NULL, metadata = NULL) {
+    .Call(`_RcppTskit_rtsk_individual_table_add_row`, tc, flags, location, parents, metadata)
+}
+
 test_tsk_bug_assert_c <- function() {
     invisible(.Call(`_RcppTskit_test_tsk_bug_assert_c`))
 }
@@ -233,5 +237,9 @@ test_rtsk_treeseq_init_forced_error <- function(tc) {
 
 test_rtsk_table_collection_build_index_forced_error <- function(tc) {
     invisible(.Call(`_RcppTskit_test_rtsk_table_collection_build_index_forced_error`, tc))
+}
+
+test_rtsk_individual_table_add_row_forced_error <- function(tc) {
+    invisible(.Call(`_RcppTskit_test_rtsk_individual_table_add_row_forced_error`, tc))
 }
 

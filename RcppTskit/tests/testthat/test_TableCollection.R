@@ -276,3 +276,140 @@ test_that("TableCollection index lifecycle and tree_sequence index handling work
   expect_no_error(tc$build_index())
   expect_true(tc$has_index())
 })
+
+test_that("individual_table_add_row wrapper expands the table collection and handles inputs", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+
+  n_before <- rtsk_table_collection_get_num_individuals(tc_xptr)
+  m_before <- rtsk_table_collection_metadata_length(tc_xptr)[["individuals"]]
+
+  expect_error(
+    rtsk_individual_table_add_row(tc_xptr, flags = -1L),
+    regexp = "rtsk_individual_table_add_row does not support negative flags"
+  )
+
+  new_id <- rtsk_individual_table_add_row(
+    tc = tc_xptr,
+    flags = 0L,
+    location = c(1.25, -2.5),
+    metadata = charToRaw("abc")
+  )
+  expect_equal(new_id, as.integer(n_before)) # since IDs are 0-based
+  expect_equal(
+    as.integer(rtsk_table_collection_get_num_individuals(tc_xptr)),
+    as.integer(n_before) + 1L
+  )
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["individuals"]]),
+    as.integer(m_before) + 3L
+  )
+
+  tc <- TableCollection$new(xptr = tc_xptr)
+  n_before_method <- tc$num_individuals()
+  new_id_method <- tc$individual_table_add_row()
+  expect_equal(new_id_method, as.integer(n_before_method))
+  expect_equal(
+    as.integer(tc$num_individuals()),
+    as.integer(n_before_method) + 1L
+  )
+
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+
+  n0 <- as.integer(rtsk_table_collection_get_num_individuals(tc_xptr))
+  m0 <- as.integer(rtsk_table_collection_metadata_length(tc_xptr)[[
+    "individuals"
+  ]])
+
+  # Defaults map to NULL in the generated R wrapper and should be accepted.
+  id0 <- rtsk_individual_table_add_row(tc_xptr)
+  expect_equal(id0, n0)
+  expect_equal(
+    as.integer(rtsk_table_collection_get_num_individuals(tc_xptr)),
+    n0 + 1L
+  )
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["individuals"]]),
+    m0
+  )
+
+  # Explicit NULL should also be accepted and behave like empty vectors.
+  id1 <- rtsk_individual_table_add_row(
+    tc = tc_xptr,
+    flags = 0L,
+    location = NULL,
+    parents = NULL,
+    metadata = NULL
+  )
+  expect_equal(id1, n0 + 1L)
+
+  # Parent IDs are provided as integer vectors and should be accepted.
+  id2 <- rtsk_individual_table_add_row(
+    tc = tc_xptr,
+    flags = 0L,
+    parents = c(id0, id1),
+    location = numeric(),
+    metadata = raw()
+  )
+  expect_equal(id2, n0 + 2L)
+  expect_error(
+    rtsk_individual_table_add_row(
+      tc = tc_xptr,
+      flags = 0L,
+      parents = c(NA_integer_),
+      location = numeric(),
+      metadata = raw()
+    ),
+    regexp = "NA_integer_ values not allowed in rtsk_individual_table_add_row"
+  )
+
+  tc <- TableCollection$new(xptr = tc_xptr)
+  n_before_method <- as.integer(tc$num_individuals())
+  expect_no_error(
+    tc$individual_table_add_row(
+      flags = 0L,
+      location = NULL,
+      parents = c(id1, id2),
+      metadata = NULL
+    )
+  )
+  expect_equal(as.integer(tc$num_individuals()), n_before_method + 1L)
+
+  m_before_char <- as.integer(rtsk_table_collection_metadata_length(tc$xptr)[[
+    "individuals"
+  ]])
+  expect_no_warning(tc$individual_table_add_row(metadata = "abc"))
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc$xptr)[["individuals"]]),
+    m_before_char + 3L
+  )
+  m_before_raw <- as.integer(rtsk_table_collection_metadata_length(tc$xptr)[[
+    "individuals"
+  ]])
+  expect_no_error(tc$individual_table_add_row(metadata = charToRaw("xyz")))
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc$xptr)[["individuals"]]),
+    m_before_raw + 3L
+  )
+  expect_error(
+    tc$individual_table_add_row(parents = c(NA_integer_)),
+    regexp = "NA_integer_ values not allowed in rtsk_individual_table_add_row"
+  )
+  expect_error(
+    test_rtsk_individual_table_add_row_forced_error(tc$xptr),
+    regexp = "TSK_ERR_TABLE_OVERFLOW"
+  )
+
+  expect_error(
+    tc$individual_table_add_row(metadata = c("a", "b")),
+    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+  )
+  expect_error(
+    tc$individual_table_add_row(metadata = NA_character_),
+    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+  )
+  expect_error(
+    tc$individual_table_add_row(metadata = 1L),
+    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+  )
+})

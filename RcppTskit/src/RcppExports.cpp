@@ -534,6 +534,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rtsk_individual_table_add_row
+int rtsk_individual_table_add_row(const SEXP tc, const int flags, const Rcpp::Nullable<Rcpp::NumericVector> location, const Rcpp::Nullable<Rcpp::IntegerVector> parents, const Rcpp::Nullable<Rcpp::RawVector> metadata);
+RcppExport SEXP _RcppTskit_rtsk_individual_table_add_row(SEXP tcSEXP, SEXP flagsSEXP, SEXP locationSEXP, SEXP parentsSEXP, SEXP metadataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< const int >::type flags(flagsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::NumericVector> >::type location(locationSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::IntegerVector> >::type parents(parentsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::RawVector> >::type metadata(metadataSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_individual_table_add_row(tc, flags, location, parents, metadata));
+    return rcpp_result_gen;
+END_RCPP
+}
 // test_tsk_bug_assert_c
 void test_tsk_bug_assert_c();
 RcppExport SEXP _RcppTskit_test_tsk_bug_assert_c() {
@@ -612,6 +627,16 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// test_rtsk_individual_table_add_row_forced_error
+void test_rtsk_individual_table_add_row_forced_error(const SEXP tc);
+RcppExport SEXP _RcppTskit_test_rtsk_individual_table_add_row_forced_error(SEXP tcSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
+    test_rtsk_individual_table_add_row_forced_error(tc);
+    return R_NilValue;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_test_validate_options", (DL_FUNC) &_RcppTskit_test_validate_options, 2},
@@ -661,6 +686,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_rtsk_table_collection_drop_index", (DL_FUNC) &_RcppTskit_rtsk_table_collection_drop_index, 2},
     {"_RcppTskit_rtsk_table_collection_summary", (DL_FUNC) &_RcppTskit_rtsk_table_collection_summary, 1},
     {"_RcppTskit_rtsk_table_collection_metadata_length", (DL_FUNC) &_RcppTskit_rtsk_table_collection_metadata_length, 1},
+    {"_RcppTskit_rtsk_individual_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_individual_table_add_row, 5},
     {"_RcppTskit_test_tsk_bug_assert_c", (DL_FUNC) &_RcppTskit_test_tsk_bug_assert_c, 0},
     {"_RcppTskit_test_tsk_bug_assert_cpp", (DL_FUNC) &_RcppTskit_test_tsk_bug_assert_cpp, 0},
     {"_RcppTskit_test_tsk_trace_error_c", (DL_FUNC) &_RcppTskit_test_tsk_trace_error_c, 0},
@@ -669,6 +695,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_test_rtsk_treeseq_copy_tables_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_treeseq_copy_tables_forced_error, 1},
     {"_RcppTskit_test_rtsk_treeseq_init_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_treeseq_init_forced_error, 1},
     {"_RcppTskit_test_rtsk_table_collection_build_index_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_table_collection_build_index_forced_error, 1},
+    {"_RcppTskit_test_rtsk_individual_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_individual_table_add_row_forced_error, 1},
     {NULL, NULL, 0}
 };
 

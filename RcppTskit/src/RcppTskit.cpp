@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <exception>
 #include <limits>
+#include <vector>
 
 namespace {
 // namespace to keep the contents local to this file
@@ -141,10 +142,43 @@ constexpr tsk_size_t kMaxBit64Integer64 =
     static_cast<tsk_size_t>(std::numeric_limits<int64_t>::max());
 
 // INTERNAL
+// @title Convert \code{Rcpp::Nullable} vector to empty-or-value vector
+// @param value nullable vector from \code{R}
+// @return Empty vector if \code{NULL}, otherwise converted vector.
+template <typename VectorT>
+VectorT nullable_to_vector_or_empty(const Rcpp::Nullable<VectorT> &value) {
+  if (value.isNull()) {
+    return VectorT();
+  }
+  return Rcpp::as<VectorT>(value);
+}
+
+// INTERNAL
+// @title Convert \code{integer} vector to \code{tsk_id_t} vector
+// @param ids \code{integer} values (must not have \code{NA} values).
+// @param caller function name.
+// @details \code{tsk_id_t} is \code{int32_t} (a standard integer)
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_id_t}
+// @return ID values cast to \code{tsk_id_t}.
+std::vector<tsk_id_t> int_vector_to_tsk_id_vector(
+    const Rcpp::IntegerVector &ids,
+    const char *caller = "int_vector_to_tsk_id_vector") {
+  std::vector<tsk_id_t> out;
+  out.reserve(ids.size());
+  for (const int id : ids) {
+    if (Rcpp::IntegerVector::is_na(id)) {
+      Rcpp::stop("NA_integer_ values not allowed in %s", caller);
+    }
+    out.push_back(static_cast<tsk_id_t>(id));
+  }
+  return out;
+}
+
+// INTERNAL
 // @title Wrap \code{C tsk_size_t / uint64_t} to \code{R bit64::integer64}
 // @param value \code{C tsk_size_t / uint64_t} value
 // @param caller function name
-// @details See
+// @details \code{tsk_id_t} is \code{uint64_t}
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_size_t},
 //   an unsigned 64 bit integer with range from 0 to 2^64 - 1
 //   (that is, 0 to 18,446,744,073,709,551,615).
@@ -172,7 +206,7 @@ SEXP rtsk_wrap_tsk_size_t_as_integer64(const tsk_size_t value,
 
 // TEST-ONLY
 // @title Test helper for validating tskit flags
-// @param options integer options
+// @param options that will be validated
 // @param supported integer bitmask for supported options
 // @return Validated flags as integer.
 // [[Rcpp::export]]
@@ -243,7 +277,7 @@ Rcpp::IntegerVector tskit_version() {
 // PUBLIC, wrapper for tsk_treeseq_load
 // @title Load a tree sequence from a file
 // @param filename a string specifying the full path of the tree sequence file.
-// @param options \code{tskit} bitwise flags (see details and note that only
+// @param options passed to \code{tskit C} (see details and note that only
 //   \code{TSK_LOAD_SKIP_TABLES} and \code{TSK_LOAD_SKIP_REFERENCE_SEQUENCE},
 //   but not \code{TSK_NO_INIT}, are supported by this wrapper).
 // @details This function calls
@@ -282,7 +316,7 @@ SEXP rtsk_treeseq_load(const std::string &filename, const int options = 0) {
 // PUBLIC, wrapper for tsk_table_collection_load
 // @title Load a table collection from a file
 // @param filename a string specifying the full path of the tree sequence file.
-// @param options \code{tskit} bitwise flags (see details and note that only
+// @param options passed to \code{tskit C} (see details and note that only
 //   \code{TSK_LOAD_SKIP_TABLES} and \code{TSK_LOAD_SKIP_REFERENCE_SEQUENCE},
 //   but not \code{TSK_NO_INIT}, are supported by this wrapper).
 // @details This function calls
@@ -323,7 +357,7 @@ SEXP rtsk_table_collection_load(const std::string &filename,
 // @param ts an external pointer to tree sequence as a \code{tsk_treeseq_t}
 //   object.
 // @param filename a string specifying the full path of the tree sequence file.
-// @param options \code{tskit} bitwise flags (see details and note that
+// @param options passed to \code{tskit C} (see details and note that
 //   these options are currently unused in \code{tskit} and should be \code{0}).
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_treeseq_dump}.
@@ -350,7 +384,7 @@ void rtsk_treeseq_dump(const SEXP ts, const std::string &filename,
 // @param tc an external pointer to table collection as a
 //   \code{tsk_table_collection_t} object.
 // @param filename a string specifying the full path of the tree sequence file.
-// @param options \code{tskit} bitwise flags (see details and note that
+// @param options passed to \code{tskit C} (see details and note that
 //   these options are currently unused in \code{tskit} and should be \code{0}).
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_table_collection_dump}.
@@ -377,7 +411,7 @@ void rtsk_table_collection_dump(const SEXP tc, const std::string &filename,
 // @title Copy a tree sequence's tables into a table collection
 // @param ts an external pointer to tree sequence as a \code{tsk_treeseq_t}
 //   object.
-// @param options \code{tskit} bitwise flags (see details and note that
+// @param options passed to \code{tskit C} (see details and note that
 //   this wrapper does not support \code{TSK_NO_INIT}, but supports
 //   \code{TSK_COPY_FILE_UUID}).
 // @details This function calls
@@ -418,7 +452,7 @@ SEXP rtsk_treeseq_copy_tables(const SEXP ts, const int options = 0) {
 // @title Initialise a tree sequence from a table collection
 // @param tc an external pointer to table collection as a
 //   \code{tsk_table_collection_t} object.
-// @param options \code{tskit} bitwise flags (see details and note that
+// @param options passed to \code{tskit C} (see details and note that
 //   this wrapper supports
 //   \code{TSK_TS_INIT_BUILD_INDEXES} and
 //   \code{TSK_TS_INIT_COMPUTE_MUTATION_PARENTS}, but not
@@ -1021,9 +1055,8 @@ bool rtsk_table_collection_has_index(const SEXP tc, const int options = 0) {
 // @title Build indexes for a table collection
 // @param tc an external pointer to table collection as a
 //   \code{tsk_table_collection_t} object.
-// @param options \code{tskit} bitwise flags, currently unused and should be
-// set
-//   to 0
+// @param options passed to \code{tskit C}, currently unused and should be
+//   set to \code{0}.
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_table_collection_build_index}.
 // @return No return value; called for side effects.
@@ -1050,9 +1083,8 @@ void rtsk_table_collection_build_index(const SEXP tc, const int options = 0) {
 // @title Drop indexes for a table collection
 // @param tc an external pointer to table collection as a
 //   \code{tsk_table_collection_t} object.
-// @param options \code{tskit} bitwise flags, currently unused and should be
-// set
-//   to 0
+// @param options passed to \code{tskit C}, currently unused and should be
+//   set to \code{0}.
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_table_collection_drop_index}.
 // @return No return value; called for side effects.
@@ -1088,9 +1120,8 @@ void rtsk_table_collection_drop_index(const SEXP tc, const int options = 0) {
 // @title Summary of properties and number of records in a table collection
 // @param tc an external pointer to table collection as a
 //   \code{tsk_table_collection_t} object.
-// @param options \code{tskit} bitwise flags, currently unused and should be
-// set
-//   to 0
+// @param options passed to \code{tskit C}, currently unused and should be
+//   set to \code{0}.
 // @details These functions return the summary of properties and number of
 //   records in a table collection, by accessing its elements and/or calling
 // \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_table_collection_has_index}
@@ -1206,3 +1237,98 @@ Rcpp::List rtsk_table_collection_metadata_length(const SEXP tc) {
 // TODO: Develop rtsk_table_collection_metadata_schema
 // TODO: Metadata notes if we do anything with metadata #36
 //       https://github.com/HighlanderLab/RcppTskit/issues/36
+
+// PUBLIC, wrapper for tsk_individual_table_add_row
+// @title Add a row to the individual table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param flags passed to \code{tskit C}.
+// @param location numeric vector with the location of the new individual
+//   (can be \code{NULL}).
+// @param parents integer vector with parent individual IDs
+//   (can be \code{NULL}).
+// @param metadata raw vector with metadata bytes
+//   (can be \code{NULL}).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_individual_table_add_row}
+//   on the individuals table of \code{tc}.
+// @return The 0-based row ID of the newly added individual.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// n_before <- RcppTskit:::rtsk_table_collection_get_num_individuals(tc_xptr)
+// tc_py <- RcppTskit:::rtsk_table_collection_r_to_py(tc_xptr)
+// tc_py$individuals$max_rows
+// tc_py$individuals["flags"]
+// tc_py$individuals["location"]
+// tc_py$individuals["location_offset"]
+// tc_py$individuals["parents"]
+// tc_py$individuals["parents_offset"]
+// tc_py$individuals["metadata"]
+// tc_py$individuals["metadata_offset"]
+// new_id <- RcppTskit:::rtsk_individual_table_add_row(tc = tc_xptr)
+// new_id <- RcppTskit:::rtsk_individual_table_add_row(tc = tc_xptr,
+//   location = c(5, 8))
+// new_id <- RcppTskit:::rtsk_individual_table_add_row(tc = tc_xptr, flags = 0L,
+//   location = c(1, 2))
+// new_id <- RcppTskit:::rtsk_individual_table_add_row(tc = tc_xptr, flags = 1L,
+//   location = c(11, 3))
+// new_id <- RcppTskit:::rtsk_individual_table_add_row(tc = tc_xptr, flags = 2L,
+//   location = c(7, 8), parents = c(0L))
+// new_id <- RcppTskit:::rtsk_individual_table_add_row(tc = tc_xptr, flags = 3L,
+//   location = c(2, 11), parents = c(1L, 3L), metadata = charToRaw("abc"))
+// n_after <- RcppTskit:::rtsk_table_collection_get_num_individuals(tc_xptr)
+// new_id == as.integer(n_before) && n_after == n_before + 3L
+// tc_py <- RcppTskit:::rtsk_table_collection_r_to_py(tc_xptr)
+// tc_py$individuals$max_rows
+// tc_py$individuals["flags"]
+// tc_py$individuals["location"]
+// tc_py$individuals["location_offset"]
+// tc_py$individuals["parents"]
+// tc_py$individuals["parents_offset"]
+// tc_py$individuals["metadata"]
+// tc_py$individuals["metadata_offset"]
+// [[Rcpp::export]]
+int rtsk_individual_table_add_row(
+    const SEXP tc, const int flags = 0,
+    const Rcpp::Nullable<Rcpp::NumericVector> location = R_NilValue,
+    const Rcpp::Nullable<Rcpp::IntegerVector> parents = R_NilValue,
+    const Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue) {
+  if (flags < 0) {
+    Rcpp::stop("rtsk_individual_table_add_row does not support negative flags");
+  }
+  const tsk_flags_t row_flags = static_cast<tsk_flags_t>(flags);
+  rtsk_table_collection_t tc_xptr(tc);
+
+  // Prepare inputs for tskit C tsk_individual_table_add_row() in expected form
+  const Rcpp::NumericVector location_vec =
+      nullable_to_vector_or_empty<Rcpp::NumericVector>(location);
+  const tsk_size_t location_length =
+      static_cast<tsk_size_t>(location_vec.size());
+  const double *location_ptr =
+      location_length > 0 ? REAL(location_vec) : nullptr;
+
+  const Rcpp::IntegerVector parents_in =
+      nullable_to_vector_or_empty<Rcpp::IntegerVector>(parents);
+  const std::vector<tsk_id_t> parents_vec =
+      int_vector_to_tsk_id_vector(parents_in, "rtsk_individual_table_add_row");
+  const tsk_size_t parents_length = static_cast<tsk_size_t>(parents_vec.size());
+  const tsk_id_t *parents_ptr =
+      parents_length > 0 ? parents_vec.data() : nullptr;
+
+  const Rcpp::RawVector metadata_vec =
+      nullable_to_vector_or_empty<Rcpp::RawVector>(metadata);
+  const tsk_size_t metadata_length =
+      static_cast<tsk_size_t>(metadata_vec.size());
+  const char *metadata_ptr =
+      metadata_length > 0 ? reinterpret_cast<const char *>(RAW(metadata_vec))
+                          : nullptr;
+
+  const tsk_id_t row_id = tsk_individual_table_add_row(
+      &tc_xptr->individuals, row_flags, location_ptr, location_length,
+      parents_ptr, parents_length, metadata_ptr, metadata_length);
+  if (row_id < 0) {
+    Rcpp::stop(tsk_strerror(row_id));
+  }
+  return static_cast<int>(row_id);
+}

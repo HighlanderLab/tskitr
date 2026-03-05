@@ -57,5 +57,10 @@ void rtsk_table_collection_build_index(SEXP tc, int options = 0);
 void rtsk_table_collection_drop_index(SEXP tc, int options = 0);
 Rcpp::List rtsk_table_collection_summary(SEXP tc);
 Rcpp::List rtsk_table_collection_metadata_length(SEXP tc);
+int rtsk_individual_table_add_row(
+    SEXP tc, int flags = 0,
+    Rcpp::Nullable<Rcpp::NumericVector> location = R_NilValue,
+    Rcpp::Nullable<Rcpp::IntegerVector> parents = R_NilValue,
+    Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
 
 #endif
