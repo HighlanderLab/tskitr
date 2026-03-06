@@ -1,9 +1,9 @@
-# README for extern/tskit
+# `README` for `extern/tskit`
 
-This directory holds git submodule for tskit and instructions on copying its
-C code into R package.
+This directory holds git submodule for `tskit` and instructions on copying its
+`C` code into `RcppTskit` package.
 
-All commands are run from the root of the RcppTskit repository:
+All commands are run from the root of the `RcppTskit` repository:
 
 ```
 ls -l
@@ -11,9 +11,9 @@ ls -l
 # RcppTskit # R package
 ```
 
-Below instructions show how to add, update, and inspect the tskit code changes.
+Below instructions show how to add, update, and inspect the `tskit` code changes.
 
-## tskit
+## `tskit`
 
 Set up git submodule for the first time:
 
@@ -51,9 +51,9 @@ cat extern/tskit/LICENSE
 # MIT License
 ls -l extern/tskit/c
 cat extern/tskit/c/VERSION.txt
-# 1.3.0
+# 1.3.1
 less extern/tskit/c/CHANGELOG.rst
-# [1.3.0] - 2025-11-27
+# [1.3.1] - 2026-03-06
 ```
 
 Commit git submodule change:
@@ -61,7 +61,7 @@ Commit git submodule change:
 ```
 git status
 git add extern/tskit
-git commit -m "Update tskit submodule to C API version 1.3.0"
+git commit -m "Update tskit submodule to C API version 1.3.1"
 git push
 ```
 
@@ -163,9 +163,10 @@ cp -i extern/tskit/c/subprojects/kastore/kastore.c RcppTskit/src/tskit/.
 Commit changes:
 
 ```
+git diff
 git status
 git add RcppTskit/inst/include/tskit
 git add RcppTskit/src
-git commit -m "Update tskit C API to version 1.3.0"
+git commit -m "Update tskit C API to version 1.3.1"
 git push
 ```

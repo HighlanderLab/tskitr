@@ -50,6 +50,7 @@ and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 - Turn vignette URL as hyperlinks and similar cosmetics.
 - State mirroring of the `R/Python` APIs and `C++/C` APIs across the package.
+- Update tskit C to 1.3.1
 - TODO
 
 ## [0.2.0] - 2026-02-22
