@@ -96,7 +96,6 @@ The current hook set includes:
 * [air](https://github.com/posit-dev/air) to format `R` code
 * [jarl](https://github.com/etiennebacher/jarl) to lint `R` code
 * [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format `C/C++` code
-* [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) to lint `C/C++` code
 
 Install these tools with your preferred package manager before contributing.
 One macOS setup looks like this:
@@ -114,10 +113,7 @@ brew install air
 # Install clang-format
 brew install clang-format
 
-# Install clang-tidy (part of llvm)
-brew install llvm
-
-# Add llvm tools, including clang-tidy, to PATH
+# Add llvm tools, to PATH
 echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH"' >> ~/.zshrc
 ```
 
@@ -278,7 +274,6 @@ check for merge conflicts.................................................Passed
 air format................................................................Passed
 jarl lint.................................................................Passed
 clang-format..........................................(no files to check)Skipped
-clang-tidy for RcppTskit..............................(no files to check)Skipped
 check sync between cpp and hpp options and defaults...(no files to check)Skipped
 [bugfix-123 1dc2232] Implemented foo() #123
  1 file changed, 1 insertion(+)
