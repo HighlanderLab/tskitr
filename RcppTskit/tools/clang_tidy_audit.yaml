@@ -1,0 +1,13 @@
+---
+# Broader manual audit profile for occasional sweeps. This is intentionally
+# wider than the pre-commit gate and may surface issues that require triage.
+Checks: >-
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  bugprone-*,
+  performance-*,
+  portability-*,
+  -bugprone-easily-swappable-parameters
+WarningsAsErrors: ""
+FormatStyle: none
+SystemHeaders: false

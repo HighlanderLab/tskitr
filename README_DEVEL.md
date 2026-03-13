@@ -96,6 +96,7 @@ The current hook set includes:
 * [air](https://github.com/posit-dev/air) to format `R` code
 * [jarl](https://github.com/etiennebacher/jarl) to lint `R` code
 * [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format `C/C++` code
+* [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) to lint `C/C++` code
 
 Install these tools with your preferred package manager before contributing.
 One macOS setup looks like this:
@@ -113,7 +114,10 @@ brew install air
 # Install clang-format
 brew install clang-format
 
-# Add llvm tools, to PATH
+# Install llvm for clang-tidy
+brew install llvm
+
+# Add llvm tools to PATH
 echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH"' >> ~/.zshrc
 ```
 
@@ -191,8 +195,11 @@ Relevant tests are in `RcppTskit/tests/testthat`.
 
 During development,
 start with focused tests for the area you changed.
-Before opening or updating a pull request,
-run the full test suite and package checks.
+Before opening or updating a pull request:
+1) run the full test suite,
+2) ensure package checks pass, and
+3) check test coverage.
+All of these are described below.
 
 ### `R CMD check`
 
@@ -323,6 +330,9 @@ At that point,
 the safest recovery path is usually to create a fresh branch from the latest `upstream/main`
 and then move your commits across with `git cherry-pick <commit>`,
 or simply re-apply the changes manually to the files if that is simpler.
+Another option with many local commits
+is to squash them (see below) into one
+and then rebasing.
 
 After a successful rebase, rerun the relevant tests and checks.
 If you already pushed the branch to `origin`, update it with:
@@ -393,3 +403,12 @@ If you plan to update the vendored `tskit` C library,
 follow the instructions in `extern/README.md` and
 do not edit vendored copies by hand.
 Any changes to that code should go to `tskit` upstream.
+
+## More advanced and thorough testing
+
+The repository pins a low-noise `.clang-tidy` profile.
+For occasional broader `C/C++` audits,
+use `--config-file=RcppTskit/tools/clang_tidy_audit.yaml`
+with `clang-tidy` or `RcppTskit/tools/clang_tidy.py`.
+See `RcppTskit/notes_pkg_dev.Rmd` for a set of unpolished notes.
+The notes also include suggestions on debugging `C/C++` code.

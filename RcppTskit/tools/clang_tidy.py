@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 import os
+import re
 import shlex
 import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+
+VAR_REF_RE = re.compile(r"\$\(([^()]+)\)|\$\{([^{}]+)\}")
 
 
 def run(cmd):
@@ -88,11 +92,77 @@ def read_makevars(path):
 
 def dedupe(seq):
     out, seen = [], set()
-    for item in seq:
+    paired_flags = {"-F", "-I", "-iquote", "-isystem"}
+    i = 0
+    while i < len(seq):
+        item = seq[i]
+        if item in paired_flags and i + 1 < len(seq):
+            pair = (item, seq[i + 1])
+            if pair not in seen:
+                out.extend(pair)
+                seen.add(pair)
+            i += 2
+            continue
         if item not in seen:
             out.append(item)
             seen.add(item)
+        i += 1
     return out
+
+
+def find_makevars(src_dir):
+    for name in ("Makevars", "Makevars.in"):
+        path = src_dir / name
+        if path.exists():
+            return path
+    return None
+
+
+def make_r_config_getter(r_bin):
+    cache = {}
+
+    def getter(var):
+        if var not in cache:
+            try:
+                cache[var] = r_cmd_config(r_bin, var)
+            except Exception:
+                cache[var] = ""
+        return cache[var]
+
+    return getter
+
+
+def expand_makevars_vars(value, vars_map, context, r_config):
+    cache = {}
+
+    def resolve(name, stack):
+        if name in cache:
+            return cache[name]
+        if name in stack:
+            return ""
+
+        if name in context:
+            raw = context[name]
+        elif name in vars_map:
+            raw = vars_map[name]
+        else:
+            raw = os.environ.get(name) or r_config(name)
+
+        if raw is None:
+            raw = ""
+
+        next_stack = stack | {name}
+        expanded = VAR_REF_RE.sub(
+            lambda match: resolve(match.group(1) or match.group(2), next_stack),
+            raw,
+        )
+        cache[name] = expanded
+        return expanded
+
+    return VAR_REF_RE.sub(
+        lambda match: resolve(match.group(1) or match.group(2), set()),
+        value,
+    )
 
 
 def normalize_path_flags(flags, base_dir):
@@ -100,7 +170,7 @@ def normalize_path_flags(flags, base_dir):
     i = 0
     while i < len(flags):
         token = flags[i]
-        if token in {"-I", "-isystem", "-iquote"}:
+        if token in {"-F", "-I", "-isystem", "-iquote"}:
             if i + 1 < len(flags):
                 path = flags[i + 1]
                 if not os.path.isabs(path):
@@ -108,6 +178,13 @@ def normalize_path_flags(flags, base_dir):
                 out.extend([token, path])
                 i += 2
                 continue
+        if token.startswith("-F") and len(token) > 2:
+            path = token[2:]
+            if not os.path.isabs(path):
+                path = str((base_dir / path).resolve())
+            out.append("-F" + path)
+            i += 1
+            continue
         if token.startswith("-I") and len(token) > 2:
             path = token[2:]
             if not os.path.isabs(path):
@@ -133,11 +210,15 @@ def normalize_path_flags(flags, base_dir):
     return out
 
 
-def makevars_flags(src_dir, r_home, lang):
-    makevars = src_dir / "Makevars"
-    if not makevars.exists():
-        makevars = src_dir / "Makevars.in"
-    vars_map = read_makevars(makevars)
+def makevars_context(vars_map, r_home):
+    context = {}
+    if r_home:
+        context["R_HOME"] = r_home
+        context["R_INCLUDE_DIR"] = str(Path(r_home) / "include")
+    return context
+
+
+def makevars_flags(src_dir, vars_map, context, r_config, lang):
     keys = ["PKG_CPPFLAGS"]
     if lang == "c":
         keys.append("PKG_CFLAGS")
@@ -149,10 +230,76 @@ def makevars_flags(src_dir, r_home, lang):
         val = vars_map.get(key)
         if not val:
             continue
-        if r_home:
-            val = val.replace("$(R_HOME)", r_home).replace("${R_HOME}", r_home)
-        flags += shlex.split(val)
+        expanded = expand_makevars_vars(val, vars_map, context, r_config).strip()
+        if expanded:
+            flags += shlex.split(expanded)
     return normalize_path_flags(flags, src_dir)
+
+
+def cxx_std_setting(vars_map, context, r_config):
+    value = vars_map.get("CXX_STD", "").strip()
+    if not value:
+        return ""
+    return expand_makevars_vars(value, vars_map, context, r_config).strip()
+
+
+def compiler_command(r_config, lang, cxx_std):
+    if lang == "c":
+        command = r_config("CC")
+    else:
+        command = r_config(cxx_std or "CXX") or r_config("CXX")
+    return shlex.split(command) if command else []
+
+
+def compiler_flag_vars(lang, cxx_std):
+    if lang == "c":
+        return ("CFLAGS", "")
+    if cxx_std:
+        return (f"{cxx_std}FLAGS", f"{cxx_std}STD")
+    return ("CXXFLAGS", "")
+
+
+def parse_include_search_paths(output):
+    paths = []
+    in_search_list = False
+    for line in output.splitlines():
+        stripped = line.strip()
+        if stripped in {
+            '#include "..." search starts here:',
+            "#include <...> search starts here:",
+        }:
+            in_search_list = True
+            continue
+        if in_search_list and stripped == "End of search list.":
+            break
+        if not in_search_list or not stripped:
+            continue
+        if stripped.endswith("(framework directory)"):
+            path = stripped[: -len("(framework directory)")].strip()
+            if path and os.path.isdir(path):
+                paths.extend(["-F", path])
+            continue
+        if os.path.isdir(stripped):
+            paths.extend(["-isystem", stripped])
+    return paths
+
+
+def compiler_include_flags(compiler, lang, std_flags):
+    if not compiler:
+        return []
+    cmd = compiler + ["-E", "-x", lang] + std_flags + ["-v", "-"]
+    try:
+        proc = subprocess.run(
+            cmd,
+            input="",
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+    except OSError:
+        return []
+    output = "\n".join(part for part in (proc.stderr, proc.stdout) if part)
+    return parse_include_search_paths(output)
 
 
 def build_flags(r_bin, lang, root):
@@ -165,21 +312,27 @@ def build_flags(r_bin, lang, root):
 
     pkg = root / "RcppTskit"
     src_dir = pkg / "src"
+    makevars = find_makevars(src_dir)
+    vars_map = read_makevars(makevars) if makevars else {}
+    r_config = make_r_config_getter(r_bin)
+    context = makevars_context(vars_map, r_home)
+    cxx_std = cxx_std_setting(vars_map, context, r_config) if lang != "c" else ""
 
-    flags += makevars_flags(src_dir, r_home, lang)
+    flags += makevars_flags(src_dir, vars_map, context, r_config, lang)
 
-    cppflags = r_cmd_config(r_bin, "CPPFLAGS")
+    cppflags = r_config("CPPFLAGS")
     if cppflags:
         flags += shlex.split(cppflags)
 
-    if lang == "c":
-        cflags = r_cmd_config(r_bin, "CFLAGS")
-        if cflags:
-            flags += shlex.split(cflags)
+    flags_var, std_var = compiler_flag_vars(lang, cxx_std)
+    compiler_flags = r_config(flags_var)
+    if compiler_flags:
+        flags += shlex.split(compiler_flags)
+    if std_var:
+        std_flags = shlex.split(r_config(std_var))
+        flags += std_flags
     else:
-        cxxflags = r_cmd_config(r_bin, "CXXFLAGS")
-        if cxxflags:
-            flags += shlex.split(cxxflags)
+        std_flags = []
 
     rcpp_inc = rcpp_include_dir(r_bin)
     if rcpp_inc:
@@ -195,6 +348,12 @@ def build_flags(r_bin, lang, root):
 
     if r_home:
         flags.append(f"-I{Path(r_home) / 'include'}")
+
+    flags += compiler_include_flags(
+        compiler_command(r_config, lang, cxx_std),
+        lang,
+        std_flags,
+    )
 
     flags = normalize_path_flags(flags, src_dir)
 

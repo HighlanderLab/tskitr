@@ -1,0 +1,17 @@
+---
+# Stable low-noise gate for pre-commit. Keep this profile focused on
+# correctness and a few numerics/performance checks that are useful for this
+# codebase without depending heavily on LLVM-version-specific style policies.
+Checks: >-
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  bugprone-integer-division,
+  bugprone-incorrect-roundings,
+  bugprone-suspicious-memory-comparison,
+  bugprone-too-small-loop-variable,
+  bugprone-undefined-memory-manipulation,
+  performance-inefficient-vector-operation,
+  performance-move-const-arg
+WarningsAsErrors: ""
+FormatStyle: none
+SystemHeaders: false
