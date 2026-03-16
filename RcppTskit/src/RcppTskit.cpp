@@ -4,6 +4,7 @@
 // they are synced!
 #define RCPPTSKIT_IMPL
 #include <RcppTskit.hpp>
+#include <cmath>
 #include <cstdint>
 #include <exception>
 #include <limits>
@@ -1327,6 +1328,169 @@ int rtsk_individual_table_add_row(
   const tsk_id_t row_id = tsk_individual_table_add_row(
       &tc_xptr->individuals, row_flags, location_ptr, location_length,
       parents_ptr, parents_length, metadata_ptr, metadata_length);
+  if (row_id < 0) {
+    Rcpp::stop(tsk_strerror(row_id));
+  }
+  return static_cast<int>(row_id);
+}
+
+// PUBLIC, wrapper for tsk_node_table_add_row
+// @title Add a row to the node table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param flags passed to \code{tskit C}.
+// @param time numeric time value for the new node.
+// @param population integer population row ID (0-based, or \code{-1}).
+// @param individual integer individual row ID (0-based, or \code{-1}).
+// @param metadata raw vector with metadata bytes
+//   (can be \code{NULL}).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_node_table_add_row}
+//   on the nodes table of \code{tc}.
+// @return The 0-based row ID of the newly added node.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// n_before <- RcppTskit:::rtsk_table_collection_get_num_nodes(tc_xptr)
+// tc_py <- RcppTskit:::rtsk_table_collection_r_to_py(tc_xptr)
+// tc_py$nodes$max_rows
+// tc_py$nodes["flags"]
+// tc_py$nodes["time"]
+// tc_py$nodes["population"]
+// tc_py$nodes["individual"]
+// tc_py$nodes["metadata"]
+// tc_py$nodes["metadata_offset"]
+// new_id <- RcppTskit:::rtsk_node_table_add_row(tc = tc_xptr)
+// new_id <- RcppTskit:::rtsk_node_table_add_row(tc = tc_xptr, time = 1.5)
+// new_id <- RcppTskit:::rtsk_node_table_add_row(
+//   tc = tc_xptr, flags = 1L, time = 2.25, population = 0L
+// )
+// new_id <- RcppTskit:::rtsk_node_table_add_row(
+//   tc = tc_xptr, flags = 1L, time = 3.5, individual = 0L,
+//   metadata = charToRaw("abc")
+// )
+// n_after <- RcppTskit:::rtsk_table_collection_get_num_nodes(tc_xptr)
+// new_id == as.integer(n_before) && n_after == n_before + 3L
+// tc_py <- RcppTskit:::rtsk_table_collection_r_to_py(tc_xptr)
+// tc_py$nodes$max_rows
+// tc_py$nodes["flags"]
+// tc_py$nodes["time"]
+// tc_py$nodes["population"]
+// tc_py$nodes["individual"]
+// tc_py$nodes["metadata"]
+// tc_py$nodes["metadata_offset"]
+// [[Rcpp::export]]
+int rtsk_node_table_add_row(
+    const SEXP tc, const int flags = 0, const double time = 0,
+    const int population = -1, const int individual = -1,
+    const Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue) {
+  if (flags < 0) {
+    Rcpp::stop("rtsk_node_table_add_row does not support negative flags");
+  }
+  if (Rcpp::IntegerVector::is_na(population)) {
+    Rcpp::stop("population must not be NA_integer_ in rtsk_node_table_add_row");
+  }
+  if (Rcpp::IntegerVector::is_na(individual)) {
+    Rcpp::stop("individual must not be NA_integer_ in rtsk_node_table_add_row");
+  }
+  const tsk_flags_t row_flags = static_cast<tsk_flags_t>(flags);
+  const tsk_id_t row_population = static_cast<tsk_id_t>(population);
+  const tsk_id_t row_individual = static_cast<tsk_id_t>(individual);
+  rtsk_table_collection_t tc_xptr(tc);
+
+  const Rcpp::RawVector metadata_vec =
+      nullable_to_vector_or_empty<Rcpp::RawVector>(metadata);
+  const tsk_size_t metadata_length =
+      static_cast<tsk_size_t>(metadata_vec.size());
+  const char *metadata_ptr =
+      metadata_length > 0 ? reinterpret_cast<const char *>(RAW(metadata_vec))
+                          : nullptr;
+
+  const tsk_id_t row_id =
+      tsk_node_table_add_row(&tc_xptr->nodes, row_flags, time, row_population,
+                             row_individual, metadata_ptr, metadata_length);
+  if (row_id < 0) {
+    Rcpp::stop(tsk_strerror(row_id));
+  }
+  return static_cast<int>(row_id);
+}
+
+// PUBLIC, wrapper for tsk_edge_table_add_row
+// @title Add a row to the edge table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param left numeric scalar left coordinate for the new edge.
+// @param right numeric scalar right coordinate for the new edge.
+// @param parent integer parent node row ID (0-based).
+// @param child integer child node row ID (0-based).
+// @param metadata raw vector with metadata bytes
+//   (can be \code{NULL}).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_edge_table_add_row}
+//   on the edges table of \code{tc}.
+// @return The 0-based row ID of the newly added edge.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// parent <- 0L
+// child <- 1L
+// n_before <- RcppTskit:::rtsk_table_collection_get_num_edges(tc_xptr)
+// m_before <-
+// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)[["edges"]] new_id
+// <- RcppTskit:::rtsk_edge_table_add_row(
+//   tc = tc_xptr, left = 0, right = 1, parent = parent, child = child
+// )
+// new_id <- RcppTskit:::rtsk_edge_table_add_row(
+//   tc = tc_xptr, left = 1, right = 2, parent = parent, child = child,
+//   metadata = charToRaw("abc")
+// )
+// n_after <- RcppTskit:::rtsk_table_collection_get_num_edges(tc_xptr)
+// m_after <-
+// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)[["edges"]] new_id
+// == as.integer(n_before) && n_after == n_before + 2L && m_after == m_before +
+// 3L
+// [[Rcpp::export]]
+int rtsk_edge_table_add_row(
+    const SEXP tc, const double left, const double right, const int parent,
+    const int child,
+    const Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue) {
+  if (Rcpp::NumericVector::is_na(left)) {
+    Rcpp::stop("left must not be NA_real_ in rtsk_edge_table_add_row");
+  }
+  if (Rcpp::NumericVector::is_na(right)) {
+    Rcpp::stop("right must not be NA_real_ in rtsk_edge_table_add_row");
+  }
+  if (!std::isfinite(left)) {
+    Rcpp::stop("left must be finite in rtsk_edge_table_add_row");
+  }
+  if (!std::isfinite(right)) {
+    Rcpp::stop("right must be finite in rtsk_edge_table_add_row");
+  }
+  if (!(left < right)) {
+    Rcpp::stop(
+        "left must be strictly less than right in rtsk_edge_table_add_row");
+  }
+  if (Rcpp::IntegerVector::is_na(parent)) {
+    Rcpp::stop("parent must not be NA_integer_ in rtsk_edge_table_add_row");
+  }
+  if (Rcpp::IntegerVector::is_na(child)) {
+    Rcpp::stop("child must not be NA_integer_ in rtsk_edge_table_add_row");
+  }
+  const tsk_id_t row_parent = static_cast<tsk_id_t>(parent);
+  const tsk_id_t row_child = static_cast<tsk_id_t>(child);
+  rtsk_table_collection_t tc_xptr(tc);
+
+  const Rcpp::RawVector metadata_vec =
+      nullable_to_vector_or_empty<Rcpp::RawVector>(metadata);
+  const tsk_size_t metadata_length =
+      static_cast<tsk_size_t>(metadata_vec.size());
+  const char *metadata_ptr =
+      metadata_length > 0 ? reinterpret_cast<const char *>(RAW(metadata_vec))
+                          : nullptr;
+
+  const tsk_id_t row_id =
+      tsk_edge_table_add_row(&tc_xptr->edges, left, right, row_parent,
+                             row_child, metadata_ptr, metadata_length);
   if (row_id < 0) {
     Rcpp::stop(tsk_strerror(row_id));
   }

@@ -413,3 +413,418 @@ test_that("individual_table_add_row wrapper expands the table collection and han
     regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
   )
 })
+
+test_that("node_table_add_row wrapper expands the table collection and handles inputs", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+
+  n_before <- rtsk_table_collection_get_num_nodes(tc_xptr)
+  m_before <- rtsk_table_collection_metadata_length(tc_xptr)[["nodes"]]
+
+  expect_error(
+    rtsk_node_table_add_row(tc_xptr, flags = -1L),
+    regexp = "rtsk_node_table_add_row does not support negative flags"
+  )
+
+  new_id <- rtsk_node_table_add_row(
+    tc = tc_xptr,
+    flags = 1L,
+    time = 1.25,
+    population = 0L,
+    individual = 0L,
+    metadata = charToRaw("abc")
+  )
+  expect_equal(new_id, as.integer(n_before)) # since IDs are 0-based
+  expect_equal(
+    as.integer(rtsk_table_collection_get_num_nodes(tc_xptr)),
+    as.integer(n_before) + 1L
+  )
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["nodes"]]),
+    as.integer(m_before) + 3L
+  )
+
+  tc <- TableCollection$new(xptr = tc_xptr)
+  n_before_method <- tc$num_nodes()
+  new_id_method <- tc$node_table_add_row()
+  expect_equal(new_id_method, as.integer(n_before_method))
+  expect_equal(
+    as.integer(tc$num_nodes()),
+    as.integer(n_before_method) + 1L
+  )
+
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+
+  n0 <- as.integer(rtsk_table_collection_get_num_nodes(tc_xptr))
+  m0 <- as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["nodes"]])
+
+  # Defaults map to NULL in the generated R wrapper and should be accepted.
+  id0 <- rtsk_node_table_add_row(tc_xptr)
+  expect_equal(id0, n0)
+  expect_equal(
+    as.integer(rtsk_table_collection_get_num_nodes(tc_xptr)),
+    n0 + 1L
+  )
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["nodes"]]),
+    m0
+  )
+
+  # Explicit NULL metadata should also be accepted.
+  id1 <- rtsk_node_table_add_row(
+    tc = tc_xptr,
+    flags = 0L,
+    time = 2.5,
+    population = -1L,
+    individual = -1L,
+    metadata = NULL
+  )
+  expect_equal(id1, n0 + 1L)
+
+  expect_error(
+    rtsk_node_table_add_row(
+      tc = tc_xptr,
+      flags = 0L,
+      population = NA_integer_
+    ),
+    regexp = "population must not be NA_integer_ in rtsk_node_table_add_row"
+  )
+  expect_error(
+    rtsk_node_table_add_row(
+      tc = tc_xptr,
+      flags = 0L,
+      individual = NA_integer_
+    ),
+    regexp = "individual must not be NA_integer_ in rtsk_node_table_add_row"
+  )
+
+  tc <- TableCollection$new(xptr = tc_xptr)
+  n_before_method <- as.integer(tc$num_nodes())
+  expect_no_error(
+    tc$node_table_add_row(
+      flags = 1L,
+      time = 3.5,
+      population = 0L,
+      individual = -1L,
+      metadata = NULL
+    )
+  )
+  expect_equal(as.integer(tc$num_nodes()), n_before_method + 1L)
+  expect_no_error(tc$node_table_add_row(population = NULL, individual = NULL))
+  expect_equal(as.integer(tc$num_nodes()), n_before_method + 2L)
+
+  m_before_char <- as.integer(rtsk_table_collection_metadata_length(tc$xptr)[[
+    "nodes"
+  ]])
+  expect_no_warning(tc$node_table_add_row(metadata = "abc"))
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc$xptr)[["nodes"]]),
+    m_before_char + 3L
+  )
+  m_before_raw <- as.integer(rtsk_table_collection_metadata_length(tc$xptr)[[
+    "nodes"
+  ]])
+  expect_no_error(tc$node_table_add_row(metadata = charToRaw("xyz")))
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc$xptr)[["nodes"]]),
+    m_before_raw + 3L
+  )
+  expect_error(
+    tc$node_table_add_row(population = NA_integer_),
+    regexp = "population must not be NA_integer_ in rtsk_node_table_add_row"
+  )
+  expect_error(
+    tc$node_table_add_row(individual = NA_integer_),
+    regexp = "individual must not be NA_integer_ in rtsk_node_table_add_row"
+  )
+  expect_error(
+    tc$node_table_add_row(metadata = c("a", "b")),
+    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+  )
+  expect_error(
+    tc$node_table_add_row(metadata = NA_character_),
+    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+  )
+  expect_error(
+    tc$node_table_add_row(metadata = 1L),
+    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+  )
+})
+
+test_that("edge_table_add_row wrapper expands the table collection and handles inputs", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+  expect_gt(as.integer(rtsk_table_collection_get_num_nodes(tc_xptr)), 1L)
+  parent <- 0L
+  child <- 1L
+
+  n_before <- rtsk_table_collection_get_num_edges(tc_xptr)
+  m_before <- rtsk_table_collection_metadata_length(tc_xptr)[["edges"]]
+
+  new_id <- rtsk_edge_table_add_row(
+    tc = tc_xptr,
+    left = 0,
+    right = 1,
+    parent = parent,
+    child = child,
+    metadata = charToRaw("abc")
+  )
+  expect_equal(new_id, as.integer(n_before)) # since IDs are 0-based
+  expect_equal(
+    as.integer(rtsk_table_collection_get_num_edges(tc_xptr)),
+    as.integer(n_before) + 1L
+  )
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["edges"]]),
+    as.integer(m_before) + 3L
+  )
+
+  tc <- TableCollection$new(xptr = tc_xptr)
+  n_before_method <- tc$num_edges()
+  new_id_method <- tc$edge_table_add_row(
+    left = 1,
+    right = 2,
+    parent = parent,
+    child = child
+  )
+  expect_equal(new_id_method, as.integer(n_before_method))
+  expect_equal(
+    as.integer(tc$num_edges()),
+    as.integer(n_before_method) + 1L
+  )
+
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+  parent <- 0L
+  child <- 1L
+
+  n0 <- as.integer(rtsk_table_collection_get_num_edges(tc_xptr))
+  m0 <- as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["edges"]])
+
+  # Explicit NULL metadata should be accepted.
+  id0 <- rtsk_edge_table_add_row(
+    tc = tc_xptr,
+    left = 0,
+    right = 1,
+    parent = parent,
+    child = child,
+    metadata = NULL
+  )
+  expect_equal(id0, n0)
+  expect_equal(
+    as.integer(rtsk_table_collection_get_num_edges(tc_xptr)),
+    n0 + 1L
+  )
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["edges"]]),
+    m0
+  )
+
+  expect_error(
+    rtsk_edge_table_add_row(
+      tc = tc_xptr,
+      left = NA_real_,
+      right = 1,
+      parent = parent,
+      child = child
+    ),
+    regexp = "left must not be NA_real_ in rtsk_edge_table_add_row"
+  )
+  expect_error(
+    rtsk_edge_table_add_row(
+      tc = tc_xptr,
+      left = 0,
+      right = NA_real_,
+      parent = parent,
+      child = child
+    ),
+    regexp = "right must not be NA_real_ in rtsk_edge_table_add_row"
+  )
+  expect_error(
+    rtsk_edge_table_add_row(
+      tc = tc_xptr,
+      left = Inf,
+      right = 1,
+      parent = parent,
+      child = child
+    ),
+    regexp = "left must be finite in rtsk_edge_table_add_row"
+  )
+  expect_error(
+    rtsk_edge_table_add_row(
+      tc = tc_xptr,
+      left = 0,
+      right = 0,
+      parent = parent,
+      child = child
+    ),
+    regexp = "left must be strictly less than right in rtsk_edge_table_add_row"
+  )
+  expect_error(
+    rtsk_edge_table_add_row(
+      tc = tc_xptr,
+      left = 0,
+      right = 1,
+      parent = NA_integer_,
+      child = child
+    ),
+    regexp = "parent must not be NA_integer_ in rtsk_edge_table_add_row"
+  )
+  expect_error(
+    rtsk_edge_table_add_row(
+      tc = tc_xptr,
+      left = 0,
+      right = 1,
+      parent = parent,
+      child = NA_integer_
+    ),
+    regexp = "child must not be NA_integer_ in rtsk_edge_table_add_row"
+  )
+
+  tc <- TableCollection$new(xptr = tc_xptr)
+  n_before_method <- as.integer(tc$num_edges())
+  expect_no_error(
+    tc$edge_table_add_row(
+      left = 2,
+      right = 3,
+      parent = parent,
+      child = child,
+      metadata = NULL
+    )
+  )
+  expect_equal(as.integer(tc$num_edges()), n_before_method + 1L)
+
+  m_before_char <- as.integer(rtsk_table_collection_metadata_length(tc$xptr)[[
+    "edges"
+  ]])
+  expect_no_warning(
+    tc$edge_table_add_row(
+      left = 3,
+      right = 4,
+      parent = parent,
+      child = child,
+      metadata = "abc"
+    )
+  )
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc$xptr)[["edges"]]),
+    m_before_char + 3L
+  )
+  m_before_raw <- as.integer(rtsk_table_collection_metadata_length(tc$xptr)[[
+    "edges"
+  ]])
+  expect_no_error(
+    tc$edge_table_add_row(
+      left = 4,
+      right = 5,
+      parent = parent,
+      child = child,
+      metadata = charToRaw("xyz")
+    )
+  )
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc$xptr)[["edges"]]),
+    m_before_raw + 3L
+  )
+  expect_error(
+    tc$edge_table_add_row(
+      left = NULL,
+      right = 6,
+      parent = parent,
+      child = child
+    ),
+    regexp = "left must be a non-NA finite numeric scalar!"
+  )
+  expect_error(
+    tc$edge_table_add_row(
+      left = c(5, 6),
+      right = 6,
+      parent = parent,
+      child = child
+    ),
+    regexp = "left must be a non-NA finite numeric scalar!"
+  )
+  expect_error(
+    tc$edge_table_add_row(
+      left = 6,
+      right = NULL,
+      parent = parent,
+      child = child
+    ),
+    regexp = "right must be a non-NA finite numeric scalar!"
+  )
+  expect_error(
+    tc$edge_table_add_row(
+      left = 6,
+      right = 6,
+      parent = parent,
+      child = child
+    ),
+    regexp = "left must be strictly less than right!"
+  )
+  expect_error(
+    tc$edge_table_add_row(
+      left = 6,
+      right = 7,
+      parent = NULL,
+      child = child
+    ),
+    regexp = "parent must be a non-NA integer scalar!"
+  )
+  expect_error(
+    tc$edge_table_add_row(
+      left = 6,
+      right = 7,
+      parent = parent,
+      child = NULL
+    ),
+    regexp = "child must be a non-NA integer scalar!"
+  )
+  expect_error(
+    tc$edge_table_add_row(
+      left = 5,
+      right = 6,
+      parent = NA_integer_,
+      child = child
+    ),
+    regexp = "parent must be a non-NA integer scalar!"
+  )
+  expect_error(
+    tc$edge_table_add_row(
+      left = 5,
+      right = 6,
+      parent = parent,
+      child = NA_integer_
+    ),
+    regexp = "child must be a non-NA integer scalar!"
+  )
+  expect_error(
+    tc$edge_table_add_row(
+      left = 6,
+      right = 7,
+      parent = parent,
+      child = child,
+      metadata = c("a", "b")
+    ),
+    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+  )
+  expect_error(
+    tc$edge_table_add_row(
+      left = 6,
+      right = 7,
+      parent = parent,
+      child = child,
+      metadata = NA_character_
+    ),
+    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+  )
+  expect_error(
+    tc$edge_table_add_row(
+      left = 6,
+      right = 7,
+      parent = parent,
+      child = child,
+      metadata = 1L
+    ),
+    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+  )
+})

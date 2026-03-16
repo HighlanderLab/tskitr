@@ -202,6 +202,60 @@ TableCollection <- R6Class(
       rtsk_table_collection_get_num_nodes(self$xptr)
     },
 
+    #' @description Add a row to the nodes table.
+    #' @param flags integer flags for the new node.
+    #' @param time numeric time value for the new node.
+    #' @param population integer population row ID (0-based, or \code{-1});
+    #'   \code{NULL} maps to \code{-1}.
+    #' @param individual integer individual row ID (0-based, or \code{-1});
+    #'   \code{NULL} maps to \code{-1}.
+    #' @param metadata for the new node; accepts \code{NULL},
+    #'   a raw vector, or a character of length 1.
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.NodeTable.add_row}.
+    #'   The function casts inputs to the expected class.
+    #' @return Integer row ID (0-based) of the newly added node.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' n_before <- tc$num_nodes()
+    #' new_id <- tc$node_table_add_row()
+    #' new_id <- tc$node_table_add_row(time = 2.5)
+    #' new_id <- tc$node_table_add_row(flags = 1L, time = 3.5, population = 0L)
+    #' new_id <- tc$node_table_add_row(flags = 1L, time = 4.5, individual = 0L)
+    #' new_id <- tc$node_table_add_row(metadata = "abc")
+    #' new_id <- tc$node_table_add_row(metadata = charToRaw("cba"))
+    #' n_after <- tc$num_nodes()
+    node_table_add_row = function(
+      flags = 0L,
+      time = 0,
+      population = -1L,
+      individual = -1L,
+      metadata = NULL
+    ) {
+      if (is.null(metadata)) {
+        metadata_raw <- NULL
+      } else if (is.raw(metadata)) {
+        metadata_raw <- metadata
+      } else if (
+        is.character(metadata) && length(metadata) == 1L && !is.na(metadata)
+      ) {
+        metadata_raw <- charToRaw(metadata)
+      } else {
+        stop(
+          "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+        )
+      }
+      rtsk_node_table_add_row(
+        tc = self$xptr,
+        flags = as.integer(flags),
+        time = as.numeric(time),
+        population = if (is.null(population)) -1L else as.integer(population),
+        individual = if (is.null(individual)) -1L else as.integer(individual),
+        metadata = metadata_raw
+      )
+    },
+
     #' @description Get the number of edges in a table collection.
     #' @return A signed 64 bit integer \code{bit64::integer64}.
     #' @examples
@@ -210,6 +264,92 @@ TableCollection <- R6Class(
     #' tc$num_edges()
     num_edges = function() {
       rtsk_table_collection_get_num_edges(self$xptr)
+    },
+
+    #' @description Add a row to the edges table.
+    #' @param left numeric scalar left coordinate for the new edge.
+    #' @param right numeric scalar right coordinate for the new edge.
+    #' @param parent integer scalar parent node row ID (0-based).
+    #' @param child integer scalar child node row ID (0-based).
+    #' @param metadata for the new edge; accepts \code{NULL},
+    #'   a raw vector, or a character of length 1.
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.EdgeTable.add_row}.
+    #'   The function casts inputs to the expected class.
+    #' @return Integer row ID (0-based) of the newly added edge.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' parent <- 0L
+    #' child <- 1L
+    #' n_before <- tc$num_edges()
+    #' new_id <- tc$edge_table_add_row(
+    #'   left = 0, right = 1, parent = parent, child = child
+    #' )
+    #' new_id <- tc$edge_table_add_row(
+    #'   left = 1, right = 2, parent = parent, child = child, metadata = "abc"
+    #' )
+    #' new_id <- tc$edge_table_add_row(
+    #'   left = 2, right = 3, parent = parent, child = child, metadata = charToRaw("cba")
+    #' )
+    #' n_after <- tc$num_edges()
+    edge_table_add_row = function(
+      left,
+      right,
+      parent,
+      child,
+      metadata = NULL
+    ) {
+      if (
+        is.null(left) ||
+          length(left) != 1L ||
+          !is.numeric(left) ||
+          is.na(left) ||
+          !is.finite(left)
+      ) {
+        stop("left must be a non-NA finite numeric scalar!")
+      }
+      if (
+        is.null(right) ||
+          length(right) != 1L ||
+          !is.numeric(right) ||
+          is.na(right) ||
+          !is.finite(right)
+      ) {
+        stop("right must be a non-NA finite numeric scalar!")
+      }
+      if (as.numeric(left) >= as.numeric(right)) {
+        stop("left must be strictly less than right!")
+      }
+      if (
+        is.null(parent) || length(parent) != 1L || is.na(as.integer(parent))
+      ) {
+        stop("parent must be a non-NA integer scalar!")
+      }
+      if (is.null(child) || length(child) != 1L || is.na(as.integer(child))) {
+        stop("child must be a non-NA integer scalar!")
+      }
+      if (is.null(metadata)) {
+        metadata_raw <- NULL
+      } else if (is.raw(metadata)) {
+        metadata_raw <- metadata
+      } else if (
+        is.character(metadata) && length(metadata) == 1L && !is.na(metadata)
+      ) {
+        metadata_raw <- charToRaw(metadata)
+      } else {
+        stop(
+          "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+        )
+      }
+      rtsk_edge_table_add_row(
+        tc = self$xptr,
+        left = as.numeric(left),
+        right = as.numeric(right),
+        parent = as.integer(parent),
+        child = as.integer(child),
+        metadata = metadata_raw
+      )
     },
 
     #' @description Get the number of sites in a table collection.

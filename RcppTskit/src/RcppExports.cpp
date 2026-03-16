@@ -549,6 +549,38 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rtsk_node_table_add_row
+int rtsk_node_table_add_row(const SEXP tc, const int flags, const double time, const int population, const int individual, const Rcpp::Nullable<Rcpp::RawVector> metadata);
+RcppExport SEXP _RcppTskit_rtsk_node_table_add_row(SEXP tcSEXP, SEXP flagsSEXP, SEXP timeSEXP, SEXP populationSEXP, SEXP individualSEXP, SEXP metadataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< const int >::type flags(flagsSEXP);
+    Rcpp::traits::input_parameter< const double >::type time(timeSEXP);
+    Rcpp::traits::input_parameter< const int >::type population(populationSEXP);
+    Rcpp::traits::input_parameter< const int >::type individual(individualSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::RawVector> >::type metadata(metadataSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_node_table_add_row(tc, flags, time, population, individual, metadata));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_edge_table_add_row
+int rtsk_edge_table_add_row(const SEXP tc, const double left, const double right, const int parent, const int child, const Rcpp::Nullable<Rcpp::RawVector> metadata);
+RcppExport SEXP _RcppTskit_rtsk_edge_table_add_row(SEXP tcSEXP, SEXP leftSEXP, SEXP rightSEXP, SEXP parentSEXP, SEXP childSEXP, SEXP metadataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< const double >::type left(leftSEXP);
+    Rcpp::traits::input_parameter< const double >::type right(rightSEXP);
+    Rcpp::traits::input_parameter< const int >::type parent(parentSEXP);
+    Rcpp::traits::input_parameter< const int >::type child(childSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::RawVector> >::type metadata(metadataSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_edge_table_add_row(tc, left, right, parent, child, metadata));
+    return rcpp_result_gen;
+END_RCPP
+}
 // test_tsk_bug_assert_c
 void test_tsk_bug_assert_c();
 RcppExport SEXP _RcppTskit_test_tsk_bug_assert_c() {
@@ -687,6 +719,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_rtsk_table_collection_summary", (DL_FUNC) &_RcppTskit_rtsk_table_collection_summary, 1},
     {"_RcppTskit_rtsk_table_collection_metadata_length", (DL_FUNC) &_RcppTskit_rtsk_table_collection_metadata_length, 1},
     {"_RcppTskit_rtsk_individual_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_individual_table_add_row, 5},
+    {"_RcppTskit_rtsk_node_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_node_table_add_row, 6},
+    {"_RcppTskit_rtsk_edge_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_edge_table_add_row, 6},
     {"_RcppTskit_test_tsk_bug_assert_c", (DL_FUNC) &_RcppTskit_test_tsk_bug_assert_c, 0},
     {"_RcppTskit_test_tsk_bug_assert_cpp", (DL_FUNC) &_RcppTskit_test_tsk_bug_assert_cpp, 0},
     {"_RcppTskit_test_tsk_trace_error_c", (DL_FUNC) &_RcppTskit_test_tsk_trace_error_c, 0},

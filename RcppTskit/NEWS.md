@@ -31,6 +31,15 @@ and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 - Added `rtsk_individual_table_add_row()` and
   `TableCollection$individual_table_add_row()` to append individual rows from
   \code{R}, mirroring `tsk_individual_table_add_row()`.
+- Added `rtsk_node_table_add_row()` and `TableCollection$node_table_add_row()`
+  to append node rows from \code{R}, mirroring `tsk_node_table_add_row()`.
+- Added `rtsk_edge_table_add_row()` and `TableCollection$edge_table_add_row()`
+  to append edge rows from \code{R}, mirroring `tsk_edge_table_add_row()`.
+- `TableCollection$node_table_add_row()` now maps `population = NULL` and
+  `individual = NULL` to `-1` (`TSK_NULL`) for R-level convenience.
+- `rtsk_edge_table_add_row()` and `TableCollection$edge_table_add_row()` now
+  validate `left`/`right` more explicitly (non-`NA`, finite, and `left < right`)
+  and require scalar `parent`/`child` IDs.
 - TODO
 
 ### Changed

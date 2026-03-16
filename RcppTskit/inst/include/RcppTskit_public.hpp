@@ -62,5 +62,11 @@ int rtsk_individual_table_add_row(
     Rcpp::Nullable<Rcpp::NumericVector> location = R_NilValue,
     Rcpp::Nullable<Rcpp::IntegerVector> parents = R_NilValue,
     Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
+int rtsk_node_table_add_row(
+    SEXP tc, int flags = 0, double time = 0, int population = -1,
+    int individual = -1, Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
+int rtsk_edge_table_add_row(
+    SEXP tc, double left, double right, int parent, int child,
+    Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
 
 #endif

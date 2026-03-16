@@ -207,6 +207,14 @@ rtsk_individual_table_add_row <- function(tc, flags = 0L, location = NULL, paren
     .Call(`_RcppTskit_rtsk_individual_table_add_row`, tc, flags, location, parents, metadata)
 }
 
+rtsk_node_table_add_row <- function(tc, flags = 0L, time = 0, population = -1L, individual = -1L, metadata = NULL) {
+    .Call(`_RcppTskit_rtsk_node_table_add_row`, tc, flags, time, population, individual, metadata)
+}
+
+rtsk_edge_table_add_row <- function(tc, left, right, parent, child, metadata = NULL) {
+    .Call(`_RcppTskit_rtsk_edge_table_add_row`, tc, left, right, parent, child, metadata)
+}
+
 test_tsk_bug_assert_c <- function() {
     invisible(.Call(`_RcppTskit_test_tsk_bug_assert_c`))
 }

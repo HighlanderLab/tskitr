@@ -97,12 +97,47 @@ tc <- tc_load(tc_file)
 tc$num_nodes()
 
 ## ------------------------------------------------
+## Method `TableCollection$node_table_add_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+n_before <- tc$num_nodes()
+new_id <- tc$node_table_add_row()
+new_id <- tc$node_table_add_row(time = 2.5)
+new_id <- tc$node_table_add_row(flags = 1L, time = 3.5, population = 0L)
+new_id <- tc$node_table_add_row(flags = 1L, time = 4.5, individual = 0L)
+new_id <- tc$node_table_add_row(metadata = "abc")
+new_id <- tc$node_table_add_row(metadata = charToRaw("cba"))
+n_after <- tc$num_nodes()
+
+## ------------------------------------------------
 ## Method `TableCollection$num_edges`
 ## ------------------------------------------------
 
 tc_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(tc_file)
 tc$num_edges()
+
+## ------------------------------------------------
+## Method `TableCollection$edge_table_add_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+parent <- 0L
+child <- 1L
+n_before <- tc$num_edges()
+new_id <- tc$edge_table_add_row(
+  left = 0, right = 1, parent = parent, child = child
+)
+new_id <- tc$edge_table_add_row(
+  left = 1, right = 2, parent = parent, child = child, metadata = "abc"
+)
+new_id <- tc$edge_table_add_row(
+  left = 2, right = 3, parent = parent, child = child, metadata = charToRaw("cba")
+)
+n_after <- tc$num_edges()
 
 ## ------------------------------------------------
 ## Method `TableCollection$num_sites`
@@ -241,7 +276,9 @@ tc
 \item \href{#method-TableCollection-num_individuals}{\code{TableCollection$num_individuals()}}
 \item \href{#method-TableCollection-individual_table_add_row}{\code{TableCollection$individual_table_add_row()}}
 \item \href{#method-TableCollection-num_nodes}{\code{TableCollection$num_nodes()}}
+\item \href{#method-TableCollection-node_table_add_row}{\code{TableCollection$node_table_add_row()}}
 \item \href{#method-TableCollection-num_edges}{\code{TableCollection$num_edges()}}
+\item \href{#method-TableCollection-edge_table_add_row}{\code{TableCollection$edge_table_add_row()}}
 \item \href{#method-TableCollection-num_sites}{\code{TableCollection$num_sites()}}
 \item \href{#method-TableCollection-num_mutations}{\code{TableCollection$num_mutations()}}
 \item \href{#method-TableCollection-sequence_length}{\code{TableCollection$sequence_length()}}
@@ -561,6 +598,66 @@ tc$num_nodes()
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-node_table_add_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-node_table_add_row}{}}}
+\subsection{Method \code{node_table_add_row()}}{
+Add a row to the nodes table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$node_table_add_row(
+  flags = 0L,
+  time = 0,
+  population = -1L,
+  individual = -1L,
+  metadata = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{flags}}{integer flags for the new node.}
+
+\item{\code{time}}{numeric time value for the new node.}
+
+\item{\code{population}}{integer population row ID (0-based, or \code{-1});
+\code{NULL} maps to \code{-1}.}
+
+\item{\code{individual}}{integer individual row ID (0-based, or \code{-1});
+\code{NULL} maps to \code{-1}.}
+
+\item{\code{metadata}}{for the new node; accepts \code{NULL},
+a raw vector, or a character of length 1.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.NodeTable.add_row}.
+  The function casts inputs to the expected class.
+}
+
+\subsection{Returns}{
+Integer row ID (0-based) of the newly added node.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+n_before <- tc$num_nodes()
+new_id <- tc$node_table_add_row()
+new_id <- tc$node_table_add_row(time = 2.5)
+new_id <- tc$node_table_add_row(flags = 1L, time = 3.5, population = 0L)
+new_id <- tc$node_table_add_row(flags = 1L, time = 4.5, individual = 0L)
+new_id <- tc$node_table_add_row(metadata = "abc")
+new_id <- tc$node_table_add_row(metadata = charToRaw("cba"))
+n_after <- tc$num_nodes()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TableCollection-num_edges"></a>}}
 \if{latex}{\out{\hypertarget{method-TableCollection-num_edges}{}}}
 \subsection{Method \code{num_edges()}}{
@@ -577,6 +674,63 @@ A signed 64 bit integer \code{bit64::integer64}.
 \preformatted{tc_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(tc_file)
 tc$num_edges()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-edge_table_add_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-edge_table_add_row}{}}}
+\subsection{Method \code{edge_table_add_row()}}{
+Add a row to the edges table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$edge_table_add_row(left, right, parent, child, metadata = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{left}}{numeric scalar left coordinate for the new edge.}
+
+\item{\code{right}}{numeric scalar right coordinate for the new edge.}
+
+\item{\code{parent}}{integer scalar parent node row ID (0-based).}
+
+\item{\code{child}}{integer scalar child node row ID (0-based).}
+
+\item{\code{metadata}}{for the new edge; accepts \code{NULL},
+a raw vector, or a character of length 1.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.EdgeTable.add_row}.
+  The function casts inputs to the expected class.
+}
+
+\subsection{Returns}{
+Integer row ID (0-based) of the newly added edge.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+parent <- 0L
+child <- 1L
+n_before <- tc$num_edges()
+new_id <- tc$edge_table_add_row(
+  left = 0, right = 1, parent = parent, child = child
+)
+new_id <- tc$edge_table_add_row(
+  left = 1, right = 2, parent = parent, child = child, metadata = "abc"
+)
+new_id <- tc$edge_table_add_row(
+  left = 2, right = 3, parent = parent, child = child, metadata = charToRaw("cba")
+)
+n_after <- tc$num_edges()
 }
 \if{html}{\out{</div>}}
 
