@@ -6,17 +6,20 @@
 #' The tree sequence encoding of an ARG is described in Wong et al. (2024)
 #' <doi:10.1093/genetics/iyae100>, while \code{tskit} project is
 #' described in Jeffrey et al. (2026) <doi:10.48550/arXiv.2602.09649>.
-#' See also https://tskit.dev for project news, documentation, and tutorials.
-#' \code{Tskit} provides Python, C, and Rust application programming interfaces (APIs).
-#' The Python API can be called from R via the \code{reticulate} package to
-#' load and analyse tree sequences as described at
-#' https://tskit.dev/tutorials/tskitr.html.
-#' \code{RcppTskit} provides R access to the \code{tskit} C API for cases where the
-#' \code{reticulate} option is not optimal; for example; high-performance or low-level
-#' work with tree sequences. Currently, \code{RcppTskit} provides a limited set of
-#' R functions because the Python API and \code{reticulate} already covers most needs.
-#' The provided \code{RcppTskit R} API mirrors the \code{tskit Python} API,
-#' while the \code{RcppTskit C++} API mirrors the \code{tskit C} API.
+#' See also \url{https://tskit.dev} for project news, documentation, and tutorials.
+#' \code{Tskit} provides \code{Python}, \code{C}, and \code{Rust} application
+#' programming interfaces (APIs). The \code{Python} API can be called from
+#' \code{R} via the \code{reticulate} package to load and analyse tree sequences
+#' as described at \url{https://tskit.dev/tutorials/tskitr.html}.
+#' \code{RcppTskit} provides \code{R} access to the \code{tskit C} API for cases
+#' where the \code{reticulate} option is not optimal; for example; high-performance
+#' or low-level work with tree sequences. Currently, \code{RcppTskit} provides a
+#' limited set of \code{R} functions because the \code{Python} API and
+#' \code{reticulate} already covers most needs. The provided \code{RcppTskit R}
+#' API mirrors the \code{tskit Python} API, while the \code{RcppTskit C++} API
+#' mirrors the \code{tskit C} API. Users should explore the \code{RcppTskit}
+#' help pages of \code{R} functions, while developers should explore the provided
+#' \code{RcppTskit:::rtsk_*} low-level \code{R} and \code{C++} functions.
 #' @keywords internal
 #'
 #' @useDynLib RcppTskit, .registration = TRUE
