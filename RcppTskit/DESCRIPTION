@@ -23,9 +23,11 @@ Description: 'Tskit' enables efficient storage, manipulation, and analysis
     'reticulate' option is not optimal; for example, high-performance or
     low-level work with tree sequences. Currently, 'RcppTskit' provides a
     limited set of functions because the 'Python' API and 'reticulate'
-    already cover most needs. The provided `RcppTskit R` API mirrors the
-    `tskit Python` API, while the `RcppTskit C++` API mirrors the `tskit
-    C` API.
+    already cover most needs. The provided 'RcppTskit R' API mirrors the
+    'tskit Python' API, while the 'RcppTskit C++' API mirrors the 'tskit
+    C' API. Users should explore the 'RcppTskit' help pages of 'R'
+    functions, while developers should explore the 'RcppTskit:::rtsk_*'
+    low-level 'R' and 'C++'' functions.
 License: MIT + file LICENSE
 URL: https://github.com/HighlanderLab/RcppTskit
 BugReports: https://github.com/HighlanderLab/RcppTskit/issues

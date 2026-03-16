@@ -56,6 +56,10 @@ As the name suggests, `RcppTskit` leverages the `R` package `Rcpp`
 which significantly lowers the barrier to using `C++` with `R`.
 However, we still need to write `C++` wrappers and expose them to `R`,
 so we recommend using `reticulate` first.
+To understand which functions are implemented,
+users should explore the `RcppTskit` help pages of `R` functions,
+while developers should explore the underlying
+`RcppTskit:::rtsk_*` low-level `R` and `C++` functions.
 
 ## State of the tree sequence ecosystem
 
@@ -201,18 +205,15 @@ so all editing should happen in `C/C++` or `Python`.
 
 ## API mirroring across the languages
 
-The provided `RcppTskit R` API mirrors the `tskit Python` API,
-while .
-
 `RcppTskit` aims to keep naming, arguments, defaults, and behaviour aligned
 with upstream `tskit` APIs whenever practical.
 Specifically,
-the provided `RcppTskit R` API mirrors the `tskit Python` API,
-that is the functions and `R6` classes (with their methods) aim to mirror
+the `RcppTskit R` API mirrors the `tskit Python` API;
+the `R` functions and `R6` classes (with their methods) aim to mirror
 `tskit Python` functions and classes (with their methods).
 Note that the `RcppTskit R` API is far more limited than the `tskit Python` API.
 The `RcppTskit C++` API aims to mirror the `tskit C` API functions and semantics,
-but is deliberately `R` oriented
+but is deliberately `R` oriented.
 When we intentionally deviate (for example, to support `R` idioms or safety),
 we document the rationale and test the chosen behaviour.
 
@@ -223,7 +224,8 @@ First install `RcppTskit` from CRAN and load it.
 ```{r}
 #| label: pre-setup
 #| include: false
-# Had issues on Windows (R reported that RcppTskit is not installed, which is odd).
+# Had issues on GitHub Windows
+# (R reported that RcppTskit is not installed, which is odd).
 # This tries to "restore" the library path.
 lib_env <- Sys.getenv("R_LIBS")
 if (nzchar(lib_env)) {
@@ -264,8 +266,28 @@ tc$print()
 # Convert the table collection to tree sequence
 ts2 <- tc$tree_sequence()
 
-# Explore the help pages
+# Users should explore the help pages
 help(package = "RcppTskit")
+```
+
+Developers should also explore the low-level `R` and `C++` functions.
+Their names all start with `rtsk_` and are accessible via `RcppTskit:::`.
+For example, the above `R` function `ts_load()` effectively calls:
+
+```{r}
+#| label: use_case_1_dev_funcs
+# Low-level R function, which further calls the C++ function
+RcppTskit:::rtsk_treeseq_load
+
+# C++ function (see also the C++ source code)
+RcppTskit:::`_RcppTskit_rtsk_treeseq_load`
+
+# The same as the ts_load() example, but exposing the external pointer
+xptr <- RcppTskit:::rtsk_treeseq_load(ts_file)
+methods::is(xptr)
+
+# We pass the external pointer to other low-level functions
+RcppTskit:::rtsk_treeseq_get_num_individuals(xptr)
 ```
 
 ### 2) Pass a tree sequence between `R` and reticulate or standard `Python`
