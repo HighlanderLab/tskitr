@@ -91,6 +91,10 @@ test_that("low-level variant iterator validates samples and alleles inputs", {
     rtsk_variant_iterator_init(ts_xptr, samples = c(n_nodes + 1L)),
     "Node out of bounds"
   )
+  expect_error(
+    rtsk_variant_iterator_init(ts_xptr, alleles = c("A", NA_character_)),
+    "alleles cannot contain NA"
+  )
 
   it <- rtsk_variant_iterator_init(ts_xptr, alleles = c("A", "C", "G", "T"))
   v <- rtsk_variant_iterator_next(it)
