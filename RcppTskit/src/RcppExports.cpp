@@ -10,6 +10,33 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// rtsk_variant_iterator_init
+SEXP rtsk_variant_iterator_init(const SEXP ts, const Rcpp::Nullable<Rcpp::IntegerVector> samples, const bool isolated_as_missing, const Rcpp::Nullable<Rcpp::CharacterVector> alleles, const double left, const double right);
+RcppExport SEXP _RcppTskit_rtsk_variant_iterator_init(SEXP tsSEXP, SEXP samplesSEXP, SEXP isolated_as_missingSEXP, SEXP allelesSEXP, SEXP leftSEXP, SEXP rightSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::IntegerVector> >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< const bool >::type isolated_as_missing(isolated_as_missingSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::CharacterVector> >::type alleles(allelesSEXP);
+    Rcpp::traits::input_parameter< const double >::type left(leftSEXP);
+    Rcpp::traits::input_parameter< const double >::type right(rightSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_variant_iterator_init(ts, samples, isolated_as_missing, alleles, left, right));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_variant_iterator_next
+SEXP rtsk_variant_iterator_next(const SEXP iterator);
+RcppExport SEXP _RcppTskit_rtsk_variant_iterator_next(SEXP iteratorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP >::type iterator(iteratorSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_variant_iterator_next(iterator));
+    return rcpp_result_gen;
+END_RCPP
+}
 // test_validate_options
 int test_validate_options(const int options, const int supported);
 RcppExport SEXP _RcppTskit_test_validate_options(SEXP optionsSEXP, SEXP supportedSEXP) {
@@ -742,6 +769,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_RcppTskit_rtsk_variant_iterator_init", (DL_FUNC) &_RcppTskit_rtsk_variant_iterator_init, 6},
+    {"_RcppTskit_rtsk_variant_iterator_next", (DL_FUNC) &_RcppTskit_rtsk_variant_iterator_next, 1},
     {"_RcppTskit_test_validate_options", (DL_FUNC) &_RcppTskit_test_validate_options, 2},
     {"_RcppTskit_test_rtsk_wrap_tsk_size_t_as_integer64", (DL_FUNC) &_RcppTskit_test_rtsk_wrap_tsk_size_t_as_integer64, 2},
     {"_RcppTskit_kastore_version", (DL_FUNC) &_RcppTskit_kastore_version, 0},

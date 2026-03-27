@@ -18,6 +18,12 @@ void rtsk_table_collection_dump(SEXP tc, std::string &filename,
                                 int options = 0);
 SEXP rtsk_treeseq_copy_tables(SEXP ts, int options = 0);
 SEXP rtsk_treeseq_init(SEXP tc, int options = 0);
+SEXP rtsk_variant_iterator_init(
+    SEXP ts, Rcpp::Nullable<Rcpp::IntegerVector> samples = R_NilValue,
+    bool isolated_as_missing = true,
+    Rcpp::Nullable<Rcpp::CharacterVector> alleles = R_NilValue,
+    double left = 0.0, double right = NA_REAL);
+SEXP rtsk_variant_iterator_next(SEXP iterator);
 
 SEXP rtsk_treeseq_get_num_provenances(SEXP ts);
 SEXP rtsk_treeseq_get_num_populations(SEXP ts);

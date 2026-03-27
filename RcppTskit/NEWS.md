@@ -40,6 +40,12 @@ and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 - Added `rtsk_mutation_table_add_row()` and
   `TableCollection$mutation_table_add_row()` to append mutation rows from
   \code{R}, mirroring `tsk_mutation_table_add_row()`.
+- Added low-level variant iterators
+  (`rtsk_variant_iterator_init()`/`rtsk_variant_iterator_next()`) and a
+  user-facing `TreeSequence$variants()` method to iterate over decoded
+  site-by-site variants from \code{R}, aligned with `tskit` Python API
+  semantics for `samples`, `isolated_as_missing`, `alleles`, and
+  `left`/`right` intervals.
 - TODO
 
 ### Changed
