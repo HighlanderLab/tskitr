@@ -18,6 +18,12 @@ void rtsk_table_collection_dump(SEXP tc, std::string &filename,
                                 int options = 0);
 SEXP rtsk_treeseq_copy_tables(SEXP ts, int options = 0);
 SEXP rtsk_treeseq_init(SEXP tc, int options = 0);
+SEXP rtsk_variant_iterator_init(
+    SEXP ts, Rcpp::Nullable<Rcpp::IntegerVector> samples = R_NilValue,
+    bool isolated_as_missing = true,
+    Rcpp::Nullable<Rcpp::CharacterVector> alleles = R_NilValue,
+    double left = 0.0, double right = NA_REAL);
+SEXP rtsk_variant_iterator_next(SEXP iterator);
 
 SEXP rtsk_treeseq_get_num_provenances(SEXP ts);
 SEXP rtsk_treeseq_get_num_populations(SEXP ts);
@@ -67,6 +73,14 @@ int rtsk_node_table_add_row(
     int individual = -1, Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
 int rtsk_edge_table_add_row(
     SEXP tc, double left, double right, int parent, int child,
+    Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
+int rtsk_site_table_add_row(
+    SEXP tc, double position,
+    Rcpp::Nullable<Rcpp::RawVector> ancestral_state = R_NilValue,
+    Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
+int rtsk_mutation_table_add_row(
+    SEXP tc, int site, int node, int parent, double time,
+    Rcpp::Nullable<Rcpp::RawVector> derived_state = R_NilValue,
     Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
 
 #endif

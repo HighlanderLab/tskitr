@@ -4,10 +4,13 @@
 // they are synced!
 #define RCPPTSKIT_IMPL
 #include <RcppTskit.hpp>
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <exception>
 #include <limits>
+#include <memory>
+#include <string>
 #include <vector>
 
 namespace {
@@ -142,6 +145,35 @@ tsk_flags_t validate_options(const int options, const tsk_flags_t supported,
 constexpr tsk_size_t kMaxBit64Integer64 =
     static_cast<tsk_size_t>(std::numeric_limits<int64_t>::max());
 
+struct rtsk_variant_iterator_state_t {
+  rtsk_treeseq_t ts_xptr;
+  SEXP ts_sexp = R_NilValue;
+  tsk_variant_t variant = {};
+  bool variant_initialized = false;
+  tsk_id_t next_site_id = 0;
+  tsk_id_t stop_site_id = 0;
+
+  explicit rtsk_variant_iterator_state_t(const SEXP ts) : ts_xptr(ts) {}
+};
+
+static void rtsk_variant_iterator_free(rtsk_variant_iterator_state_t *ptr) {
+  if (ptr != NULL) {
+    if (ptr->variant_initialized) {
+      tsk_variant_free(&ptr->variant);
+    }
+    if (ptr->ts_sexp != R_NilValue) {
+      R_ReleaseObject(ptr->ts_sexp);
+    }
+    delete ptr;
+  }
+}
+
+using rtsk_variant_iterator_t =
+    Rcpp::XPtr<rtsk_variant_iterator_state_t, Rcpp::PreserveStorage,
+               rtsk_variant_iterator_free, true>;
+
+bool g_test_force_null_first_allele = false;
+
 // INTERNAL
 // @title Convert \code{Rcpp::Nullable} vector to empty-or-value vector
 // @param value nullable vector from \code{R}
@@ -175,6 +207,52 @@ std::vector<tsk_id_t> int_vector_to_tsk_id_vector(
   return out;
 }
 
+void validate_variant_site_index_range(const tsk_size_t start,
+                                       const tsk_size_t stop);
+
+std::pair<tsk_id_t, tsk_id_t>
+compute_variant_iteration_bounds(rtsk_treeseq_t &ts_xptr, const double left,
+                                 const double right) {
+  if (!std::isfinite(left) || !std::isfinite(right)) {
+    Rcpp::stop("left and right must be finite numbers");
+  }
+  if (left < 0 || right < 0) {
+    Rcpp::stop("left and right must be >= 0");
+  }
+
+  const double sequence_length = tsk_treeseq_get_sequence_length(ts_xptr);
+  if (left > sequence_length || right > sequence_length) {
+    Rcpp::stop("left and right must be <= sequence length (%f)",
+               sequence_length);
+  }
+  if (left > right) {
+    Rcpp::stop("left must be <= right");
+  }
+
+  const tsk_size_t num_sites = tsk_treeseq_get_num_sites(ts_xptr);
+  const tsk_site_table_t *sites = &ts_xptr->tables->sites;
+  const double *begin = sites->position;
+  const double *end = begin + num_sites;
+
+  const tsk_size_t start =
+      static_cast<tsk_size_t>(std::lower_bound(begin, end, left) - begin);
+  const tsk_size_t stop =
+      static_cast<tsk_size_t>(std::lower_bound(begin, end, right) - begin);
+  validate_variant_site_index_range(start, stop);
+
+  return std::make_pair(static_cast<tsk_id_t>(start),
+                        static_cast<tsk_id_t>(stop));
+}
+
+void validate_variant_site_index_range(const tsk_size_t start,
+                                       const tsk_size_t stop) {
+  const tsk_size_t max_id =
+      static_cast<tsk_size_t>(std::numeric_limits<tsk_id_t>::max());
+  if (start > max_id || stop > max_id) {
+    Rcpp::stop("Site index exceeds tsk_id_t range");
+  }
+}
+
 // INTERNAL
 // @title Wrap \code{C tsk_size_t / uint64_t} to \code{R bit64::integer64}
 // @param value \code{C tsk_size_t / uint64_t} value
@@ -204,6 +282,146 @@ SEXP rtsk_wrap_tsk_size_t_as_integer64(const tsk_size_t value,
 }
 
 } // namespace
+
+// PUBLIC, low-level iterator init for tsk_variant_t decode
+// [[Rcpp::export]]
+SEXP rtsk_variant_iterator_init(
+    const SEXP ts,
+    const Rcpp::Nullable<Rcpp::IntegerVector> samples = R_NilValue,
+    const bool isolated_as_missing = true,
+    const Rcpp::Nullable<Rcpp::CharacterVector> alleles = R_NilValue,
+    const double left = 0.0, const double right = NA_REAL) {
+  std::unique_ptr<rtsk_variant_iterator_state_t> state_ptr(
+      new rtsk_variant_iterator_state_t(ts));
+
+  const tsk_flags_t options =
+      isolated_as_missing ? 0 : TSK_ISOLATED_NOT_MISSING;
+
+  const Rcpp::IntegerVector samples_int =
+      nullable_to_vector_or_empty<Rcpp::IntegerVector>(samples);
+  const std::vector<tsk_id_t> samples_vec =
+      int_vector_to_tsk_id_vector(samples_int, "rtsk_variant_iterator_init");
+  const tsk_id_t *samples_ptr =
+      samples_vec.empty() ? nullptr : samples_vec.data();
+  const tsk_size_t num_samples = static_cast<tsk_size_t>(samples_vec.size());
+
+  const Rcpp::CharacterVector alleles_chr =
+      nullable_to_vector_or_empty<Rcpp::CharacterVector>(alleles);
+  std::vector<std::string> allele_storage;
+  std::vector<const char *> allele_ptrs;
+  const char **alleles_ptr = nullptr;
+  if (alleles_chr.size() > 0) {
+    allele_storage.reserve(alleles_chr.size());
+    for (const SEXP allele : alleles_chr) {
+      if (allele == NA_STRING) {
+        Rcpp::stop("alleles cannot contain NA");
+      }
+      allele_storage.push_back(Rcpp::as<std::string>(allele));
+    }
+    allele_ptrs.reserve(allele_storage.size() + 1);
+    for (const std::string &allele : allele_storage) {
+      allele_ptrs.push_back(allele.c_str());
+    }
+    allele_ptrs.push_back(nullptr);
+    alleles_ptr = allele_ptrs.data();
+  }
+
+  const double effective_right =
+      Rcpp::NumericVector::is_na(right)
+          ? tsk_treeseq_get_sequence_length(state_ptr->ts_xptr)
+          : right;
+  const auto bounds = compute_variant_iteration_bounds(state_ptr->ts_xptr, left,
+                                                       effective_right);
+  state_ptr->next_site_id = bounds.first;
+  state_ptr->stop_site_id = bounds.second;
+
+  int ret = tsk_variant_init(&state_ptr->variant, state_ptr->ts_xptr,
+                             samples_ptr, num_samples, alleles_ptr, options);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+  state_ptr->variant_initialized = true;
+  state_ptr->ts_sexp = ts;
+  R_PreserveObject(ts);
+
+  rtsk_variant_iterator_t iterator_xptr(state_ptr.release(), true);
+  return iterator_xptr;
+}
+
+// PUBLIC, low-level iterator next for tsk_variant_t decode
+// [[Rcpp::export]]
+SEXP rtsk_variant_iterator_next(const SEXP iterator) {
+  rtsk_variant_iterator_t iterator_xptr(iterator);
+  if (iterator_xptr->next_site_id >= iterator_xptr->stop_site_id) {
+    return R_NilValue;
+  }
+
+  const tsk_id_t site_id = iterator_xptr->next_site_id;
+  iterator_xptr->next_site_id += 1;
+  int ret = tsk_variant_decode(&iterator_xptr->variant, site_id, 0);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  const tsk_variant_t &variant = iterator_xptr->variant;
+  if (g_test_force_null_first_allele && variant.num_alleles > 0) {
+    iterator_xptr->variant.alleles[0] = nullptr;
+    g_test_force_null_first_allele = false;
+  }
+
+  Rcpp::IntegerVector genotypes(variant.num_samples);
+  for (tsk_size_t j = 0; j < variant.num_samples; ++j) {
+    genotypes[j] = variant.genotypes[j];
+  }
+
+  Rcpp::CharacterVector out_alleles(variant.num_alleles);
+  for (tsk_size_t j = 0; j < variant.num_alleles; ++j) {
+    if (variant.alleles[j] == nullptr) {
+      out_alleles[j] = NA_STRING;
+      continue;
+    }
+    out_alleles[j] = std::string(variant.alleles[j], variant.allele_lengths[j]);
+  }
+
+  return Rcpp::List::create(
+      Rcpp::_["site_id"] = variant.site.id,
+      Rcpp::_["position"] = variant.site.position,
+      Rcpp::_["genotypes"] = genotypes, Rcpp::_["alleles"] = out_alleles,
+      Rcpp::_["has_missing_data"] = variant.has_missing_data);
+}
+
+// TEST-ONLY
+// [[Rcpp::export]]
+void test_rtsk_variant_iterator_force_null_first_allele(const bool enabled) {
+  g_test_force_null_first_allele = enabled;
+}
+
+// TEST-ONLY
+// [[Rcpp::export]]
+void test_rtsk_variant_iterator_set_site_bounds(const SEXP iterator,
+                                                const int next_site_id,
+                                                const int stop_site_id) {
+  rtsk_variant_iterator_t iterator_xptr(iterator);
+  iterator_xptr->next_site_id = static_cast<tsk_id_t>(next_site_id);
+  iterator_xptr->stop_site_id = static_cast<tsk_id_t>(stop_site_id);
+}
+
+// TEST-ONLY
+// [[Rcpp::export]]
+void test_variant_site_index_range(const std::string start,
+                                   const std::string stop) {
+  unsigned long long start_parsed = 0;
+  unsigned long long stop_parsed = 0;
+  try {
+    start_parsed = std::stoull(start);
+    stop_parsed = std::stoull(stop);
+  } catch (const std::exception &) {
+    Rcpp::stop("start and stop must be valid base-10 unsigned integer strings");
+  }
+  const tsk_size_t start_size = static_cast<tsk_size_t>(start_parsed);
+  const tsk_size_t stop_size = static_cast<tsk_size_t>(stop_parsed);
+  validate_variant_site_index_range(start_size, stop_size);
+}
 
 // TEST-ONLY
 // @title Test helper for validating tskit flags
@@ -1491,6 +1709,176 @@ int rtsk_edge_table_add_row(
   const tsk_id_t row_id =
       tsk_edge_table_add_row(&tc_xptr->edges, left, right, row_parent,
                              row_child, metadata_ptr, metadata_length);
+  if (row_id < 0) {
+    Rcpp::stop(tsk_strerror(row_id));
+  }
+  return static_cast<int>(row_id);
+}
+
+// PUBLIC, wrapper for tsk_site_table_add_row
+// @title Add a row to the site table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param position numeric scalar site position.
+// @param ancestral_state raw vector with ancestral-state bytes
+//   (can be \code{NULL}, treated as empty).
+// @param metadata raw vector with metadata bytes
+//   (can be \code{NULL}).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_site_table_add_row}
+//   on the sites table of \code{tc}.
+// @return The 0-based row ID of the newly added site.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// n_before <- RcppTskit:::rtsk_table_collection_get_num_sites(tc_xptr)
+// m_before <-
+// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)[["sites"]]
+// new_id <- RcppTskit:::rtsk_site_table_add_row(
+//   tc = tc_xptr, position = 0.5, ancestral_state = charToRaw("A")
+// )
+// new_id <- RcppTskit:::rtsk_site_table_add_row(
+//   tc = tc_xptr,
+//   position = 1.5,
+//   ancestral_state = charToRaw("G"),
+//   metadata = charToRaw("abc")
+// )
+// n_after <- RcppTskit:::rtsk_table_collection_get_num_sites(tc_xptr)
+// m_after <-
+// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)[["sites"]]
+// new_id == as.integer(n_before) && n_after == n_before + 2L &&
+//   m_after == m_before + 3L
+// [[Rcpp::export]]
+int rtsk_site_table_add_row(
+    const SEXP tc, const double position,
+    const Rcpp::Nullable<Rcpp::RawVector> ancestral_state = R_NilValue,
+    const Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue) {
+  if (Rcpp::NumericVector::is_na(position)) {
+    Rcpp::stop("position must not be NA_real_ in rtsk_site_table_add_row");
+  }
+  if (!std::isfinite(position)) {
+    Rcpp::stop("position must be finite in rtsk_site_table_add_row");
+  }
+  rtsk_table_collection_t tc_xptr(tc);
+
+  const Rcpp::RawVector ancestral_state_vec =
+      nullable_to_vector_or_empty<Rcpp::RawVector>(ancestral_state);
+  const tsk_size_t ancestral_state_length =
+      static_cast<tsk_size_t>(ancestral_state_vec.size());
+  const char *ancestral_state_ptr =
+      ancestral_state_length > 0
+          ? reinterpret_cast<const char *>(RAW(ancestral_state_vec))
+          : nullptr;
+
+  const Rcpp::RawVector metadata_vec =
+      nullable_to_vector_or_empty<Rcpp::RawVector>(metadata);
+  const tsk_size_t metadata_length =
+      static_cast<tsk_size_t>(metadata_vec.size());
+  const char *metadata_ptr =
+      metadata_length > 0 ? reinterpret_cast<const char *>(RAW(metadata_vec))
+                          : nullptr;
+
+  const tsk_id_t row_id = tsk_site_table_add_row(
+      &tc_xptr->sites, position, ancestral_state_ptr, ancestral_state_length,
+      metadata_ptr, metadata_length);
+  if (row_id < 0) {
+    Rcpp::stop(tsk_strerror(row_id));
+  }
+  return static_cast<int>(row_id);
+}
+
+// PUBLIC, wrapper for tsk_mutation_table_add_row
+// @title Add a row to the mutation table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param site integer site row ID (0-based).
+// @param node integer node row ID (0-based).
+// @param parent integer parent mutation row ID (0-based, or \code{-1}).
+// @param time numeric mutation time value.
+// @param derived_state raw vector with derived-state bytes
+//   (can be \code{NULL}, treated as empty).
+// @param metadata raw vector with metadata bytes
+//   (can be \code{NULL}).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_mutation_table_add_row}
+//   on the mutations table of \code{tc}.
+// @return The 0-based row ID of the newly added mutation.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// n_before <- RcppTskit:::rtsk_table_collection_get_num_mutations(tc_xptr)
+// m_before <-
+// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)[["mutations"]]
+// new_id <- RcppTskit:::rtsk_mutation_table_add_row(
+//   tc = tc_xptr,
+//   site = 0L,
+//   node = 0L,
+//   parent = -1L,
+//   time = TSK_UNKNOWN_TIME,
+//   derived_state = charToRaw("T")
+// )
+// new_id <- RcppTskit:::rtsk_mutation_table_add_row(
+//   tc = tc_xptr,
+//   site = 0L,
+//   node = 0L,
+//   parent = -1L,
+//   time = 1.0,
+//   derived_state = charToRaw("C"),
+//   metadata = charToRaw("abc")
+// )
+// n_after <- RcppTskit:::rtsk_table_collection_get_num_mutations(tc_xptr)
+// m_after <-
+// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)[["mutations"]]
+// new_id == as.integer(n_before) && n_after == n_before + 2L &&
+//   m_after == m_before + 3L
+// [[Rcpp::export]]
+int rtsk_mutation_table_add_row(
+    const SEXP tc, const int site, const int node, const int parent,
+    const double time,
+    const Rcpp::Nullable<Rcpp::RawVector> derived_state = R_NilValue,
+    const Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue) {
+  if (Rcpp::IntegerVector::is_na(site)) {
+    Rcpp::stop("site must not be NA_integer_ in rtsk_mutation_table_add_row");
+  }
+  if (Rcpp::IntegerVector::is_na(node)) {
+    Rcpp::stop("node must not be NA_integer_ in rtsk_mutation_table_add_row");
+  }
+  if (Rcpp::IntegerVector::is_na(parent)) {
+    Rcpp::stop("parent must not be NA_integer_ in rtsk_mutation_table_add_row");
+  }
+  if (R_IsNA(time)) {
+    Rcpp::stop("time must not be NA_real_ in rtsk_mutation_table_add_row");
+  }
+  if (!std::isfinite(time) && !std::isnan(time)) {
+    Rcpp::stop("time must be finite or NaN in "
+               "rtsk_mutation_table_add_row");
+  }
+
+  const tsk_id_t row_site = static_cast<tsk_id_t>(site);
+  const tsk_id_t row_node = static_cast<tsk_id_t>(node);
+  const tsk_id_t row_parent = static_cast<tsk_id_t>(parent);
+  rtsk_table_collection_t tc_xptr(tc);
+
+  const Rcpp::RawVector derived_state_vec =
+      nullable_to_vector_or_empty<Rcpp::RawVector>(derived_state);
+  const tsk_size_t derived_state_length =
+      static_cast<tsk_size_t>(derived_state_vec.size());
+  const char *derived_state_ptr =
+      derived_state_length > 0
+          ? reinterpret_cast<const char *>(RAW(derived_state_vec))
+          : nullptr;
+
+  const Rcpp::RawVector metadata_vec =
+      nullable_to_vector_or_empty<Rcpp::RawVector>(metadata);
+  const tsk_size_t metadata_length =
+      static_cast<tsk_size_t>(metadata_vec.size());
+  const char *metadata_ptr =
+      metadata_length > 0 ? reinterpret_cast<const char *>(RAW(metadata_vec))
+                          : nullptr;
+
+  const tsk_id_t row_id = tsk_mutation_table_add_row(
+      &tc_xptr->mutations, row_site, row_node, row_parent, time,
+      derived_state_ptr, derived_state_length, metadata_ptr, metadata_length);
   if (row_id < 0) {
     Rcpp::stop(tsk_strerror(row_id));
   }
