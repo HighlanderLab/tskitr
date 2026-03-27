@@ -58,6 +58,14 @@ test_that("low-level variant iterator validates bounds", {
   seq_len <- rtsk_treeseq_get_sequence_length(ts_xptr)
 
   expect_error(
+    rtsk_variant_iterator_init(ts_xptr, left = NaN, right = seq_len),
+    "left and right must be finite numbers"
+  )
+  expect_error(
+    rtsk_variant_iterator_init(ts_xptr, left = -1, right = seq_len),
+    "left and right must be >= 0"
+  )
+  expect_error(
     rtsk_variant_iterator_init(ts_xptr, left = seq_len + 1, right = seq_len),
     "left and right must be <= sequence length"
   )
