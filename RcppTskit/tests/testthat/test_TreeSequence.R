@@ -92,7 +92,17 @@ test_that("TreeSequence$variants() validates compatibility args", {
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
   ts <- ts_load(ts_file)
 
+  expect_error(ts$variants(copy = NA), "copy must be TRUE/FALSE")
+  expect_error(ts$variants(copy = "yes"), "copy must be TRUE/FALSE")
   expect_error(ts$variants(copy = FALSE), "copy = FALSE is not supported yet")
+  expect_error(
+    ts$variants(impute_missing_data = NA),
+    "impute_missing_data must be TRUE/FALSE or NULL"
+  )
+  expect_error(
+    ts$variants(impute_missing_data = "yes"),
+    "impute_missing_data must be TRUE/FALSE or NULL"
+  )
   expect_warning(
     ts$variants(impute_missing_data = TRUE),
     "impute_missing_data is deprecated"

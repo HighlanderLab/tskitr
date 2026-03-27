@@ -51,3 +51,67 @@ test_that("low-level variant iterator supports sample subsets", {
   expect_false(is.null(v))
   expect_length(v$genotypes, length(samples))
 })
+
+test_that("low-level variant iterator validates bounds", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  ts_xptr <- rtsk_treeseq_load(ts_file)
+  seq_len <- rtsk_treeseq_get_sequence_length(ts_xptr)
+
+  expect_error(
+    rtsk_variant_iterator_init(ts_xptr, left = seq_len + 1, right = seq_len),
+    "left and right must be <= sequence length"
+  )
+  expect_error(
+    rtsk_variant_iterator_init(ts_xptr, left = 1, right = 0.5),
+    "left must be <= right"
+  )
+})
+
+test_that("low-level variant iterator validates site-index range helper", {
+  expect_error(
+    test_variant_site_index_range("2147483648", "0"),
+    "Site index exceeds tsk_id_t range"
+  )
+})
+
+test_that("low-level variant iterator validates samples and alleles inputs", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  ts_xptr <- rtsk_treeseq_load(ts_file)
+  n_nodes <- as.integer(rtsk_treeseq_get_num_nodes(ts_xptr))
+
+  expect_error(
+    rtsk_variant_iterator_init(ts_xptr, samples = c(n_nodes + 1L)),
+    "Node out of bounds"
+  )
+
+  it <- rtsk_variant_iterator_init(ts_xptr, alleles = c("A", "C", "G", "T"))
+  v <- rtsk_variant_iterator_next(it)
+  expect_false(is.null(v))
+})
+
+test_that("low-level variant iterator decode error path can be triggered", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  ts_xptr <- rtsk_treeseq_load(ts_file)
+  n_sites <- as.integer(rtsk_treeseq_get_num_sites(ts_xptr))
+
+  it <- rtsk_variant_iterator_init(ts_xptr)
+  test_rtsk_variant_iterator_set_site_bounds(
+    it,
+    next_site_id = n_sites,
+    stop_site_id = n_sites + 1L
+  )
+  expect_error(
+    rtsk_variant_iterator_next(it),
+    regexp = "Site out of bounds|Bounds check"
+  )
+})
+
+test_that("low-level variant iterator maps null alleles to NA_character_", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  ts_xptr <- rtsk_treeseq_load(ts_file)
+  it <- rtsk_variant_iterator_init(ts_xptr)
+  test_rtsk_variant_iterator_force_null_first_allele(TRUE)
+  v <- rtsk_variant_iterator_next(it)
+  expect_false(is.null(v))
+  expect_true(anyNA(v$alleles))
+})

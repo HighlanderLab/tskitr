@@ -172,6 +172,8 @@ using rtsk_variant_iterator_t =
     Rcpp::XPtr<rtsk_variant_iterator_state_t, Rcpp::PreserveStorage,
                rtsk_variant_iterator_free, true>;
 
+bool g_test_force_null_first_allele = false;
+
 // INTERNAL
 // @title Convert \code{Rcpp::Nullable} vector to empty-or-value vector
 // @param value nullable vector from \code{R}
@@ -205,6 +207,9 @@ std::vector<tsk_id_t> int_vector_to_tsk_id_vector(
   return out;
 }
 
+void validate_variant_site_index_range(const tsk_size_t start,
+                                       const tsk_size_t stop);
+
 std::pair<tsk_id_t, tsk_id_t>
 compute_variant_iteration_bounds(rtsk_treeseq_t &ts_xptr, const double left,
                                  const double right) {
@@ -233,15 +238,19 @@ compute_variant_iteration_bounds(rtsk_treeseq_t &ts_xptr, const double left,
       static_cast<tsk_size_t>(std::lower_bound(begin, end, left) - begin);
   const tsk_size_t stop =
       static_cast<tsk_size_t>(std::lower_bound(begin, end, right) - begin);
+  validate_variant_site_index_range(start, stop);
 
+  return std::make_pair(static_cast<tsk_id_t>(start),
+                        static_cast<tsk_id_t>(stop));
+}
+
+void validate_variant_site_index_range(const tsk_size_t start,
+                                       const tsk_size_t stop) {
   const tsk_size_t max_id =
       static_cast<tsk_size_t>(std::numeric_limits<tsk_id_t>::max());
   if (start > max_id || stop > max_id) {
     Rcpp::stop("Site index exceeds tsk_id_t range");
   }
-
-  return std::make_pair(static_cast<tsk_id_t>(start),
-                        static_cast<tsk_id_t>(stop));
 }
 
 // INTERNAL
@@ -355,6 +364,10 @@ SEXP rtsk_variant_iterator_next(const SEXP iterator) {
   }
 
   const tsk_variant_t &variant = iterator_xptr->variant;
+  if (g_test_force_null_first_allele && variant.num_alleles > 0) {
+    iterator_xptr->variant.alleles[0] = nullptr;
+    g_test_force_null_first_allele = false;
+  }
 
   Rcpp::IntegerVector genotypes(variant.num_samples);
   for (tsk_size_t j = 0; j < variant.num_samples; ++j) {
@@ -375,6 +388,39 @@ SEXP rtsk_variant_iterator_next(const SEXP iterator) {
       Rcpp::_["position"] = variant.site.position,
       Rcpp::_["genotypes"] = genotypes, Rcpp::_["alleles"] = out_alleles,
       Rcpp::_["has_missing_data"] = variant.has_missing_data);
+}
+
+// TEST-ONLY
+// [[Rcpp::export]]
+void test_rtsk_variant_iterator_force_null_first_allele(const bool enabled) {
+  g_test_force_null_first_allele = enabled;
+}
+
+// TEST-ONLY
+// [[Rcpp::export]]
+void test_rtsk_variant_iterator_set_site_bounds(const SEXP iterator,
+                                                const int next_site_id,
+                                                const int stop_site_id) {
+  rtsk_variant_iterator_t iterator_xptr(iterator);
+  iterator_xptr->next_site_id = static_cast<tsk_id_t>(next_site_id);
+  iterator_xptr->stop_site_id = static_cast<tsk_id_t>(stop_site_id);
+}
+
+// TEST-ONLY
+// [[Rcpp::export]]
+void test_variant_site_index_range(const std::string start,
+                                   const std::string stop) {
+  unsigned long long start_parsed = 0;
+  unsigned long long stop_parsed = 0;
+  try {
+    start_parsed = std::stoull(start);
+    stop_parsed = std::stoull(stop);
+  } catch (const std::exception &) {
+    Rcpp::stop("start and stop must be valid base-10 unsigned integer strings");
+  }
+  const tsk_size_t start_size = static_cast<tsk_size_t>(start_parsed);
+  const tsk_size_t stop_size = static_cast<tsk_size_t>(stop_parsed);
+  validate_variant_site_index_range(start_size, stop_size);
 }
 
 // TEST-ONLY

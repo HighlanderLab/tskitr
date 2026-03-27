@@ -9,6 +9,18 @@ rtsk_variant_iterator_next <- function(iterator) {
     .Call(`_RcppTskit_rtsk_variant_iterator_next`, iterator)
 }
 
+test_rtsk_variant_iterator_force_null_first_allele <- function(enabled) {
+    invisible(.Call(`_RcppTskit_test_rtsk_variant_iterator_force_null_first_allele`, enabled))
+}
+
+test_rtsk_variant_iterator_set_site_bounds <- function(iterator, next_site_id, stop_site_id) {
+    invisible(.Call(`_RcppTskit_test_rtsk_variant_iterator_set_site_bounds`, iterator, next_site_id, stop_site_id))
+}
+
+test_variant_site_index_range <- function(start, stop) {
+    invisible(.Call(`_RcppTskit_test_variant_site_index_range`, start, stop))
+}
+
 test_validate_options <- function(options, supported) {
     .Call(`_RcppTskit_test_validate_options`, options, supported)
 }
