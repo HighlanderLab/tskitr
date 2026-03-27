@@ -37,6 +37,39 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// test_rtsk_variant_iterator_force_null_first_allele
+void test_rtsk_variant_iterator_force_null_first_allele(const bool enabled);
+RcppExport SEXP _RcppTskit_test_rtsk_variant_iterator_force_null_first_allele(SEXP enabledSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const bool >::type enabled(enabledSEXP);
+    test_rtsk_variant_iterator_force_null_first_allele(enabled);
+    return R_NilValue;
+END_RCPP
+}
+// test_rtsk_variant_iterator_set_site_bounds
+void test_rtsk_variant_iterator_set_site_bounds(const SEXP iterator, const int next_site_id, const int stop_site_id);
+RcppExport SEXP _RcppTskit_test_rtsk_variant_iterator_set_site_bounds(SEXP iteratorSEXP, SEXP next_site_idSEXP, SEXP stop_site_idSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP >::type iterator(iteratorSEXP);
+    Rcpp::traits::input_parameter< const int >::type next_site_id(next_site_idSEXP);
+    Rcpp::traits::input_parameter< const int >::type stop_site_id(stop_site_idSEXP);
+    test_rtsk_variant_iterator_set_site_bounds(iterator, next_site_id, stop_site_id);
+    return R_NilValue;
+END_RCPP
+}
+// test_variant_site_index_range
+void test_variant_site_index_range(const std::string start, const std::string stop);
+RcppExport SEXP _RcppTskit_test_variant_site_index_range(SEXP startSEXP, SEXP stopSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string >::type start(startSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type stop(stopSEXP);
+    test_variant_site_index_range(start, stop);
+    return R_NilValue;
+END_RCPP
+}
 // test_validate_options
 int test_validate_options(const int options, const int supported);
 RcppExport SEXP _RcppTskit_test_validate_options(SEXP optionsSEXP, SEXP supportedSEXP) {
@@ -771,6 +804,9 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_rtsk_variant_iterator_init", (DL_FUNC) &_RcppTskit_rtsk_variant_iterator_init, 6},
     {"_RcppTskit_rtsk_variant_iterator_next", (DL_FUNC) &_RcppTskit_rtsk_variant_iterator_next, 1},
+    {"_RcppTskit_test_rtsk_variant_iterator_force_null_first_allele", (DL_FUNC) &_RcppTskit_test_rtsk_variant_iterator_force_null_first_allele, 1},
+    {"_RcppTskit_test_rtsk_variant_iterator_set_site_bounds", (DL_FUNC) &_RcppTskit_test_rtsk_variant_iterator_set_site_bounds, 3},
+    {"_RcppTskit_test_variant_site_index_range", (DL_FUNC) &_RcppTskit_test_variant_site_index_range, 2},
     {"_RcppTskit_test_validate_options", (DL_FUNC) &_RcppTskit_test_validate_options, 2},
     {"_RcppTskit_test_rtsk_wrap_tsk_size_t_as_integer64", (DL_FUNC) &_RcppTskit_test_rtsk_wrap_tsk_size_t_as_integer64, 2},
     {"_RcppTskit_kastore_version", (DL_FUNC) &_RcppTskit_kastore_version, 0},
