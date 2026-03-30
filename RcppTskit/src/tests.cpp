@@ -206,3 +206,67 @@ void test_rtsk_edge_table_add_row_forced_error(const SEXP tc) {
     throw;
   }
 }
+
+// TEST-ONLY
+// @title Force tskit-level error path in \\code{rtsk_site_table_add_row}
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @return No return value; called for side effects - testing.
+// [[Rcpp::export]]
+void test_rtsk_site_table_add_row_forced_error(const SEXP tc) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_site_table_t &sites = tc_xptr->sites;
+  tsk_size_t saved_max_rows = sites.max_rows;
+  tsk_size_t saved_max_rows_increment = sites.max_rows_increment;
+  sites.max_rows = 1;
+  sites.max_rows_increment = static_cast<tsk_size_t>(TSK_MAX_ID) + 1;
+  const Rcpp::RawVector ancestral_state = Rcpp::RawVector::create('A');
+  try {
+    (void)rtsk_site_table_add_row(tc, 0.5, ancestral_state, R_NilValue);
+    // Lines below not hit by tests because rtsk_site_table_add_row()
+    // throws error # nocov start
+    sites.max_rows = saved_max_rows;
+    sites.max_rows_increment = saved_max_rows_increment;
+    return;
+    // # nocov end
+  } catch (...) {
+    sites.max_rows = saved_max_rows;
+    sites.max_rows_increment = saved_max_rows_increment;
+    throw;
+  }
+}
+
+// TEST-ONLY
+// @title Force tskit-level error path in \\code{rtsk_mutation_table_add_row}
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @return No return value; called for side effects - testing.
+// [[Rcpp::export]]
+void test_rtsk_mutation_table_add_row_forced_error(const SEXP tc) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_mutation_table_t &mutations = tc_xptr->mutations;
+  tsk_size_t saved_max_rows = mutations.max_rows;
+  tsk_size_t saved_max_rows_increment = mutations.max_rows_increment;
+  mutations.max_rows = 1;
+  mutations.max_rows_increment = static_cast<tsk_size_t>(TSK_MAX_ID) + 1;
+  const tsk_id_t site =
+      mutations.num_rows > 0 ? mutations.site[0] : static_cast<tsk_id_t>(0);
+  const tsk_id_t node =
+      mutations.num_rows > 0 ? mutations.node[0] : static_cast<tsk_id_t>(0);
+  const Rcpp::RawVector derived_state = Rcpp::RawVector::create('T');
+  try {
+    (void)rtsk_mutation_table_add_row(
+        tc, static_cast<int>(site), static_cast<int>(node), -1,
+        TSK_UNKNOWN_TIME, derived_state, R_NilValue);
+    // Lines below not hit by tests because rtsk_mutation_table_add_row()
+    // throws error # nocov start
+    mutations.max_rows = saved_max_rows;
+    mutations.max_rows_increment = saved_max_rows_increment;
+    return;
+    // # nocov end
+  } catch (...) {
+    mutations.max_rows = saved_max_rows;
+    mutations.max_rows_increment = saved_max_rows_increment;
+    throw;
+  }
+}

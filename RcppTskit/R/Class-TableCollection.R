@@ -367,6 +367,75 @@ TableCollection <- R6Class(
       rtsk_table_collection_get_num_sites(self$xptr)
     },
 
+    #' @description Add a row to the sites table.
+    #' @param position numeric scalar site position.
+    #' @param ancestral_state for the new site; accepts \code{NULL},
+    #'   a raw vector, or a character of length 1.
+    #' @param metadata for the new site; accepts \code{NULL},
+    #'   a raw vector, or a character of length 1.
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.SiteTable.add_row}.
+    #'   The function casts inputs to the expected class. \code{position}
+    #'   must be a non-\code{NA} finite numeric scalar.
+    #' @return Integer row ID (0-based) of the newly added site.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' n_before <- tc$num_sites()
+    #' new_id <- tc$site_table_add_row(position = 0.5, ancestral_state = "A")
+    #' new_id <- tc$site_table_add_row(position = 1.5, ancestral_state = charToRaw("G"))
+    #' new_id <- tc$site_table_add_row(position = 2.5, ancestral_state = "T", metadata = "abc")
+    #' n_after <- tc$num_sites()
+    site_table_add_row = function(
+      position,
+      ancestral_state = NULL,
+      metadata = NULL
+    ) {
+      if (
+        is.null(position) ||
+          length(position) != 1L ||
+          !is.numeric(position) ||
+          is.na(position) ||
+          !is.finite(position)
+      ) {
+        stop("position must be a non-NA finite numeric scalar!")
+      }
+      if (is.null(ancestral_state)) {
+        ancestral_state_raw <- NULL
+      } else if (is.raw(ancestral_state)) {
+        ancestral_state_raw <- ancestral_state
+      } else if (
+        is.character(ancestral_state) &&
+          length(ancestral_state) == 1L &&
+          !is.na(ancestral_state)
+      ) {
+        ancestral_state_raw <- charToRaw(ancestral_state)
+      } else {
+        stop(
+          "ancestral_state must be NULL, a raw vector, or a length-1 non-NA character string!"
+        )
+      }
+      if (is.null(metadata)) {
+        metadata_raw <- NULL
+      } else if (is.raw(metadata)) {
+        metadata_raw <- metadata
+      } else if (
+        is.character(metadata) && length(metadata) == 1L && !is.na(metadata)
+      ) {
+        metadata_raw <- charToRaw(metadata)
+      } else {
+        stop(
+          "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+        )
+      }
+      rtsk_site_table_add_row(
+        tc = self$xptr,
+        position = as.numeric(position),
+        ancestral_state = ancestral_state_raw,
+        metadata = metadata_raw
+      )
+    },
+
     #' @description Get the number of mutations in a table collection.
     #' @return A signed 64 bit integer \code{bit64::integer64}.
     #' @examples
@@ -375,6 +444,104 @@ TableCollection <- R6Class(
     #' tc$num_mutations()
     num_mutations = function() {
       rtsk_table_collection_get_num_mutations(self$xptr)
+    },
+
+    #' @description Add a row to the mutations table.
+    #' @param site integer scalar site row ID (0-based).
+    #' @param node integer scalar node row ID (0-based).
+    #' @param parent integer scalar parent mutation row ID (0-based, or \code{-1}).
+    #' @param time numeric scalar mutation time; use \code{NaN} for
+    #'   \code{TSK_UNKNOWN_TIME}.
+    #' @param derived_state for the new mutation; accepts \code{NULL},
+    #'   a raw vector, or a character of length 1.
+    #' @param metadata for the new mutation; accepts \code{NULL},
+    #'   a raw vector, or a character of length 1.
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.MutationTable.add_row}.
+    #'   The function casts inputs to the expected class. \code{site},
+    #'   \code{node}, and \code{parent} must be non-\code{NA} integer scalars.
+    #'   \code{time} must be a numeric scalar that is finite or \code{NaN}
+    #'   (unknown time).
+    #' @return Integer row ID (0-based) of the newly added mutation.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' n_before <- tc$num_mutations()
+    #' new_id <- tc$mutation_table_add_row(site = 0L, node = 0L, derived_state = "T")
+    #' new_id <- tc$mutation_table_add_row(
+    #'   site = 0L,
+    #'   node = 0L,
+    #'   parent = -1L,
+    #'   time = 1.5,
+    #'   derived_state = charToRaw("C"),
+    #'   metadata = "abc"
+    #' )
+    #' n_after <- tc$num_mutations()
+    mutation_table_add_row = function(
+      site,
+      node,
+      parent = -1L,
+      time = NaN,
+      derived_state = NULL,
+      metadata = NULL
+    ) {
+      if (is.null(site) || length(site) != 1L || is.na(as.integer(site))) {
+        stop("site must be a non-NA integer scalar!")
+      }
+      if (is.null(node) || length(node) != 1L || is.na(as.integer(node))) {
+        stop("node must be a non-NA integer scalar!")
+      }
+      if (
+        is.null(parent) || length(parent) != 1L || is.na(as.integer(parent))
+      ) {
+        stop("parent must be a non-NA integer scalar!")
+      }
+      if (
+        is.null(time) ||
+          length(time) != 1L ||
+          !is.numeric(time) ||
+          (is.na(time) && !is.nan(time)) ||
+          !(is.finite(time) || is.nan(time))
+      ) {
+        stop("time must be a non-NA numeric scalar that is finite or NaN!")
+      }
+      if (is.null(derived_state)) {
+        derived_state_raw <- NULL
+      } else if (is.raw(derived_state)) {
+        derived_state_raw <- derived_state
+      } else if (
+        is.character(derived_state) &&
+          length(derived_state) == 1L &&
+          !is.na(derived_state)
+      ) {
+        derived_state_raw <- charToRaw(derived_state)
+      } else {
+        stop(
+          "derived_state must be NULL, a raw vector, or a length-1 non-NA character string!"
+        )
+      }
+      if (is.null(metadata)) {
+        metadata_raw <- NULL
+      } else if (is.raw(metadata)) {
+        metadata_raw <- metadata
+      } else if (
+        is.character(metadata) && length(metadata) == 1L && !is.na(metadata)
+      ) {
+        metadata_raw <- charToRaw(metadata)
+      } else {
+        stop(
+          "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+        )
+      }
+      rtsk_mutation_table_add_row(
+        tc = self$xptr,
+        site = as.integer(site),
+        node = as.integer(node),
+        parent = as.integer(parent),
+        time = as.numeric(time),
+        derived_state = derived_state_raw,
+        metadata = metadata_raw
+      )
     },
 
     #' @description Get the sequence length.

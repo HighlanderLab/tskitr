@@ -581,6 +581,37 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rtsk_site_table_add_row
+int rtsk_site_table_add_row(const SEXP tc, const double position, const Rcpp::Nullable<Rcpp::RawVector> ancestral_state, const Rcpp::Nullable<Rcpp::RawVector> metadata);
+RcppExport SEXP _RcppTskit_rtsk_site_table_add_row(SEXP tcSEXP, SEXP positionSEXP, SEXP ancestral_stateSEXP, SEXP metadataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< const double >::type position(positionSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::RawVector> >::type ancestral_state(ancestral_stateSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::RawVector> >::type metadata(metadataSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_site_table_add_row(tc, position, ancestral_state, metadata));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_mutation_table_add_row
+int rtsk_mutation_table_add_row(const SEXP tc, const int site, const int node, const int parent, const double time, const Rcpp::Nullable<Rcpp::RawVector> derived_state, const Rcpp::Nullable<Rcpp::RawVector> metadata);
+RcppExport SEXP _RcppTskit_rtsk_mutation_table_add_row(SEXP tcSEXP, SEXP siteSEXP, SEXP nodeSEXP, SEXP parentSEXP, SEXP timeSEXP, SEXP derived_stateSEXP, SEXP metadataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< const int >::type site(siteSEXP);
+    Rcpp::traits::input_parameter< const int >::type node(nodeSEXP);
+    Rcpp::traits::input_parameter< const int >::type parent(parentSEXP);
+    Rcpp::traits::input_parameter< const double >::type time(timeSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::RawVector> >::type derived_state(derived_stateSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::RawVector> >::type metadata(metadataSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_mutation_table_add_row(tc, site, node, parent, time, derived_state, metadata));
+    return rcpp_result_gen;
+END_RCPP
+}
 // test_tsk_bug_assert_c
 void test_tsk_bug_assert_c();
 RcppExport SEXP _RcppTskit_test_tsk_bug_assert_c() {
@@ -689,6 +720,26 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// test_rtsk_site_table_add_row_forced_error
+void test_rtsk_site_table_add_row_forced_error(const SEXP tc);
+RcppExport SEXP _RcppTskit_test_rtsk_site_table_add_row_forced_error(SEXP tcSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
+    test_rtsk_site_table_add_row_forced_error(tc);
+    return R_NilValue;
+END_RCPP
+}
+// test_rtsk_mutation_table_add_row_forced_error
+void test_rtsk_mutation_table_add_row_forced_error(const SEXP tc);
+RcppExport SEXP _RcppTskit_test_rtsk_mutation_table_add_row_forced_error(SEXP tcSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
+    test_rtsk_mutation_table_add_row_forced_error(tc);
+    return R_NilValue;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_test_validate_options", (DL_FUNC) &_RcppTskit_test_validate_options, 2},
@@ -741,6 +792,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_rtsk_individual_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_individual_table_add_row, 5},
     {"_RcppTskit_rtsk_node_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_node_table_add_row, 6},
     {"_RcppTskit_rtsk_edge_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_edge_table_add_row, 6},
+    {"_RcppTskit_rtsk_site_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_site_table_add_row, 4},
+    {"_RcppTskit_rtsk_mutation_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_mutation_table_add_row, 7},
     {"_RcppTskit_test_tsk_bug_assert_c", (DL_FUNC) &_RcppTskit_test_tsk_bug_assert_c, 0},
     {"_RcppTskit_test_tsk_bug_assert_cpp", (DL_FUNC) &_RcppTskit_test_tsk_bug_assert_cpp, 0},
     {"_RcppTskit_test_tsk_trace_error_c", (DL_FUNC) &_RcppTskit_test_tsk_trace_error_c, 0},
@@ -752,6 +805,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_test_rtsk_individual_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_individual_table_add_row_forced_error, 1},
     {"_RcppTskit_test_rtsk_node_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_node_table_add_row_forced_error, 1},
     {"_RcppTskit_test_rtsk_edge_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_edge_table_add_row_forced_error, 1},
+    {"_RcppTskit_test_rtsk_site_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_site_table_add_row_forced_error, 1},
+    {"_RcppTskit_test_rtsk_mutation_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_mutation_table_add_row_forced_error, 1},
     {NULL, NULL, 0}
 };
 
