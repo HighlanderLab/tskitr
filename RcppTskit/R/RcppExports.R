@@ -51,6 +51,10 @@ tskit_version <- function() {
     .Call(`_RcppTskit_tskit_version`)
 }
 
+rtsk_const_tsk_no_check_integrity <- function() {
+    .Call(`_RcppTskit_rtsk_const_tsk_no_check_integrity`)
+}
+
 rtsk_treeseq_load <- function(filename, options = 0L) {
     .Call(`_RcppTskit_rtsk_treeseq_load`, filename, options)
 }
@@ -93,6 +97,10 @@ rtsk_treeseq_get_num_individuals <- function(ts) {
 
 rtsk_treeseq_get_num_samples <- function(ts) {
     .Call(`_RcppTskit_rtsk_treeseq_get_num_samples`, ts)
+}
+
+rtsk_treeseq_get_samples <- function(ts) {
+    .Call(`_RcppTskit_rtsk_treeseq_get_samples`, ts)
 }
 
 rtsk_treeseq_get_num_nodes <- function(ts) {
@@ -215,6 +223,10 @@ rtsk_table_collection_drop_index <- function(tc, options = 0L) {
     invisible(.Call(`_RcppTskit_rtsk_table_collection_drop_index`, tc, options))
 }
 
+rtsk_table_collection_sort <- function(tc, edge_start = 0L, options = 0L) {
+    invisible(.Call(`_RcppTskit_rtsk_table_collection_sort`, tc, edge_start, options))
+}
+
 rtsk_table_collection_summary <- function(tc) {
     .Call(`_RcppTskit_rtsk_table_collection_summary`, tc)
 }
@@ -229,6 +241,10 @@ rtsk_individual_table_add_row <- function(tc, flags = 0L, location = NULL, paren
 
 rtsk_node_table_add_row <- function(tc, flags = 0L, time = 0, population = -1L, individual = -1L, metadata = NULL) {
     .Call(`_RcppTskit_rtsk_node_table_add_row`, tc, flags, time, population, individual, metadata)
+}
+
+rtsk_node_table_get_row <- function(tc, row_id) {
+    .Call(`_RcppTskit_rtsk_node_table_get_row`, tc, row_id)
 }
 
 rtsk_edge_table_add_row <- function(tc, left, right, parent, child, metadata = NULL) {

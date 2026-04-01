@@ -24,6 +24,8 @@ constexpr tsk_flags_t kCopyTablesSupportedFlags = TSK_COPY_FILE_UUID;
 constexpr tsk_flags_t kTreeseqInitSupportedFlags =
     TSK_TS_INIT_BUILD_INDEXES | TSK_TS_INIT_COMPUTE_MUTATION_PARENTS;
 
+constexpr tsk_flags_t kTableSortSupportedFlags = TSK_NO_CHECK_INTEGRITY;
+
 // INTERNAL
 // @title Validate load options
 // @param options passed to load functions
@@ -138,6 +140,22 @@ tsk_flags_t validate_options(const int options, const tsk_flags_t supported,
   }
   if (flags != 0) {
     Rcpp::stop("%s does not support non-zero options", caller);
+  }
+  return flags;
+}
+
+tsk_flags_t validate_supported_options(const int options,
+                                       const tsk_flags_t supported,
+                                       const char *caller) {
+  if (options < 0) {
+    Rcpp::stop("%s does not support negative options", caller);
+  }
+  const tsk_flags_t flags = static_cast<tsk_flags_t>(options);
+  const tsk_flags_t unsupported = flags & ~supported;
+  if (unsupported != 0) {
+    Rcpp::stop("%s only supports options 0x%X; unsupported bits: 0x%X", caller,
+               static_cast<unsigned int>(supported),
+               static_cast<unsigned int>(unsupported));
   }
   return flags;
 }
@@ -493,6 +511,14 @@ Rcpp::IntegerVector tskit_version() {
                                      Rcpp::_["patch"] = TSK_VERSION_PATCH);
 }
 
+// PUBLIC
+// @title Return the tskit C option value for \code{TSK_NO_CHECK_INTEGRITY}
+// @return Integer constant value of \code{TSK_NO_CHECK_INTEGRITY}.
+// [[Rcpp::export]]
+int rtsk_const_tsk_no_check_integrity() {
+  return static_cast<int>(TSK_NO_CHECK_INTEGRITY);
+}
+
 // PUBLIC, wrapper for tsk_treeseq_load
 // @title Load a tree sequence from a file
 // @param filename a string specifying the full path of the tree sequence file.
@@ -800,6 +826,20 @@ SEXP rtsk_treeseq_get_num_samples(const SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
   return rtsk_wrap_tsk_size_t_as_integer64(tsk_treeseq_get_num_samples(ts_xptr),
                                            "rtsk_treeseq_get_num_samples");
+}
+
+// PUBLIC, wrapper for tsk_treeseq_get_samples
+// @describeIn rtsk_treeseq_summary Get sample node IDs.
+// [[Rcpp::export]]
+Rcpp::IntegerVector rtsk_treeseq_get_samples(const SEXP ts) {
+  rtsk_treeseq_t ts_xptr(ts);
+  const tsk_size_t num_samples = tsk_treeseq_get_num_samples(ts_xptr);
+  const tsk_id_t *samples = tsk_treeseq_get_samples(ts_xptr);
+  Rcpp::IntegerVector out(num_samples);
+  for (tsk_size_t j = 0; j < num_samples; ++j) {
+    out[j] = samples[j];
+  }
+  return out;
 }
 
 // PUBLIC, wrapper for tsk_treeseq_get_num_nodes
@@ -1328,8 +1368,41 @@ void rtsk_table_collection_drop_index(const SEXP tc, const int options = 0) {
   // # nocov end
 }
 
-// TODO: Do we have to add TableCollection$sort() method? #99
-//       https://github.com/HighlanderLab/RcppTskit/issues/99
+// PUBLIC, wrapper for tsk_table_collection_sort
+// @title Sort a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param edge_start integer scalar edge-table start row (0-based) used in
+//   sorting bookmark.
+// @param options passed to \code{tskit C}; this wrapper supports
+//   \code{TSK_NO_CHECK_INTEGRITY}.
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_table_collection_sort}.
+// @return No return value; called for side effects.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_table_collection_sort(tc_xptr)
+// [[Rcpp::export]]
+void rtsk_table_collection_sort(const SEXP tc, const int edge_start = 0,
+                                const int options = 0) {
+  if (Rcpp::IntegerVector::is_na(edge_start)) {
+    Rcpp::stop(
+        "edge_start must not be NA_integer_ in rtsk_table_collection_sort");
+  }
+  if (edge_start < 0) {
+    Rcpp::stop("edge_start must be >= 0 in rtsk_table_collection_sort");
+  }
+  const tsk_flags_t flags = validate_supported_options(
+      options, kTableSortSupportedFlags, "rtsk_table_collection_sort");
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_bookmark_t start = {0};
+  start.edges = static_cast<tsk_size_t>(edge_start);
+  int ret = tsk_table_collection_sort(tc_xptr, &start, flags);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+}
 
 // TODO: Do we need any other method on table collection to produce a valid
 //       ts? #100
@@ -1631,6 +1704,50 @@ int rtsk_node_table_add_row(
     Rcpp::stop(tsk_strerror(row_id));
   }
   return static_cast<int>(row_id);
+}
+
+// PUBLIC, wrapper for tsk_node_table_get_row
+// @title Get a row from the node table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param row_id integer scalar row ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_node_table_get_row}
+//   on the nodes table of \code{tc}.
+// @return A named list with fields \code{id}, \code{flags}, \code{time},
+//   \code{population}, \code{individual}, and \code{metadata}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_node_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_node_table_get_row(const SEXP tc, const int row_id) {
+  if (Rcpp::IntegerVector::is_na(row_id)) {
+    Rcpp::stop("row_id must not be NA_integer_ in rtsk_node_table_get_row");
+  }
+  if (row_id < 0) {
+    Rcpp::stop("row_id must be >= 0 in rtsk_node_table_get_row");
+  }
+
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_node_t row;
+  const tsk_id_t row_id_tsk = static_cast<tsk_id_t>(row_id);
+  int ret = tsk_node_table_get_row(&tc_xptr->nodes, row_id_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::RawVector metadata(row.metadata_length);
+  for (tsk_size_t j = 0; j < row.metadata_length; ++j) {
+    metadata[j] = static_cast<Rbyte>(row.metadata[j]);
+  }
+
+  return Rcpp::List::create(
+      Rcpp::_["id"] = row_id, Rcpp::_["flags"] = static_cast<int>(row.flags),
+      Rcpp::_["time"] = row.time,
+      Rcpp::_["population"] = static_cast<int>(row.population),
+      Rcpp::_["individual"] = static_cast<int>(row.individual),
+      Rcpp::_["metadata"] = metadata);
 }
 
 // PUBLIC, wrapper for tsk_edge_table_add_row

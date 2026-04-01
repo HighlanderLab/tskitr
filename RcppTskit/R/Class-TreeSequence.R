@@ -305,6 +305,18 @@ TreeSequence <- R6Class(
       rtsk_treeseq_get_num_samples(self$xptr)
     },
 
+    #' @description Get sample node IDs in this tree sequence.
+    #' @return An integer vector with sample node IDs (0-based).
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/latest/python-api.html#tskit.TreeSequence.samples}.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' ts <- ts_load(ts_file)
+    #' ts$samples()
+    samples = function() {
+      rtsk_treeseq_get_samples(self$xptr)
+    },
+
     #' @description Get the number of nodes in a tree sequence.
     #' @return A signed 64 bit integer \code{bit64::integer64}.
     #' @details See the \code{tskit Python} equivalent at

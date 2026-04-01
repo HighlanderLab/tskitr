@@ -277,6 +277,42 @@ test_that("TableCollection index lifecycle and tree_sequence index handling work
   expect_true(tc$has_index())
 })
 
+test_that("table_collection_sort wrapper validates inputs and sorts in place", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+  tc <- TableCollection$new(xptr = tc_xptr)
+
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, edge_start = NA_integer_),
+    regexp = "edge_start must not be NA_integer_ in rtsk_table_collection_sort"
+  )
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, edge_start = -1L),
+    regexp = "edge_start must be >= 0 in rtsk_table_collection_sort"
+  )
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, options = bitwShiftL(1L, 4)),
+    regexp = "only supports options"
+  )
+  expect_no_error(rtsk_table_collection_sort(tc_xptr))
+  expect_no_error(rtsk_table_collection_sort(
+    tc_xptr,
+    options = as.integer(rtsk_const_tsk_no_check_integrity())
+  ))
+
+  expect_error(
+    tc$sort(edge_start = NA_integer_),
+    regexp = "edge_start must be a non-NA integer scalar \\(0-based\\)!"
+  )
+  expect_error(tc$sort(edge_start = -1L), regexp = "edge_start must be >= 0")
+  expect_error(
+    tc$sort(no_check_integrity = NA),
+    regexp = "no_check_integrity must be TRUE/FALSE!"
+  )
+  expect_no_error(tc$sort())
+  expect_no_error(tc$sort(no_check_integrity = TRUE))
+})
+
 test_that("individual_table_add_row wrapper expands the table collection and handles inputs", {
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
   tc_xptr <- rtsk_table_collection_load(ts_file)
@@ -553,6 +589,52 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
     test_rtsk_node_table_add_row_forced_error(tc$xptr),
     regexp = "TSK_ERR_TABLE_OVERFLOW"
   )
+})
+
+test_that("node_table_get_row wrapper returns node row fields and validates IDs", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+  tc <- TableCollection$new(xptr = tc_xptr)
+
+  expect_error(
+    rtsk_node_table_get_row(tc_xptr, NA_integer_),
+    regexp = "row_id must not be NA_integer_ in rtsk_node_table_get_row"
+  )
+  expect_error(
+    rtsk_node_table_get_row(tc_xptr, -1L),
+    regexp = "row_id must be >= 0 in rtsk_node_table_get_row"
+  )
+  expect_error(
+    tc$node_table_get_row(NA_integer_),
+    regexp = "row_id must be a non-NA integer scalar \\(0-based\\)!"
+  )
+  expect_error(
+    tc$node_table_get_row(-1L),
+    regexp = "row_id must be >= 0 \\(0-based\\)!"
+  )
+  expect_error(rtsk_node_table_get_row(tc_xptr, 999999L), regexp = "TSK_ERR")
+
+  new_id <- tc$node_table_add_row(
+    flags = 1L,
+    time = 12.5,
+    population = 0L,
+    individual = -1L,
+    metadata = charToRaw("abc")
+  )
+  row_low <- rtsk_node_table_get_row(tc_xptr, new_id)
+  row_method <- tc$node_table_get_row(new_id)
+
+  expect_equal(
+    sort(names(row_low)),
+    c("flags", "id", "individual", "metadata", "population", "time")
+  )
+  expect_equal(row_low$id, new_id)
+  expect_equal(row_low$flags, 1L)
+  expect_equal(row_low$time, 12.5)
+  expect_equal(row_low$population, 0L)
+  expect_equal(row_low$individual, -1L)
+  expect_equal(row_low$metadata, charToRaw("abc"))
+  expect_equal(row_method, row_low)
 })
 
 test_that("edge_table_add_row wrapper expands the table collection and handles inputs", {

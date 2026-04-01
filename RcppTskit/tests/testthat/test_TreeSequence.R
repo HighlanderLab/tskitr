@@ -112,3 +112,16 @@ test_that("TreeSequence$variants() validates compatibility args", {
     "inconsistent"
   )
 })
+
+test_that("TreeSequence$samples() returns sample node IDs", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  ts <- ts_load(ts_file)
+
+  samples <- ts$samples()
+  expect_type(samples, "integer")
+  expect_length(samples, as.integer(ts$num_samples()))
+  expect_true(all(samples >= 0L))
+
+  samples_low <- rtsk_treeseq_get_samples(ts$xptr)
+  expect_identical(samples, samples_low)
+})
