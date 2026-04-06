@@ -270,23 +270,29 @@ ts2 <- tc$tree_sequence()
 help(package = "RcppTskit")
 ```
 
-Developers should also explore the low-level `R` and `C++` functions.
+Developers should also explore the internal `R` and `C++` functions.
 Their names all start with `rtsk_` and are accessible via `RcppTskit:::`.
+Since these are internal functions we instruct the linter `jarl`
+not to warn about their use.
 For example, the above `R` function `ts_load()` effectively calls:
 
 ```{r}
 #| label: use_case_1_dev_funcs
 # Low-level R function, which further calls the C++ function
+# jarl-ignore internal_function: exposing for demo/doc
 RcppTskit:::rtsk_treeseq_load
 
 # C++ function (see also the C++ source code)
+# jarl-ignore internal_function: exposing for demo/doc
 RcppTskit:::`_RcppTskit_rtsk_treeseq_load`
 
 # The same as the ts_load() example, but exposing the external pointer
+# jarl-ignore internal_function: exposing for demo/doc
 xptr <- RcppTskit:::rtsk_treeseq_load(ts_file)
 methods::is(xptr)
 
 # We pass the external pointer to other low-level functions
+# jarl-ignore internal_function: exposing for demo/doc
 RcppTskit:::rtsk_treeseq_get_num_individuals(xptr)
 ```
 
