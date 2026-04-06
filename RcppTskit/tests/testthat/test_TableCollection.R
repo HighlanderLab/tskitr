@@ -282,7 +282,7 @@ test_that("individual_table_add_row wrapper expands the table collection and han
   tc_xptr <- rtsk_table_collection_load(ts_file)
 
   n_before <- rtsk_table_collection_get_num_individuals(tc_xptr)
-  m_before <- rtsk_table_collection_metadata_length(tc_xptr)[["individuals"]]
+  m_before <- rtsk_table_collection_metadata_length(tc_xptr)$individuals
 
   expect_error(
     rtsk_individual_table_add_row(tc_xptr, flags = -1L),
@@ -301,7 +301,7 @@ test_that("individual_table_add_row wrapper expands the table collection and han
     as.integer(n_before) + 1L
   )
   expect_equal(
-    as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["individuals"]]),
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)$individuals),
     as.integer(m_before) + 3L
   )
 
@@ -317,9 +317,7 @@ test_that("individual_table_add_row wrapper expands the table collection and han
   tc_xptr <- rtsk_table_collection_load(ts_file)
 
   n0 <- as.integer(rtsk_table_collection_get_num_individuals(tc_xptr))
-  m0 <- as.integer(rtsk_table_collection_metadata_length(tc_xptr)[[
-    "individuals"
-  ]])
+  m0 <- as.integer(rtsk_table_collection_metadata_length(tc_xptr)$individuals)
 
   # Defaults map to NULL in the generated R wrapper and should be accepted.
   id0 <- rtsk_individual_table_add_row(tc_xptr)
@@ -329,7 +327,7 @@ test_that("individual_table_add_row wrapper expands the table collection and han
     n0 + 1L
   )
   expect_equal(
-    as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["individuals"]]),
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)$individuals),
     m0
   )
 
@@ -375,20 +373,20 @@ test_that("individual_table_add_row wrapper expands the table collection and han
   )
   expect_equal(as.integer(tc$num_individuals()), n_before_method + 1L)
 
-  m_before_char <- as.integer(rtsk_table_collection_metadata_length(tc$xptr)[[
-    "individuals"
-  ]])
+  m_before_char <- as.integer(
+    rtsk_table_collection_metadata_length(tc$xptr)$individuals
+  )
   expect_no_warning(tc$individual_table_add_row(metadata = "abc"))
   expect_equal(
-    as.integer(rtsk_table_collection_metadata_length(tc$xptr)[["individuals"]]),
+    as.integer(rtsk_table_collection_metadata_length(tc$xptr)$individuals),
     m_before_char + 3L
   )
-  m_before_raw <- as.integer(rtsk_table_collection_metadata_length(tc$xptr)[[
-    "individuals"
-  ]])
+  m_before_raw <- as.integer(
+    rtsk_table_collection_metadata_length(tc$xptr)$individuals
+  )
   expect_no_error(tc$individual_table_add_row(metadata = charToRaw("xyz")))
   expect_equal(
-    as.integer(rtsk_table_collection_metadata_length(tc$xptr)[["individuals"]]),
+    as.integer(rtsk_table_collection_metadata_length(tc$xptr)$individuals),
     m_before_raw + 3L
   )
   expect_error(
@@ -419,7 +417,7 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
   tc_xptr <- rtsk_table_collection_load(ts_file)
 
   n_before <- rtsk_table_collection_get_num_nodes(tc_xptr)
-  m_before <- rtsk_table_collection_metadata_length(tc_xptr)[["nodes"]]
+  m_before <- rtsk_table_collection_metadata_length(tc_xptr)$nodes
 
   expect_error(
     rtsk_node_table_add_row(tc_xptr, flags = -1L),
@@ -440,7 +438,7 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
     as.integer(n_before) + 1L
   )
   expect_equal(
-    as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["nodes"]]),
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)$nodes),
     as.integer(m_before) + 3L
   )
 
@@ -456,9 +454,9 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
   tc_xptr <- rtsk_table_collection_load(ts_file)
 
   n0 <- as.integer(rtsk_table_collection_get_num_nodes(tc_xptr))
-  m0 <- as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["nodes"]])
+  m0 <- as.integer(rtsk_table_collection_metadata_length(tc_xptr)$nodes)
 
-  # Defaults map to NULL in the generated R wrapper and should be accepted.
+  # Testing defaults
   id0 <- rtsk_node_table_add_row(tc_xptr)
   expect_equal(id0, n0)
   expect_equal(
@@ -466,7 +464,7 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
     n0 + 1L
   )
   expect_equal(
-    as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["nodes"]]),
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)$nodes),
     m0
   )
 
@@ -493,9 +491,23 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
     rtsk_node_table_add_row(
       tc = tc_xptr,
       flags = 0L,
+      population = NULL
+    )
+  )
+  expect_error(
+    rtsk_node_table_add_row(
+      tc = tc_xptr,
+      flags = 0L,
       individual = NA_integer_
     ),
     regexp = "individual must not be NA_integer_ in rtsk_node_table_add_row"
+  )
+  expect_error(
+    rtsk_node_table_add_row(
+      tc = tc_xptr,
+      flags = 0L,
+      individual = NULL
+    )
   )
 
   tc <- TableCollection$new(xptr = tc_xptr)
@@ -513,22 +525,23 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
   expect_no_error(tc$node_table_add_row(population = NULL, individual = NULL))
   expect_equal(as.integer(tc$num_nodes()), n_before_method + 2L)
 
-  m_before_char <- as.integer(rtsk_table_collection_metadata_length(tc$xptr)[[
-    "nodes"
-  ]])
+  m_before_char <- as.integer(
+    rtsk_table_collection_metadata_length(tc$xptr)$nodes
+  )
   expect_no_warning(tc$node_table_add_row(metadata = "abc"))
   expect_equal(
-    as.integer(rtsk_table_collection_metadata_length(tc$xptr)[["nodes"]]),
+    as.integer(rtsk_table_collection_metadata_length(tc$xptr)$nodes),
     m_before_char + 3L
   )
-  m_before_raw <- as.integer(rtsk_table_collection_metadata_length(tc$xptr)[[
-    "nodes"
-  ]])
+  m_before_raw <- as.integer(
+    rtsk_table_collection_metadata_length(tc$xptr)$nodes
+  )
   expect_no_error(tc$node_table_add_row(metadata = charToRaw("xyz")))
   expect_equal(
-    as.integer(rtsk_table_collection_metadata_length(tc$xptr)[["nodes"]]),
+    as.integer(rtsk_table_collection_metadata_length(tc$xptr)$nodes),
     m_before_raw + 3L
   )
+
   expect_error(
     tc$node_table_add_row(population = NA_integer_),
     regexp = "population must not be NA_integer_ in rtsk_node_table_add_row"
@@ -558,12 +571,12 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
 test_that("edge_table_add_row wrapper expands the table collection and handles inputs", {
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
   tc_xptr <- rtsk_table_collection_load(ts_file)
-  expect_gt(as.integer(rtsk_table_collection_get_num_nodes(tc_xptr)), 1L)
-  parent <- 0L
-  child <- 1L
 
   n_before <- rtsk_table_collection_get_num_edges(tc_xptr)
-  m_before <- rtsk_table_collection_metadata_length(tc_xptr)[["edges"]]
+  m_before <- rtsk_table_collection_metadata_length(tc_xptr)$edges
+
+  parent <- 0L
+  child <- 1L
 
   new_id <- rtsk_edge_table_add_row(
     tc = tc_xptr,
@@ -579,7 +592,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
     as.integer(n_before) + 1L
   )
   expect_equal(
-    as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["edges"]]),
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)$edges),
     as.integer(m_before) + 3L
   )
 
@@ -598,11 +611,9 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
   )
 
   tc_xptr <- rtsk_table_collection_load(ts_file)
-  parent <- 0L
-  child <- 1L
 
   n0 <- as.integer(rtsk_table_collection_get_num_edges(tc_xptr))
-  m0 <- as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["edges"]])
+  m0 <- as.integer(rtsk_table_collection_metadata_length(tc_xptr)$edges)
 
   # Explicit NULL metadata should be accepted.
   id0 <- rtsk_edge_table_add_row(
@@ -619,7 +630,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
     n0 + 1L
   )
   expect_equal(
-    as.integer(rtsk_table_collection_metadata_length(tc_xptr)[["edges"]]),
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)$edges),
     m0
   )
 
@@ -707,9 +718,9 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
   )
   expect_equal(as.integer(tc$num_edges()), n_before_method + 1L)
 
-  m_before_char <- as.integer(rtsk_table_collection_metadata_length(tc$xptr)[[
-    "edges"
-  ]])
+  m_before_char <- as.integer(
+    rtsk_table_collection_metadata_length(tc$xptr)$edges
+  )
   expect_no_warning(
     tc$edge_table_add_row(
       left = 3,
@@ -720,12 +731,12 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
     )
   )
   expect_equal(
-    as.integer(rtsk_table_collection_metadata_length(tc$xptr)[["edges"]]),
+    as.integer(rtsk_table_collection_metadata_length(tc$xptr)$edges),
     m_before_char + 3L
   )
-  m_before_raw <- as.integer(rtsk_table_collection_metadata_length(tc$xptr)[[
-    "edges"
-  ]])
+  m_before_raw <- as.integer(
+    rtsk_table_collection_metadata_length(tc$xptr)$edges
+  )
   expect_no_error(
     tc$edge_table_add_row(
       left = 4,
@@ -736,7 +747,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
     )
   )
   expect_equal(
-    as.integer(rtsk_table_collection_metadata_length(tc$xptr)[["edges"]]),
+    as.integer(rtsk_table_collection_metadata_length(tc$xptr)$edges),
     m_before_raw + 3L
   )
   expect_error(
