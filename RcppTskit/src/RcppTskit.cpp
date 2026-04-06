@@ -1246,18 +1246,20 @@ Rcpp::List rtsk_table_collection_metadata_length(const SEXP tc) {
 // @param flags passed to \code{tskit C}.
 // @param location numeric vector with the location of the new individual
 //   (can be \code{NULL}).
-// @param parents integer vector with parent individual IDs
+// @param parents integer vector with parent individual IDs (0-based)
 //   (can be \code{NULL}).
 // @param metadata raw vector with metadata bytes
 //   (can be \code{NULL}).
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_individual_table_add_row}
 //   on the individuals table of \code{tc}.
-// @return The 0-based row ID of the newly added individual.
+// @return The row ID (0-based) of the newly added individual.
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
 // n_before <- RcppTskit:::rtsk_table_collection_get_num_individuals(tc_xptr)
+// m_before
+//   <- RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)$individuals
 // tc_py <- RcppTskit:::rtsk_table_collection_r_to_py(tc_xptr)
 // tc_py$individuals$max_rows
 // tc_py$individuals["flags"]
@@ -1279,8 +1281,13 @@ Rcpp::List rtsk_table_collection_metadata_length(const SEXP tc) {
 // new_id <- RcppTskit:::rtsk_individual_table_add_row(tc = tc_xptr, flags = 3L,
 //   location = c(2, 11), parents = c(1L, 3L), metadata = charToRaw("abc"))
 // n_after <- RcppTskit:::rtsk_table_collection_get_num_individuals(tc_xptr)
-// new_id == as.integer(n_before) && n_after == n_before + 3L
-// tc_py <- RcppTskit:::rtsk_table_collection_r_to_py(tc_xptr)
+// m_after <-
+//   RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)$individuals
+// new_id == n_after - 1L
+// n_after == n_before + 3L
+// m_after == m_before + 3L
+// tc_py <-
+//   RcppTskit:::rtsk_table_collection_r_to_py(tc_xptr)
 // tc_py$individuals$max_rows
 // tc_py$individuals["flags"]
 // tc_py$individuals["location"]
@@ -1340,18 +1347,21 @@ int rtsk_individual_table_add_row(
 //   \code{tsk_table_collection_t} object.
 // @param flags passed to \code{tskit C}.
 // @param time numeric time value for the new node.
-// @param population integer population row ID (0-based, or \code{-1}).
-// @param individual integer individual row ID (0-based, or \code{-1}).
+// @param population integer population row ID (0-based);
+//   use \code{-1} if not known.
+// @param individual integer individual row ID (0-based);
+//   use \code{-1} if not known.
 // @param metadata raw vector with metadata bytes
 //   (can be \code{NULL}).
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_node_table_add_row}
 //   on the nodes table of \code{tc}.
-// @return The 0-based row ID of the newly added node.
+// @return The row ID (0-based) of the newly added node.
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
 // n_before <- RcppTskit:::rtsk_table_collection_get_num_nodes(tc_xptr)
+// m_before <- RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)$nodes
 // tc_py <- RcppTskit:::rtsk_table_collection_r_to_py(tc_xptr)
 // tc_py$nodes$max_rows
 // tc_py$nodes["flags"]
@@ -1370,7 +1380,10 @@ int rtsk_individual_table_add_row(
 //   metadata = charToRaw("abc")
 // )
 // n_after <- RcppTskit:::rtsk_table_collection_get_num_nodes(tc_xptr)
-// new_id == as.integer(n_before) && n_after == n_before + 3L
+// m_after <- RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)$nodes
+// new_id == n_after - 1L
+// n_after == n_before + 4L
+// m_after == m_before + 3L
 // tc_py <- RcppTskit:::rtsk_table_collection_r_to_py(tc_xptr)
 // tc_py$nodes$max_rows
 // tc_py$nodes["flags"]
@@ -1428,27 +1441,29 @@ int rtsk_node_table_add_row(
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_edge_table_add_row}
 //   on the edges table of \code{tc}.
-// @return The 0-based row ID of the newly added edge.
+// @return The row ID (0-based) of the newly added edge.
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
-// parent <- 0L
-// child <- 1L
+// child <- rtsk_node_table_add_row(tc_xptr, time = 0.0)
 // n_before <- RcppTskit:::rtsk_table_collection_get_num_edges(tc_xptr)
-// m_before <-
-// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)[["edges"]] new_id
-// <- RcppTskit:::rtsk_edge_table_add_row(
-//   tc = tc_xptr, left = 0, right = 1, parent = parent, child = child
+// m_before <- RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)$edges
+// new_id <- RcppTskit:::rtsk_edge_table_add_row(
+//   tc = tc_xptr, left = 0, right = 50, parent = 16L, child = child
 // )
 // new_id <- RcppTskit:::rtsk_edge_table_add_row(
-//   tc = tc_xptr, left = 1, right = 2, parent = parent, child = child,
-//   metadata = charToRaw("abc")
+//   tc = tc_xptr, left = 50, right = 75, parent = 17L, child = child,
+//   metadata = "abc"
+// )
+// new_id <- RcppTskit:::rtsk_edge_table_add_row(
+//   tc = tc_xptr, left = 75, right = 100, parent = 18L, child = child,
+//   metadata = charToRaw("cba")
 // )
 // n_after <- RcppTskit:::rtsk_table_collection_get_num_edges(tc_xptr)
-// m_after <-
-// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)[["edges"]] new_id
-// == as.integer(n_before) && n_after == n_before + 2L && m_after == m_before +
-// 3L
+// m_after <- RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)$edges
+// new_id == n_after - 1L
+// n_after == n_before + 3L
+// m_after == m_before + 3L
 // [[Rcpp::export]]
 int rtsk_edge_table_add_row(
     const SEXP tc, const double left, const double right, const int parent,

@@ -125,17 +125,16 @@ tc$num_edges()
 
 ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(ts_file)
-parent <- 0L
-child <- 1L
+child <- tc$node_table_add_row(time = 0.0)
 n_before <- tc$num_edges()
 new_id <- tc$edge_table_add_row(
-  left = 0, right = 1, parent = parent, child = child
+  left = 0, right = 50, parent = 16L, child = child
 )
 new_id <- tc$edge_table_add_row(
-  left = 1, right = 2, parent = parent, child = child, metadata = "abc"
+  left = 50, right = 75, parent = 17L, child = child, metadata = "abc"
 )
 new_id <- tc$edge_table_add_row(
-  left = 2, right = 3, parent = parent, child = child, metadata = charToRaw("cba")
+  left = 75, right = 100, parent = 18L, child = child, metadata = charToRaw("cba")
 )
 n_after <- tc$num_edges()
 
@@ -619,11 +618,11 @@ Add a row to the nodes table.
 
 \item{\code{time}}{numeric time value for the new node.}
 
-\item{\code{population}}{integer population row ID (0-based, or \code{-1});
-\code{NULL} maps to \code{-1}.}
+\item{\code{population}}{integer population row ID (0-based);
+use \code{-1} if not known - \code{NULL} maps to \code{-1}.}
 
-\item{\code{individual}}{integer individual row ID (0-based, or \code{-1});
-\code{NULL} maps to \code{-1}.}
+\item{\code{individual}}{integer individual row ID (0-based);
+use \code{-1} if not known - \code{NULL} maps to \code{-1}.}
 
 \item{\code{metadata}}{for the new node; accepts \code{NULL},
 a raw vector, or a character of length 1.}
@@ -723,17 +722,16 @@ Integer row ID (0-based) of the newly added edge.
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(ts_file)
-parent <- 0L
-child <- 1L
+child <- tc$node_table_add_row(time = 0.0)
 n_before <- tc$num_edges()
 new_id <- tc$edge_table_add_row(
-  left = 0, right = 1, parent = parent, child = child
+  left = 0, right = 50, parent = 16L, child = child
 )
 new_id <- tc$edge_table_add_row(
-  left = 1, right = 2, parent = parent, child = child, metadata = "abc"
+  left = 50, right = 75, parent = 17L, child = child, metadata = "abc"
 )
 new_id <- tc$edge_table_add_row(
-  left = 2, right = 3, parent = parent, child = child, metadata = charToRaw("cba")
+  left = 75, right = 100, parent = 18L, child = child, metadata = charToRaw("cba")
 )
 n_after <- tc$num_edges()
 }
