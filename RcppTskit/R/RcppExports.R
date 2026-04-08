@@ -215,11 +215,11 @@ rtsk_edge_table_add_row <- function(tc, left, right, parent, child, metadata = N
     .Call(`_RcppTskit_rtsk_edge_table_add_row`, tc, left, right, parent, child, metadata)
 }
 
-rtsk_site_table_add_row <- function(tc, position, ancestral_state = NULL, metadata = NULL) {
+rtsk_site_table_add_row <- function(tc, position, ancestral_state, metadata = NULL) {
     .Call(`_RcppTskit_rtsk_site_table_add_row`, tc, position, ancestral_state, metadata)
 }
 
-rtsk_mutation_table_add_row <- function(tc, site, node, parent, time, derived_state = NULL, metadata = NULL) {
+rtsk_mutation_table_add_row <- function(tc, site, node, parent, time, derived_state, metadata = NULL) {
     .Call(`_RcppTskit_rtsk_mutation_table_add_row`, tc, site, node, parent, time, derived_state, metadata)
 }
 

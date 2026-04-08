@@ -11,10 +11,10 @@ Rcpp::IntegerVector kastore_version();
 Rcpp::IntegerVector tskit_version();
 
 // sync default options with .cpp!
-SEXP rtsk_treeseq_load(std::string &filename, int options = 0);
-SEXP rtsk_table_collection_load(std::string &filename, int options = 0);
-void rtsk_treeseq_dump(SEXP ts, std::string &filename, int options = 0);
-void rtsk_table_collection_dump(SEXP tc, std::string &filename,
+SEXP rtsk_treeseq_load(const std::string &filename, int options = 0);
+SEXP rtsk_table_collection_load(const std::string &filename, int options = 0);
+void rtsk_treeseq_dump(SEXP ts, const std::string &filename, int options = 0);
+void rtsk_table_collection_dump(SEXP tc, const std::string &filename,
                                 int options = 0);
 SEXP rtsk_treeseq_copy_tables(SEXP ts, int options = 0);
 SEXP rtsk_treeseq_init(SEXP tc, int options = 0);
@@ -69,12 +69,11 @@ int rtsk_edge_table_add_row(
     SEXP tc, double left, double right, int parent, int child,
     Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
 int rtsk_site_table_add_row(
-    SEXP tc, double position,
-    Rcpp::Nullable<Rcpp::RawVector> ancestral_state = R_NilValue,
+    SEXP tc, double position, const std::string &ancestral_state,
     Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
 int rtsk_mutation_table_add_row(
     SEXP tc, int site, int node, int parent, double time,
-    Rcpp::Nullable<Rcpp::RawVector> derived_state = R_NilValue,
+    const std::string &derived_state,
     Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
 
 #endif
