@@ -42,6 +42,14 @@ ts <- tc$tree_sequence()
 is(ts)
 
 ## ------------------------------------------------
+## Method `TableCollection$sort`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$sort()
+
+## ------------------------------------------------
 ## Method `TableCollection$num_provenances`
 ## ------------------------------------------------
 
@@ -95,6 +103,14 @@ new_id <- tc$individual_table_add_row(metadata = charToRaw("cba"))
 tc_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(tc_file)
 tc$num_nodes()
+
+## ------------------------------------------------
+## Method `TableCollection$node_table_get_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$node_table_get_row(0L)
 
 ## ------------------------------------------------
 ## Method `TableCollection$node_table_add_row`
@@ -302,12 +318,14 @@ tc
 \item \href{#method-TableCollection-dump}{\code{TableCollection$dump()}}
 \item \href{#method-TableCollection-write}{\code{TableCollection$write()}}
 \item \href{#method-TableCollection-tree_sequence}{\code{TableCollection$tree_sequence()}}
+\item \href{#method-TableCollection-sort}{\code{TableCollection$sort()}}
 \item \href{#method-TableCollection-num_provenances}{\code{TableCollection$num_provenances()}}
 \item \href{#method-TableCollection-num_populations}{\code{TableCollection$num_populations()}}
 \item \href{#method-TableCollection-num_migrations}{\code{TableCollection$num_migrations()}}
 \item \href{#method-TableCollection-num_individuals}{\code{TableCollection$num_individuals()}}
 \item \href{#method-TableCollection-individual_table_add_row}{\code{TableCollection$individual_table_add_row()}}
 \item \href{#method-TableCollection-num_nodes}{\code{TableCollection$num_nodes()}}
+\item \href{#method-TableCollection-node_table_get_row}{\code{TableCollection$node_table_get_row()}}
 \item \href{#method-TableCollection-node_table_add_row}{\code{TableCollection$node_table_add_row()}}
 \item \href{#method-TableCollection-num_edges}{\code{TableCollection$num_edges()}}
 \item \href{#method-TableCollection-edge_table_add_row}{\code{TableCollection$edge_table_add_row()}}
@@ -455,6 +473,44 @@ A \code{\link{TreeSequence}} object.
 tc <- TableCollection$new(file = ts_file)
 ts <- tc$tree_sequence()
 is(ts)
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-sort"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-sort}{}}}
+\subsection{Method \code{sort()}}{
+Sort this table collection in place.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$sort(edge_start = 0L, no_check_integrity = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{edge_start}}{integer scalar edge-table start row (0-based).}
+
+\item{\code{no_check_integrity}}{logical; when \code{TRUE}, pass
+\code{TSK_NO_CHECK_INTEGRITY} to \code{tskit C}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/latest/python-api.html#tskit.TableCollection.sort}.
+}
+
+\subsection{Returns}{
+No return value; called for side effects.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$sort()
 }
 \if{html}{\out{</div>}}
 
@@ -626,6 +682,41 @@ A signed 64 bit integer \code{bit64::integer64}.
 \preformatted{tc_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(tc_file)
 tc$num_nodes()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-node_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-node_table_get_row}{}}}
+\subsection{Method \code{node_table_get_row()}}{
+Get one row from the nodes table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$node_table_get_row(row_id)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{row_id}}{integer scalar node row ID (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+The ID is 0-based, matching \code{tskit C/Python} semantics.
+}
+
+\subsection{Returns}{
+A named list with fields \code{id}, \code{flags}, \code{time},
+  \code{population}, \code{individual}, and \code{metadata}.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$node_table_get_row(0L)
 }
 \if{html}{\out{</div>}}
 

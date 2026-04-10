@@ -4,10 +4,12 @@
 // they are synced!
 #define RCPPTSKIT_IMPL
 #include <RcppTskit.hpp>
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <exception>
 #include <limits>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -21,6 +23,8 @@ constexpr tsk_flags_t kCopyTablesSupportedFlags = TSK_COPY_FILE_UUID;
 
 constexpr tsk_flags_t kTreeseqInitSupportedFlags =
     TSK_TS_INIT_BUILD_INDEXES | TSK_TS_INIT_COMPUTE_MUTATION_PARENTS;
+
+constexpr tsk_flags_t kTableSortSupportedFlags = TSK_NO_CHECK_INTEGRITY;
 
 // INTERNAL
 // @title Validate load options
@@ -138,8 +142,53 @@ tsk_flags_t validate_options(int options, tsk_flags_t supported,
   return flags;
 }
 
+tsk_flags_t validate_supported_options(const int options,
+                                       const tsk_flags_t supported,
+                                       const char *caller) {
+  if (options < 0) {
+    Rcpp::stop("%s does not support negative options", caller);
+  }
+  const tsk_flags_t flags = static_cast<tsk_flags_t>(options);
+  const tsk_flags_t unsupported = flags & ~supported;
+  if (unsupported != 0) {
+    Rcpp::stop("%s only supports options 0x%X; unsupported bits: 0x%X", caller,
+               static_cast<unsigned int>(supported),
+               static_cast<unsigned int>(unsupported));
+  }
+  return flags;
+}
+
 constexpr tsk_size_t kMaxBit64Integer64 =
     static_cast<tsk_size_t>(std::numeric_limits<int64_t>::max());
+
+struct rtsk_variant_iterator_state_t {
+  rtsk_treeseq_t ts_xptr;
+  SEXP ts_sexp = R_NilValue;
+  tsk_variant_t variant = {};
+  bool variant_initialized = false;
+  tsk_id_t next_site_id = 0;
+  tsk_id_t stop_site_id = 0;
+
+  explicit rtsk_variant_iterator_state_t(const SEXP ts) : ts_xptr(ts) {}
+};
+
+static void rtsk_variant_iterator_free(rtsk_variant_iterator_state_t *ptr) {
+  if (ptr != NULL) {
+    if (ptr->variant_initialized) {
+      tsk_variant_free(&ptr->variant);
+    }
+    if (ptr->ts_sexp != R_NilValue) {
+      R_ReleaseObject(ptr->ts_sexp);
+    }
+    delete ptr;
+  }
+}
+
+using rtsk_variant_iterator_t =
+    Rcpp::XPtr<rtsk_variant_iterator_state_t, Rcpp::PreserveStorage,
+               rtsk_variant_iterator_free, true>;
+
+bool g_test_force_null_first_allele = false;
 
 // INTERNAL
 // @title Convert \code{Rcpp::Nullable} vector to empty-or-value vector
@@ -167,6 +216,52 @@ int_vector_to_tsk_id_vector(const Rcpp::IntegerVector &ids) {
     out.push_back(static_cast<tsk_id_t>(id));
   }
   return out;
+}
+
+void validate_variant_site_index_range(const tsk_size_t start,
+                                       const tsk_size_t stop);
+
+std::pair<tsk_id_t, tsk_id_t>
+compute_variant_iteration_bounds(rtsk_treeseq_t &ts_xptr, const double left,
+                                 const double right) {
+  if (!std::isfinite(left) || !std::isfinite(right)) {
+    Rcpp::stop("left and right must be finite numbers");
+  }
+  if (left < 0 || right < 0) {
+    Rcpp::stop("left and right must be >= 0");
+  }
+
+  const double sequence_length = tsk_treeseq_get_sequence_length(ts_xptr);
+  if (left > sequence_length || right > sequence_length) {
+    Rcpp::stop("left and right must be <= sequence length (%f)",
+               sequence_length);
+  }
+  if (left > right) {
+    Rcpp::stop("left must be <= right");
+  }
+
+  const tsk_size_t num_sites = tsk_treeseq_get_num_sites(ts_xptr);
+  const tsk_site_table_t *sites = &ts_xptr->tables->sites;
+  const double *begin = sites->position;
+  const double *end = begin + num_sites;
+
+  const tsk_size_t start =
+      static_cast<tsk_size_t>(std::lower_bound(begin, end, left) - begin);
+  const tsk_size_t stop =
+      static_cast<tsk_size_t>(std::lower_bound(begin, end, right) - begin);
+  validate_variant_site_index_range(start, stop);
+
+  return std::make_pair(static_cast<tsk_id_t>(start),
+                        static_cast<tsk_id_t>(stop));
+}
+
+void validate_variant_site_index_range(const tsk_size_t start,
+                                       const tsk_size_t stop) {
+  const tsk_size_t max_id =
+      static_cast<tsk_size_t>(std::numeric_limits<tsk_id_t>::max());
+  if (start > max_id || stop > max_id) {
+    Rcpp::stop("Site index exceeds tsk_id_t range");
+  }
 }
 
 // INTERNAL
@@ -198,6 +293,146 @@ SEXP rtsk_wrap_tsk_size_t_as_integer64(const tsk_size_t value,
 }
 
 } // namespace
+
+// PUBLIC, low-level iterator init for tsk_variant_t decode
+// [[Rcpp::export]]
+SEXP rtsk_variant_iterator_init(
+    const SEXP ts,
+    const Rcpp::Nullable<Rcpp::IntegerVector> samples = R_NilValue,
+    const bool isolated_as_missing = true,
+    const Rcpp::Nullable<Rcpp::CharacterVector> alleles = R_NilValue,
+    const double left = 0.0, const double right = NA_REAL) {
+  std::unique_ptr<rtsk_variant_iterator_state_t> state_ptr(
+      new rtsk_variant_iterator_state_t(ts));
+
+  const tsk_flags_t options =
+      isolated_as_missing ? 0 : TSK_ISOLATED_NOT_MISSING;
+
+  const Rcpp::IntegerVector samples_int =
+      nullable_to_vector_or_empty<Rcpp::IntegerVector>(samples);
+  const std::vector<tsk_id_t> samples_vec =
+      int_vector_to_tsk_id_vector(samples_int);
+  const tsk_id_t *samples_ptr =
+      samples_vec.empty() ? nullptr : samples_vec.data();
+  const tsk_size_t num_samples = static_cast<tsk_size_t>(samples_vec.size());
+
+  const Rcpp::CharacterVector alleles_chr =
+      nullable_to_vector_or_empty<Rcpp::CharacterVector>(alleles);
+  std::vector<std::string> allele_storage;
+  std::vector<const char *> allele_ptrs;
+  const char **alleles_ptr = nullptr;
+  if (alleles_chr.size() > 0) {
+    allele_storage.reserve(alleles_chr.size());
+    for (const SEXP allele : alleles_chr) {
+      if (allele == NA_STRING) {
+        Rcpp::stop("alleles cannot contain NA");
+      }
+      allele_storage.push_back(Rcpp::as<std::string>(allele));
+    }
+    allele_ptrs.reserve(allele_storage.size() + 1);
+    for (const std::string &allele : allele_storage) {
+      allele_ptrs.push_back(allele.c_str());
+    }
+    allele_ptrs.push_back(nullptr);
+    alleles_ptr = allele_ptrs.data();
+  }
+
+  const double effective_right =
+      Rcpp::NumericVector::is_na(right)
+          ? tsk_treeseq_get_sequence_length(state_ptr->ts_xptr)
+          : right;
+  const auto bounds = compute_variant_iteration_bounds(state_ptr->ts_xptr, left,
+                                                       effective_right);
+  state_ptr->next_site_id = bounds.first;
+  state_ptr->stop_site_id = bounds.second;
+
+  int ret = tsk_variant_init(&state_ptr->variant, state_ptr->ts_xptr,
+                             samples_ptr, num_samples, alleles_ptr, options);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+  state_ptr->variant_initialized = true;
+  state_ptr->ts_sexp = ts;
+  R_PreserveObject(ts);
+
+  rtsk_variant_iterator_t iterator_xptr(state_ptr.release(), true);
+  return iterator_xptr;
+}
+
+// PUBLIC, low-level iterator next for tsk_variant_t decode
+// [[Rcpp::export]]
+SEXP rtsk_variant_iterator_next(const SEXP iterator) {
+  rtsk_variant_iterator_t iterator_xptr(iterator);
+  if (iterator_xptr->next_site_id >= iterator_xptr->stop_site_id) {
+    return R_NilValue;
+  }
+
+  const tsk_id_t site_id = iterator_xptr->next_site_id;
+  iterator_xptr->next_site_id += 1;
+  int ret = tsk_variant_decode(&iterator_xptr->variant, site_id, 0);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  const tsk_variant_t &variant = iterator_xptr->variant;
+  if (g_test_force_null_first_allele && variant.num_alleles > 0) {
+    iterator_xptr->variant.alleles[0] = nullptr;
+    g_test_force_null_first_allele = false;
+  }
+
+  Rcpp::IntegerVector genotypes(variant.num_samples);
+  for (tsk_size_t j = 0; j < variant.num_samples; ++j) {
+    genotypes[j] = variant.genotypes[j];
+  }
+
+  Rcpp::CharacterVector out_alleles(variant.num_alleles);
+  for (tsk_size_t j = 0; j < variant.num_alleles; ++j) {
+    if (variant.alleles[j] == nullptr) {
+      out_alleles[j] = NA_STRING;
+      continue;
+    }
+    out_alleles[j] = std::string(variant.alleles[j], variant.allele_lengths[j]);
+  }
+
+  return Rcpp::List::create(
+      Rcpp::_["site_id"] = variant.site.id,
+      Rcpp::_["position"] = variant.site.position,
+      Rcpp::_["genotypes"] = genotypes, Rcpp::_["alleles"] = out_alleles,
+      Rcpp::_["has_missing_data"] = variant.has_missing_data);
+}
+
+// TEST-ONLY
+// [[Rcpp::export]]
+void test_rtsk_variant_iterator_force_null_first_allele(const bool enabled) {
+  g_test_force_null_first_allele = enabled;
+}
+
+// TEST-ONLY
+// [[Rcpp::export]]
+void test_rtsk_variant_iterator_set_site_bounds(const SEXP iterator,
+                                                const int next_site_id,
+                                                const int stop_site_id) {
+  rtsk_variant_iterator_t iterator_xptr(iterator);
+  iterator_xptr->next_site_id = static_cast<tsk_id_t>(next_site_id);
+  iterator_xptr->stop_site_id = static_cast<tsk_id_t>(stop_site_id);
+}
+
+// TEST-ONLY
+// [[Rcpp::export]]
+void test_variant_site_index_range(const std::string start,
+                                   const std::string stop) {
+  unsigned long long start_parsed = 0;
+  unsigned long long stop_parsed = 0;
+  try {
+    start_parsed = std::stoull(start);
+    stop_parsed = std::stoull(stop);
+  } catch (const std::exception &) {
+    Rcpp::stop("start and stop must be valid base-10 unsigned integer strings");
+  }
+  const tsk_size_t start_size = static_cast<tsk_size_t>(start_parsed);
+  const tsk_size_t stop_size = static_cast<tsk_size_t>(stop_parsed);
+  validate_variant_site_index_range(start_size, stop_size);
+}
 
 // TEST-ONLY
 // @title Test helper for validating tskit flags
@@ -267,6 +502,14 @@ Rcpp::IntegerVector tskit_version() {
   return Rcpp::IntegerVector::create(Rcpp::_["major"] = TSK_VERSION_MAJOR,
                                      Rcpp::_["minor"] = TSK_VERSION_MINOR,
                                      Rcpp::_["patch"] = TSK_VERSION_PATCH);
+}
+
+// PUBLIC
+// @title Return the tskit C option value for \code{TSK_NO_CHECK_INTEGRITY}
+// @return Integer constant value of \code{TSK_NO_CHECK_INTEGRITY}.
+// [[Rcpp::export]]
+int rtsk_const_tsk_no_check_integrity() {
+  return static_cast<int>(TSK_NO_CHECK_INTEGRITY);
 }
 
 // PUBLIC, wrapper for tsk_treeseq_load
@@ -574,6 +817,20 @@ SEXP rtsk_treeseq_get_num_samples(SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
   return rtsk_wrap_tsk_size_t_as_integer64(tsk_treeseq_get_num_samples(ts_xptr),
                                            "rtsk_treeseq_get_num_samples");
+}
+
+// PUBLIC, wrapper for tsk_treeseq_get_samples
+// @describeIn rtsk_treeseq_summary Get sample node IDs.
+// [[Rcpp::export]]
+Rcpp::IntegerVector rtsk_treeseq_get_samples(const SEXP ts) {
+  rtsk_treeseq_t ts_xptr(ts);
+  const tsk_size_t num_samples = tsk_treeseq_get_num_samples(ts_xptr);
+  const tsk_id_t *samples = tsk_treeseq_get_samples(ts_xptr);
+  Rcpp::IntegerVector out(num_samples);
+  for (tsk_size_t j = 0; j < num_samples; ++j) {
+    out[j] = samples[j];
+  }
+  return out;
 }
 
 // PUBLIC, wrapper for tsk_treeseq_get_num_nodes
@@ -1102,8 +1359,41 @@ void rtsk_table_collection_drop_index(SEXP tc, int options = 0) {
   // # nocov end
 }
 
-// TODO: Do we have to add TableCollection$sort() method? #99
-//       https://github.com/HighlanderLab/RcppTskit/issues/99
+// PUBLIC, wrapper for tsk_table_collection_sort
+// @title Sort a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param edge_start integer scalar edge-table start row (0-based) used in
+//   sorting bookmark.
+// @param options passed to \code{tskit C}; this wrapper supports
+//   \code{TSK_NO_CHECK_INTEGRITY}.
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_table_collection_sort}.
+// @return No return value; called for side effects.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_table_collection_sort(tc_xptr)
+// [[Rcpp::export]]
+void rtsk_table_collection_sort(const SEXP tc, const int edge_start = 0,
+                                const int options = 0) {
+  if (Rcpp::IntegerVector::is_na(edge_start)) {
+    Rcpp::stop(
+        "edge_start must not be NA_integer_ in rtsk_table_collection_sort");
+  }
+  if (edge_start < 0) {
+    Rcpp::stop("edge_start must be >= 0 in rtsk_table_collection_sort");
+  }
+  const tsk_flags_t flags = validate_supported_options(
+      options, kTableSortSupportedFlags, "rtsk_table_collection_sort");
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_bookmark_t start = {0};
+  start.edges = static_cast<tsk_size_t>(edge_start);
+  int ret = tsk_table_collection_sort(tc_xptr, &start, flags);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+}
 
 // TODO: Do we need any other method on table collection to produce a valid
 //       ts? #100
@@ -1414,6 +1704,50 @@ int rtsk_node_table_add_row(
     Rcpp::stop(tsk_strerror(row_id));
   }
   return static_cast<int>(row_id);
+}
+
+// PUBLIC, wrapper for tsk_node_table_get_row
+// @title Get a row from the node table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param row_id integer scalar row ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_node_table_get_row}
+//   on the nodes table of \code{tc}.
+// @return A named list with fields \code{id}, \code{flags}, \code{time},
+//   \code{population}, \code{individual}, and \code{metadata}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_node_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_node_table_get_row(const SEXP tc, const int row_id) {
+  if (Rcpp::IntegerVector::is_na(row_id)) {
+    Rcpp::stop("row_id must not be NA_integer_ in rtsk_node_table_get_row");
+  }
+  if (row_id < 0) {
+    Rcpp::stop("row_id must be >= 0 in rtsk_node_table_get_row");
+  }
+
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_node_t row;
+  const tsk_id_t row_id_tsk = static_cast<tsk_id_t>(row_id);
+  int ret = tsk_node_table_get_row(&tc_xptr->nodes, row_id_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::RawVector metadata(row.metadata_length);
+  for (tsk_size_t j = 0; j < row.metadata_length; ++j) {
+    metadata[j] = static_cast<Rbyte>(row.metadata[j]);
+  }
+
+  return Rcpp::List::create(
+      Rcpp::_["id"] = row_id, Rcpp::_["flags"] = static_cast<int>(row.flags),
+      Rcpp::_["time"] = row.time,
+      Rcpp::_["population"] = static_cast<int>(row.population),
+      Rcpp::_["individual"] = static_cast<int>(row.individual),
+      Rcpp::_["metadata"] = metadata);
 }
 
 // PUBLIC, wrapper for tsk_edge_table_add_row

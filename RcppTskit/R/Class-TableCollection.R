@@ -103,6 +103,47 @@ TableCollection <- R6Class(
       TreeSequence$new(xptr = ts_xptr)
     },
 
+    #' @description Sort this table collection in place.
+    #' @param edge_start integer scalar edge-table start row (0-based).
+    #' @param no_check_integrity logical; when \code{TRUE}, pass
+    #'   \code{TSK_NO_CHECK_INTEGRITY} to \code{tskit C}.
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/latest/python-api.html#tskit.TableCollection.sort}.
+    #' @return No return value; called for side effects.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' tc$sort()
+    sort = function(edge_start = 0L, no_check_integrity = FALSE) {
+      if (
+        is.null(edge_start) ||
+          length(edge_start) != 1L ||
+          is.na(as.integer(edge_start))
+      ) {
+        stop("edge_start must be a non-NA integer scalar (0-based)!")
+      }
+      if (as.integer(edge_start) < 0L) {
+        stop("edge_start must be >= 0 (0-based)!")
+      }
+      if (
+        !is.logical(no_check_integrity) ||
+          length(no_check_integrity) != 1L ||
+          is.na(no_check_integrity)
+      ) {
+        stop("no_check_integrity must be TRUE/FALSE!")
+      }
+      options <- if (isTRUE(no_check_integrity)) {
+        as.integer(rtsk_const_tsk_no_check_integrity())
+      } else {
+        0L
+      }
+      rtsk_table_collection_sort(
+        tc = self$xptr,
+        edge_start = as.integer(edge_start),
+        options = options
+      )
+    },
+
     #' @description Get the number of provenances in a table collection.
     #' @return A signed 64 bit integer \code{bit64::integer64}.
     #' @examples
@@ -216,6 +257,27 @@ TableCollection <- R6Class(
     #' tc$num_nodes()
     num_nodes = function() {
       rtsk_table_collection_get_num_nodes(self$xptr)
+    },
+
+    #' @description Get one row from the nodes table.
+    #' @param row_id integer scalar node row ID (0-based).
+    #' @details The ID is 0-based, matching \code{tskit C/Python} semantics.
+    #' @return A named list with fields \code{id}, \code{flags}, \code{time},
+    #'   \code{population}, \code{individual}, and \code{metadata}.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' tc$node_table_get_row(0L)
+    node_table_get_row = function(row_id) {
+      if (
+        is.null(row_id) || length(row_id) != 1L || is.na(as.integer(row_id))
+      ) {
+        stop("row_id must be a non-NA integer scalar (0-based)!")
+      }
+      if (as.integer(row_id) < 0L) {
+        stop("row_id must be >= 0 (0-based)!")
+      }
+      rtsk_node_table_get_row(self$xptr, row_id = as.integer(row_id))
     },
 
     #' @description Add a row to the nodes table.
