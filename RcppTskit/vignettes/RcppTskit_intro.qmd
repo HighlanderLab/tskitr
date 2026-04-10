@@ -272,7 +272,7 @@ help(package = "RcppTskit")
 
 Developers should also explore the internal `R` and `C++` functions.
 Their names all start with `rtsk_` and are accessible via `RcppTskit:::`.
-Since these are internal functions we instruct the linter `jarl`
+Since these are internal functions we instruct the lint tool `jarl`
 not to warn about their use.
 For example, the above `R` function `ts_load()` effectively calls:
 

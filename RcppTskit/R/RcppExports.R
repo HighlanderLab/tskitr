@@ -215,6 +215,14 @@ rtsk_edge_table_add_row <- function(tc, left, right, parent, child, metadata = N
     .Call(`_RcppTskit_rtsk_edge_table_add_row`, tc, left, right, parent, child, metadata)
 }
 
+rtsk_site_table_add_row <- function(tc, position, ancestral_state, metadata = NULL) {
+    .Call(`_RcppTskit_rtsk_site_table_add_row`, tc, position, ancestral_state, metadata)
+}
+
+rtsk_mutation_table_add_row <- function(tc, site, node, parent, time, derived_state, metadata = NULL) {
+    .Call(`_RcppTskit_rtsk_mutation_table_add_row`, tc, site, node, parent, time, derived_state, metadata)
+}
+
 test_tsk_bug_assert_c <- function() {
     invisible(.Call(`_RcppTskit_test_tsk_bug_assert_c`))
 }
@@ -257,5 +265,13 @@ test_rtsk_node_table_add_row_forced_error <- function(tc) {
 
 test_rtsk_edge_table_add_row_forced_error <- function(tc) {
     invisible(.Call(`_RcppTskit_test_rtsk_edge_table_add_row_forced_error`, tc))
+}
+
+test_rtsk_site_table_add_row_forced_error <- function(tc) {
+    invisible(.Call(`_RcppTskit_test_rtsk_site_table_add_row_forced_error`, tc))
+}
+
+test_rtsk_mutation_table_add_row_forced_error <- function(tc) {
+    invisible(.Call(`_RcppTskit_test_rtsk_mutation_table_add_row_forced_error`, tc))
 }
 

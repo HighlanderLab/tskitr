@@ -10,12 +10,17 @@ README_files/
 RcppTskit/**/.quarto/
 RcppTskit/cran-comments.html
 RcppTskit/cran-comments_files/
+RcppTskit/covr/
 RcppTskit/inst/doc
+RcppTskit/src/*.gcda
+RcppTskit/src/*.gcno
 RcppTskit/src/*.dll*
 RcppTskit/src/*.o
 RcppTskit/src/*.so
 RcppTskit/src/Makevars
 RcppTskit/src/Makevars.win
+RcppTskit/src/**/*.gcda
+RcppTskit/src/**/*.gcno
 RcppTskit/src/tskit/*.o
 RcppTskit/vignettes/*.R
 RcppTskit/vignettes/*.html

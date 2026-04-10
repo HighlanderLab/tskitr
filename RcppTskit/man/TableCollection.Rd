@@ -79,14 +79,14 @@ tc$num_individuals()
 
 ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(ts_file)
-n_before <- tc$num_individuals()
+(n_before <- tc$num_individuals())
 new_id <- tc$individual_table_add_row()
 new_id <- tc$individual_table_add_row(location = c(5, 8))
 new_id <- tc$individual_table_add_row(flags = 0L)
 new_id <- tc$individual_table_add_row(parents = c(0L, 2L))
 new_id <- tc$individual_table_add_row(metadata = "abc")
 new_id <- tc$individual_table_add_row(metadata = charToRaw("cba"))
-n_after <- tc$num_individuals()
+(n_after <- tc$num_individuals())
 
 ## ------------------------------------------------
 ## Method `TableCollection$num_nodes`
@@ -102,14 +102,14 @@ tc$num_nodes()
 
 ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(ts_file)
-n_before <- tc$num_nodes()
+(n_before <- tc$num_nodes())
 new_id <- tc$node_table_add_row()
 new_id <- tc$node_table_add_row(time = 2.5)
 new_id <- tc$node_table_add_row(flags = 1L, time = 3.5, population = 0L)
 new_id <- tc$node_table_add_row(flags = 1L, time = 4.5, individual = 0L)
 new_id <- tc$node_table_add_row(metadata = "abc")
 new_id <- tc$node_table_add_row(metadata = charToRaw("cba"))
-n_after <- tc$num_nodes()
+(n_after <- tc$num_nodes())
 
 ## ------------------------------------------------
 ## Method `TableCollection$num_edges`
@@ -126,7 +126,7 @@ tc$num_edges()
 ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(ts_file)
 child <- tc$node_table_add_row(time = 0.0)
-n_before <- tc$num_edges()
+(n_before <- tc$num_edges())
 new_id <- tc$edge_table_add_row(
   left = 0, right = 50, parent = 16L, child = child
 )
@@ -136,7 +136,7 @@ new_id <- tc$edge_table_add_row(
 new_id <- tc$edge_table_add_row(
   left = 75, right = 100, parent = 18L, child = child, metadata = charToRaw("cba")
 )
-n_after <- tc$num_edges()
+(n_after <- tc$num_edges())
 
 ## ------------------------------------------------
 ## Method `TableCollection$num_sites`
@@ -147,12 +147,45 @@ tc <- tc_load(tc_file)
 tc$num_sites()
 
 ## ------------------------------------------------
+## Method `TableCollection$site_table_add_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_sites())
+new_id <- tc$site_table_add_row(position = 0.5, ancestral_state = "A")
+new_id <- tc$site_table_add_row(position = 2.5, ancestral_state = "T", metadata = "abc")
+(n_after <- tc$num_sites())
+
+## ------------------------------------------------
 ## Method `TableCollection$num_mutations`
 ## ------------------------------------------------
 
 tc_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(tc_file)
 tc$num_mutations()
+
+## ------------------------------------------------
+## Method `TableCollection$mutation_table_add_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_mutations())
+# From inspection of tc we have:
+# node13(time=0) <- node16(time=0.02...) <- node20(time=0.08...)
+# Add mutation above 16L
+m0 <- tc$mutation_table_add_row(site = 0L, node = 16L, derived_state = "T", time = 0.03)
+# Add mutation above 13L
+m1 <- tc$mutation_table_add_row(
+  site = 0L,
+  node = 13L,
+  parent = m0,
+  time = 0.01,
+  derived_state = "C",
+  metadata = "abc"
+)
+(n_after <- tc$num_mutations())
 
 ## ------------------------------------------------
 ## Method `TableCollection$sequence_length`
@@ -279,7 +312,9 @@ tc
 \item \href{#method-TableCollection-num_edges}{\code{TableCollection$num_edges()}}
 \item \href{#method-TableCollection-edge_table_add_row}{\code{TableCollection$edge_table_add_row()}}
 \item \href{#method-TableCollection-num_sites}{\code{TableCollection$num_sites()}}
+\item \href{#method-TableCollection-site_table_add_row}{\code{TableCollection$site_table_add_row()}}
 \item \href{#method-TableCollection-num_mutations}{\code{TableCollection$num_mutations()}}
+\item \href{#method-TableCollection-mutation_table_add_row}{\code{TableCollection$mutation_table_add_row()}}
 \item \href{#method-TableCollection-sequence_length}{\code{TableCollection$sequence_length()}}
 \item \href{#method-TableCollection-time_units}{\code{TableCollection$time_units()}}
 \item \href{#method-TableCollection-has_index}{\code{TableCollection$has_index()}}
@@ -535,11 +570,13 @@ Add a row to the individuals table.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{flags}}{integer flags for the new individual.}
+\item{\code{flags}}{integer scalar flags for the new individual.}
 
-\item{\code{location}}{numeric vector with the location of the new individual.}
+\item{\code{location}}{numeric vector with the location of the new individual;
+can be \code{NULL} if unknown.}
 
-\item{\code{parents}}{integer vector with parent individual IDs (0-based).}
+\item{\code{parents}}{integer vector with parent individual IDs (0-based);
+can be \code{NULL} if unknown}
 
 \item{\code{metadata}}{for the new individual; accepts \code{NULL},
 a raw vector, or a character of length 1.}
@@ -549,7 +586,6 @@ a raw vector, or a character of length 1.}
 \subsection{Details}{
 See the \code{tskit Python} equivalent at
   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.IndividualTable.add_row}.
-  The function casts inputs to the expected class.
 }
 
 \subsection{Returns}{
@@ -559,14 +595,14 @@ Integer row ID (0-based) of the newly added individual.
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(ts_file)
-n_before <- tc$num_individuals()
+(n_before <- tc$num_individuals())
 new_id <- tc$individual_table_add_row()
 new_id <- tc$individual_table_add_row(location = c(5, 8))
 new_id <- tc$individual_table_add_row(flags = 0L)
 new_id <- tc$individual_table_add_row(parents = c(0L, 2L))
 new_id <- tc$individual_table_add_row(metadata = "abc")
 new_id <- tc$individual_table_add_row(metadata = charToRaw("cba"))
-n_after <- tc$num_individuals()
+(n_after <- tc$num_individuals())
 }
 \if{html}{\out{</div>}}
 
@@ -614,15 +650,15 @@ Add a row to the nodes table.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{flags}}{integer flags for the new node.}
+\item{\code{flags}}{integer scalar flags for the new node.}
 
-\item{\code{time}}{numeric time value for the new node.}
+\item{\code{time}}{numeric scalar time value for the new node.}
 
-\item{\code{population}}{integer population row ID (0-based);
-use \code{-1} if not known - \code{NULL} maps to \code{-1}.}
+\item{\code{population}}{integer scalar population row ID (0-based);
+use \code{-1} if not known - \code{NULL} maps to \code{-1} (\code{TSK_NULL}).}
 
-\item{\code{individual}}{integer individual row ID (0-based);
-use \code{-1} if not known - \code{NULL} maps to \code{-1}.}
+\item{\code{individual}}{integer scalar individual row ID (0-based);
+use \code{-1} if not known - \code{NULL} maps to \code{-1} (\code{TSK_NULL}).}
 
 \item{\code{metadata}}{for the new node; accepts \code{NULL},
 a raw vector, or a character of length 1.}
@@ -632,9 +668,6 @@ a raw vector, or a character of length 1.}
 \subsection{Details}{
 See the \code{tskit Python} equivalent at
   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.NodeTable.add_row}.
-  The function casts inputs to the expected class. For convenience,
-  \code{population = NULL} and \code{individual = NULL} are mapped to
-  \code{-1} (\code{TSK_NULL}).
 }
 
 \subsection{Returns}{
@@ -644,14 +677,14 @@ Integer row ID (0-based) of the newly added node.
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(ts_file)
-n_before <- tc$num_nodes()
+(n_before <- tc$num_nodes())
 new_id <- tc$node_table_add_row()
 new_id <- tc$node_table_add_row(time = 2.5)
 new_id <- tc$node_table_add_row(flags = 1L, time = 3.5, population = 0L)
 new_id <- tc$node_table_add_row(flags = 1L, time = 4.5, individual = 0L)
 new_id <- tc$node_table_add_row(metadata = "abc")
 new_id <- tc$node_table_add_row(metadata = charToRaw("cba"))
-n_after <- tc$num_nodes()
+(n_after <- tc$num_nodes())
 }
 \if{html}{\out{</div>}}
 
@@ -709,10 +742,6 @@ a raw vector, or a character of length 1.}
 \subsection{Details}{
 See the \code{tskit Python} equivalent at
   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.EdgeTable.add_row}.
-  The function casts inputs to the expected class. Inputs are validated:
-  \code{left} and \code{right} must be finite numeric scalars with
-  \code{left < right}, and \code{parent} and \code{child} must be
-  non-\code{NA} integer scalars.
 }
 
 \subsection{Returns}{
@@ -723,7 +752,7 @@ Integer row ID (0-based) of the newly added edge.
 \preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(ts_file)
 child <- tc$node_table_add_row(time = 0.0)
-n_before <- tc$num_edges()
+(n_before <- tc$num_edges())
 new_id <- tc$edge_table_add_row(
   left = 0, right = 50, parent = 16L, child = child
 )
@@ -733,7 +762,7 @@ new_id <- tc$edge_table_add_row(
 new_id <- tc$edge_table_add_row(
   left = 75, right = 100, parent = 18L, child = child, metadata = charToRaw("cba")
 )
-n_after <- tc$num_edges()
+(n_after <- tc$num_edges())
 }
 \if{html}{\out{</div>}}
 
@@ -764,6 +793,49 @@ tc$num_sites()
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-site_table_add_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-site_table_add_row}{}}}
+\subsection{Method \code{site_table_add_row()}}{
+Add a row to the sites table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$site_table_add_row(position, ancestral_state, metadata = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{position}}{numeric scalar site position.}
+
+\item{\code{ancestral_state}}{character string for the new site.}
+
+\item{\code{metadata}}{for the new site; accepts \code{NULL},
+a raw vector, or a character of length 1.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.SiteTable.add_row}.
+}
+
+\subsection{Returns}{
+Integer row ID (0-based) of the newly added site.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_sites())
+new_id <- tc$site_table_add_row(position = 0.5, ancestral_state = "A")
+new_id <- tc$site_table_add_row(position = 2.5, ancestral_state = "T", metadata = "abc")
+(n_after <- tc$num_sites())
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TableCollection-num_mutations"></a>}}
 \if{latex}{\out{\hypertarget{method-TableCollection-num_mutations}{}}}
 \subsection{Method \code{num_mutations()}}{
@@ -780,6 +852,75 @@ A signed 64 bit integer \code{bit64::integer64}.
 \preformatted{tc_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(tc_file)
 tc$num_mutations()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-mutation_table_add_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-mutation_table_add_row}{}}}
+\subsection{Method \code{mutation_table_add_row()}}{
+Add a row to the mutations table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$mutation_table_add_row(
+  site,
+  node,
+  derived_state,
+  parent = -1L,
+  metadata = NULL,
+  time = NaN
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{site}}{integer scalar site row ID (0-based).}
+
+\item{\code{node}}{integer scalar node row ID (0-based).}
+
+\item{\code{derived_state}}{character string for the new mutation.}
+
+\item{\code{parent}}{integer scalar parent mutation row ID (0-based);
+use \code{-1} if not known - \code{NULL} maps to \code{-1} (\code{TSK_NULL}).}
+
+\item{\code{metadata}}{for the new mutation; accepts \code{NULL},
+a raw vector, or a character of length 1.}
+
+\item{\code{time}}{numeric scalar mutation time;
+use \code{NaN} if not known - \code{NULL} maps to \code{NaN} (\code{TSK_UNKNOWN_TIME}).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.MutationTable.add_row}.
+}
+
+\subsection{Returns}{
+Integer row ID (0-based) of the newly added mutation.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_mutations())
+# From inspection of tc we have:
+# node13(time=0) <- node16(time=0.02...) <- node20(time=0.08...)
+# Add mutation above 16L
+m0 <- tc$mutation_table_add_row(site = 0L, node = 16L, derived_state = "T", time = 0.03)
+# Add mutation above 13L
+m1 <- tc$mutation_table_add_row(
+  site = 0L,
+  node = 13L,
+  parent = m0,
+  time = 0.01,
+  derived_state = "C",
+  metadata = "abc"
+)
+(n_after <- tc$num_mutations())
 }
 \if{html}{\out{</div>}}
 

@@ -4,7 +4,7 @@ All notable changes to `RcppTskit` are documented in this file.
 The file format is based on [Keep a Changelog](https://keepachangelog.com),
 and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.0] 2026-03-02
+## [0.3.0] 2026-04-07 (not yet released)
 
 ### Added (new features)
 
@@ -35,6 +35,11 @@ and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
   to append node rows from \code{R}, mirroring `tsk_node_table_add_row()`.
 - Added `rtsk_edge_table_add_row()` and `TableCollection$edge_table_add_row()`
   to append edge rows from \code{R}, mirroring `tsk_edge_table_add_row()`.
+- Added `rtsk_site_table_add_row()` and `TableCollection$site_table_add_row()`
+  to append site rows from \code{R}, mirroring `tsk_site_table_add_row()`.
+- Added `rtsk_mutation_table_add_row()` and
+  `TableCollection$mutation_table_add_row()` to append mutation rows from
+  \code{R}, mirroring `tsk_mutation_table_add_row()`.
 - TODO
 
 ### Changed
@@ -56,8 +61,8 @@ and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 ### Maintenance
 
 - Turn vignette URL as hyperlinks and similar cosmetics.
-- State mirroring of the `R/Python` APIs and `C++/C` APIs across the package.
-- Update tskit C to 1.3.1
+- State that we mirror the `R/Python` APIs and `C++/C` APIs across the package.
+- Update `tskit C` to 1.3.1
 - TODO
 
 ## [0.2.0] - 2026-02-22

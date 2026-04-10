@@ -13,12 +13,15 @@
 ^cran-comments\.html$
 ^cran-comments\.md$
 ^cran-comments_files$
+^covr$
 ^inst/examples/create_test\.trees\.R$
 ^inst/examples/create_test\.trees\.py$
 ^inst/examples/explore_reticulate\.R$
 ^inst/examples/explore_slendr\.R$
 ^notes_pkg_dev\.Rmd$
 ^pkg_dev_notes\.md$
+^src/.*\.gcda$
+^src/.*\.gcno$
 ^test\.trees$
 ^tests/testthat/_snaps$
 ^tools/clang-tidy\.py$
