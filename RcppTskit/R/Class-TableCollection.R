@@ -103,8 +103,10 @@ TableCollection <- R6Class(
       TreeSequence$new(xptr = ts_xptr)
     },
 
+    # TODO: add site_start and mutation_start
     #' @description Sort this table collection in place.
-    #' @param edge_start integer scalar edge-table start row (0-based).
+    #' @param edge_start integer scalar edge-table start row ID (0-based).
+    #' # TODO: remove this arg since Python code does not have it
     #' @param no_check_integrity logical; when \code{TRUE}, pass
     #'   \code{TSK_NO_CHECK_INTEGRITY} to \code{tskit C}.
     #' @details See the \code{tskit Python} equivalent at
@@ -117,14 +119,14 @@ TableCollection <- R6Class(
     sort = function(edge_start = 0L, no_check_integrity = FALSE) {
       if (
         is.null(edge_start) ||
+          !is.integer(edge_start) ||
           length(edge_start) != 1L ||
-          is.na(as.integer(edge_start))
+          is.na(edge_start) ||
+          edge_start < 0L
       ) {
-        stop("edge_start must be a non-NA integer scalar (0-based)!")
+        stop("edge_start must be a non-NA positive integer scalar!")
       }
-      if (as.integer(edge_start) < 0L) {
-        stop("edge_start must be >= 0 (0-based)!")
-      }
+      # TODO: remove this arg since Python code does not have it
       if (
         !is.logical(no_check_integrity) ||
           length(no_check_integrity) != 1L ||
@@ -140,6 +142,7 @@ TableCollection <- R6Class(
       rtsk_table_collection_sort(
         tc = self$xptr,
         edge_start = as.integer(edge_start),
+        # TODO: remove this arg since Python code does not have it
         options = options
       )
     },

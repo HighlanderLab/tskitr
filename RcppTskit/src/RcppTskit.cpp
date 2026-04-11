@@ -1359,6 +1359,8 @@ void rtsk_table_collection_drop_index(SEXP tc, int options = 0) {
   // # nocov end
 }
 
+// TODO: model this after
+// https://github.com/tskit-dev/tskit/blob/2f26dc6f0d033cdf7d6fb1adfbab96468dde8831/python/_tskitmodule.c#L4526
 // PUBLIC, wrapper for tsk_table_collection_sort
 // @title Sort a table collection
 // @param tc an external pointer to table collection as a
