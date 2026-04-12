@@ -491,7 +491,8 @@ Sort this table collection in place.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{edge_start}}{integer scalar edge-table start row (0-based).}
+\item{\code{edge_start}}{integer scalar edge-table start row ID (0-based).
+# TODO: remove this arg since Python code does not have it}
 
 \item{\code{no_check_integrity}}{logical; when \code{TRUE}, pass
 \code{TSK_NO_CHECK_INTEGRITY} to \code{tskit C}.}

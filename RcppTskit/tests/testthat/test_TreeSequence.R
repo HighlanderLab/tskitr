@@ -121,6 +121,8 @@ test_that("TreeSequence$samples() returns sample node IDs", {
   expect_type(samples, "integer")
   expect_length(samples, as.integer(ts$num_samples()))
   expect_true(all(samples >= 0L))
+  # We got the sample ID from inst/examples/create_test.trees.{R,py}
+  expect_true(all(samples == 0L:15L))
 
   samples_low <- rtsk_treeseq_get_samples(ts$xptr)
   expect_identical(samples, samples_low)

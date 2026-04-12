@@ -305,6 +305,7 @@ TreeSequence <- R6Class(
       rtsk_treeseq_get_num_samples(self$xptr)
     },
 
+    # TODO: add population, population_id, and time arguments
     #' @description Get sample node IDs in this tree sequence.
     #' @return An integer vector with sample node IDs (0-based).
     #' @details See the \code{tskit Python} equivalent at

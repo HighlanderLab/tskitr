@@ -142,8 +142,7 @@ tsk_flags_t validate_options(int options, tsk_flags_t supported,
   return flags;
 }
 
-tsk_flags_t validate_supported_options(const int options,
-                                       const tsk_flags_t supported,
+tsk_flags_t validate_supported_options(int options, tsk_flags_t supported,
                                        const char *caller) {
   if (options < 0) {
     Rcpp::stop("%s does not support negative options", caller);
@@ -161,6 +160,21 @@ tsk_flags_t validate_supported_options(const int options,
 constexpr tsk_size_t kMaxBit64Integer64 =
     static_cast<tsk_size_t>(std::numeric_limits<int64_t>::max());
 
+// R integer storage is C int. Fail at compile time if tsk_id_t changes width
+// or signedness (for example under _TSK_BIG_TABLES) before the wrapper API is
+// extended to integer64.
+static_assert(std::numeric_limits<tsk_id_t>::is_signed &&
+                  std::numeric_limits<int>::is_signed &&
+                  sizeof(tsk_id_t) == sizeof(int) &&
+                  std::numeric_limits<tsk_id_t>::min() ==
+                      std::numeric_limits<int>::min() &&
+                  std::numeric_limits<tsk_id_t>::max() ==
+                      std::numeric_limits<int>::max(),
+              "RcppTskit currently requires tsk_id_t to match R integer "
+              "storage. Builds with widened tsk_id_t (for example "
+              "_TSK_BIG_TABLES) need an integer64-based wrapper before they "
+              "are supported.");
+
 struct rtsk_variant_iterator_state_t {
   rtsk_treeseq_t ts_xptr;
   SEXP ts_sexp = R_NilValue;
@@ -169,7 +183,7 @@ struct rtsk_variant_iterator_state_t {
   tsk_id_t next_site_id = 0;
   tsk_id_t stop_site_id = 0;
 
-  explicit rtsk_variant_iterator_state_t(const SEXP ts) : ts_xptr(ts) {}
+  explicit rtsk_variant_iterator_state_t(SEXP ts) : ts_xptr(ts) {}
 };
 
 static void rtsk_variant_iterator_free(rtsk_variant_iterator_state_t *ptr) {
@@ -218,12 +232,11 @@ int_vector_to_tsk_id_vector(const Rcpp::IntegerVector &ids) {
   return out;
 }
 
-void validate_variant_site_index_range(const tsk_size_t start,
-                                       const tsk_size_t stop);
+void validate_variant_site_index_range(tsk_size_t start, tsk_size_t stop);
 
 std::pair<tsk_id_t, tsk_id_t>
-compute_variant_iteration_bounds(rtsk_treeseq_t &ts_xptr, const double left,
-                                 const double right) {
+compute_variant_iteration_bounds(rtsk_treeseq_t &ts_xptr, double left,
+                                 double right) {
   if (!std::isfinite(left) || !std::isfinite(right)) {
     Rcpp::stop("left and right must be finite numbers");
   }
@@ -255,8 +268,7 @@ compute_variant_iteration_bounds(rtsk_treeseq_t &ts_xptr, const double left,
                         static_cast<tsk_id_t>(stop));
 }
 
-void validate_variant_site_index_range(const tsk_size_t start,
-                                       const tsk_size_t stop) {
+void validate_variant_site_index_range(tsk_size_t start, tsk_size_t stop) {
   const tsk_size_t max_id =
       static_cast<tsk_size_t>(std::numeric_limits<tsk_id_t>::max());
   if (start > max_id || stop > max_id) {
@@ -276,8 +288,7 @@ void validate_variant_site_index_range(const tsk_size_t start,
 //   a signed 64 bit integer with range from -2^63 to 2^63 - 1
 //   (that is, -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807)
 // @return \code{R bit64::integer64} object.
-SEXP rtsk_wrap_tsk_size_t_as_integer64(const tsk_size_t value,
-                                       const char *caller) {
+SEXP rtsk_wrap_tsk_size_t_as_integer64(tsk_size_t value, const char *caller) {
   const std::string value_str =
       std::to_string(static_cast<unsigned long long>(value));
   if (value > kMaxBit64Integer64) {
@@ -297,11 +308,10 @@ SEXP rtsk_wrap_tsk_size_t_as_integer64(const tsk_size_t value,
 // PUBLIC, low-level iterator init for tsk_variant_t decode
 // [[Rcpp::export]]
 SEXP rtsk_variant_iterator_init(
-    const SEXP ts,
-    const Rcpp::Nullable<Rcpp::IntegerVector> samples = R_NilValue,
-    const bool isolated_as_missing = true,
-    const Rcpp::Nullable<Rcpp::CharacterVector> alleles = R_NilValue,
-    const double left = 0.0, const double right = NA_REAL) {
+    SEXP ts, Rcpp::Nullable<Rcpp::IntegerVector> samples = R_NilValue,
+    bool isolated_as_missing = true,
+    Rcpp::Nullable<Rcpp::CharacterVector> alleles = R_NilValue,
+    double left = 0.0, double right = NA_REAL) {
   std::unique_ptr<rtsk_variant_iterator_state_t> state_ptr(
       new rtsk_variant_iterator_state_t(ts));
 
@@ -361,7 +371,7 @@ SEXP rtsk_variant_iterator_init(
 
 // PUBLIC, low-level iterator next for tsk_variant_t decode
 // [[Rcpp::export]]
-SEXP rtsk_variant_iterator_next(const SEXP iterator) {
+SEXP rtsk_variant_iterator_next(SEXP iterator) {
   rtsk_variant_iterator_t iterator_xptr(iterator);
   if (iterator_xptr->next_site_id >= iterator_xptr->stop_site_id) {
     return R_NilValue;
@@ -403,15 +413,14 @@ SEXP rtsk_variant_iterator_next(const SEXP iterator) {
 
 // TEST-ONLY
 // [[Rcpp::export]]
-void test_rtsk_variant_iterator_force_null_first_allele(const bool enabled) {
+void test_rtsk_variant_iterator_force_null_first_allele(bool enabled) {
   g_test_force_null_first_allele = enabled;
 }
 
 // TEST-ONLY
 // [[Rcpp::export]]
-void test_rtsk_variant_iterator_set_site_bounds(const SEXP iterator,
-                                                const int next_site_id,
-                                                const int stop_site_id) {
+void test_rtsk_variant_iterator_set_site_bounds(SEXP iterator, int next_site_id,
+                                                int stop_site_id) {
   rtsk_variant_iterator_t iterator_xptr(iterator);
   iterator_xptr->next_site_id = static_cast<tsk_id_t>(next_site_id);
   iterator_xptr->stop_site_id = static_cast<tsk_id_t>(stop_site_id);
@@ -419,8 +428,8 @@ void test_rtsk_variant_iterator_set_site_bounds(const SEXP iterator,
 
 // TEST-ONLY
 // [[Rcpp::export]]
-void test_variant_site_index_range(const std::string start,
-                                   const std::string stop) {
+void test_variant_site_index_range(const std::string &start,
+                                   const std::string &stop) {
   unsigned long long start_parsed = 0;
   unsigned long long stop_parsed = 0;
   try {
@@ -810,8 +819,7 @@ SEXP rtsk_treeseq_get_num_individuals(SEXP ts) {
 
 // PUBLIC, wrapper for tsk_treeseq_get_num_samples
 // @describeIn rtsk_treeseq_summary Get the number of samples (of nodes) in a
-// tree
-//   sequence
+//   tree sequence
 // [[Rcpp::export]]
 SEXP rtsk_treeseq_get_num_samples(SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
@@ -822,14 +830,12 @@ SEXP rtsk_treeseq_get_num_samples(SEXP ts) {
 // PUBLIC, wrapper for tsk_treeseq_get_samples
 // @describeIn rtsk_treeseq_summary Get sample node IDs.
 // [[Rcpp::export]]
-Rcpp::IntegerVector rtsk_treeseq_get_samples(const SEXP ts) {
+Rcpp::IntegerVector rtsk_treeseq_get_samples(SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
-  const tsk_size_t num_samples = tsk_treeseq_get_num_samples(ts_xptr);
   const tsk_id_t *samples = tsk_treeseq_get_samples(ts_xptr);
+  const tsk_size_t num_samples = tsk_treeseq_get_num_samples(ts_xptr);
   Rcpp::IntegerVector out(num_samples);
-  for (tsk_size_t j = 0; j < num_samples; ++j) {
-    out[j] = samples[j];
-  }
+  std::copy_n(samples, num_samples, out.begin());
   return out;
 }
 
@@ -1377,8 +1383,7 @@ void rtsk_table_collection_drop_index(SEXP tc, int options = 0) {
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
 // RcppTskit:::rtsk_table_collection_sort(tc_xptr)
 // [[Rcpp::export]]
-void rtsk_table_collection_sort(const SEXP tc, const int edge_start = 0,
-                                const int options = 0) {
+void rtsk_table_collection_sort(SEXP tc, int edge_start = 0, int options = 0) {
   if (Rcpp::IntegerVector::is_na(edge_start)) {
     Rcpp::stop(
         "edge_start must not be NA_integer_ in rtsk_table_collection_sort");
@@ -1723,7 +1728,7 @@ int rtsk_node_table_add_row(
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
 // RcppTskit:::rtsk_node_table_get_row(tc_xptr, 0L)
 // [[Rcpp::export]]
-Rcpp::List rtsk_node_table_get_row(const SEXP tc, const int row_id) {
+Rcpp::List rtsk_node_table_get_row(SEXP tc, int row_id) {
   if (Rcpp::IntegerVector::is_na(row_id)) {
     Rcpp::stop("row_id must not be NA_integer_ in rtsk_node_table_get_row");
   }

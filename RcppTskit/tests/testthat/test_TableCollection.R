@@ -302,9 +302,12 @@ test_that("table_collection_sort wrapper validates inputs and sorts in place", {
 
   expect_error(
     tc$sort(edge_start = NA_integer_),
-    regexp = "edge_start must be a non-NA integer scalar \\(0-based\\)!"
+    regexp = "edge_start must be a non-NA positive integer scalar!"
   )
-  expect_error(tc$sort(edge_start = -1L), regexp = "edge_start must be >= 0")
+  expect_error(
+    tc$sort(edge_start = -1L),
+    regexp = "edge_start must be a non-NA positive integer scalar!"
+  )
   expect_error(
     tc$sort(no_check_integrity = NA),
     regexp = "no_check_integrity must be TRUE/FALSE!"

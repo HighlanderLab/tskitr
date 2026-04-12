@@ -11,61 +11,61 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // rtsk_variant_iterator_init
-SEXP rtsk_variant_iterator_init(const SEXP ts, const Rcpp::Nullable<Rcpp::IntegerVector> samples, const bool isolated_as_missing, const Rcpp::Nullable<Rcpp::CharacterVector> alleles, const double left, const double right);
+SEXP rtsk_variant_iterator_init(SEXP ts, Rcpp::Nullable<Rcpp::IntegerVector> samples, bool isolated_as_missing, Rcpp::Nullable<Rcpp::CharacterVector> alleles, double left, double right);
 RcppExport SEXP _RcppTskit_rtsk_variant_iterator_init(SEXP tsSEXP, SEXP samplesSEXP, SEXP isolated_as_missingSEXP, SEXP allelesSEXP, SEXP leftSEXP, SEXP rightSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::IntegerVector> >::type samples(samplesSEXP);
-    Rcpp::traits::input_parameter< const bool >::type isolated_as_missing(isolated_as_missingSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::CharacterVector> >::type alleles(allelesSEXP);
-    Rcpp::traits::input_parameter< const double >::type left(leftSEXP);
-    Rcpp::traits::input_parameter< const double >::type right(rightSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type ts(tsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::IntegerVector> >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< bool >::type isolated_as_missing(isolated_as_missingSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::CharacterVector> >::type alleles(allelesSEXP);
+    Rcpp::traits::input_parameter< double >::type left(leftSEXP);
+    Rcpp::traits::input_parameter< double >::type right(rightSEXP);
     rcpp_result_gen = Rcpp::wrap(rtsk_variant_iterator_init(ts, samples, isolated_as_missing, alleles, left, right));
     return rcpp_result_gen;
 END_RCPP
 }
 // rtsk_variant_iterator_next
-SEXP rtsk_variant_iterator_next(const SEXP iterator);
+SEXP rtsk_variant_iterator_next(SEXP iterator);
 RcppExport SEXP _RcppTskit_rtsk_variant_iterator_next(SEXP iteratorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const SEXP >::type iterator(iteratorSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type iterator(iteratorSEXP);
     rcpp_result_gen = Rcpp::wrap(rtsk_variant_iterator_next(iterator));
     return rcpp_result_gen;
 END_RCPP
 }
 // test_rtsk_variant_iterator_force_null_first_allele
-void test_rtsk_variant_iterator_force_null_first_allele(const bool enabled);
+void test_rtsk_variant_iterator_force_null_first_allele(bool enabled);
 RcppExport SEXP _RcppTskit_test_rtsk_variant_iterator_force_null_first_allele(SEXP enabledSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const bool >::type enabled(enabledSEXP);
+    Rcpp::traits::input_parameter< bool >::type enabled(enabledSEXP);
     test_rtsk_variant_iterator_force_null_first_allele(enabled);
     return R_NilValue;
 END_RCPP
 }
 // test_rtsk_variant_iterator_set_site_bounds
-void test_rtsk_variant_iterator_set_site_bounds(const SEXP iterator, const int next_site_id, const int stop_site_id);
+void test_rtsk_variant_iterator_set_site_bounds(SEXP iterator, int next_site_id, int stop_site_id);
 RcppExport SEXP _RcppTskit_test_rtsk_variant_iterator_set_site_bounds(SEXP iteratorSEXP, SEXP next_site_idSEXP, SEXP stop_site_idSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const SEXP >::type iterator(iteratorSEXP);
-    Rcpp::traits::input_parameter< const int >::type next_site_id(next_site_idSEXP);
-    Rcpp::traits::input_parameter< const int >::type stop_site_id(stop_site_idSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type iterator(iteratorSEXP);
+    Rcpp::traits::input_parameter< int >::type next_site_id(next_site_idSEXP);
+    Rcpp::traits::input_parameter< int >::type stop_site_id(stop_site_idSEXP);
     test_rtsk_variant_iterator_set_site_bounds(iterator, next_site_id, stop_site_id);
     return R_NilValue;
 END_RCPP
 }
 // test_variant_site_index_range
-void test_variant_site_index_range(const std::string start, const std::string stop);
+void test_variant_site_index_range(const std::string& start, const std::string& stop);
 RcppExport SEXP _RcppTskit_test_variant_site_index_range(SEXP startSEXP, SEXP stopSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const std::string >::type start(startSEXP);
-    Rcpp::traits::input_parameter< const std::string >::type stop(stopSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type start(startSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type stop(stopSEXP);
     test_variant_site_index_range(start, stop);
     return R_NilValue;
 END_RCPP
@@ -252,12 +252,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // rtsk_treeseq_get_samples
-Rcpp::IntegerVector rtsk_treeseq_get_samples(const SEXP ts);
+Rcpp::IntegerVector rtsk_treeseq_get_samples(SEXP ts);
 RcppExport SEXP _RcppTskit_rtsk_treeseq_get_samples(SEXP tsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const SEXP >::type ts(tsSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type ts(tsSEXP);
     rcpp_result_gen = Rcpp::wrap(rtsk_treeseq_get_samples(ts));
     return rcpp_result_gen;
 END_RCPP
@@ -594,13 +594,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // rtsk_table_collection_sort
-void rtsk_table_collection_sort(const SEXP tc, const int edge_start, const int options);
+void rtsk_table_collection_sort(SEXP tc, int edge_start, int options);
 RcppExport SEXP _RcppTskit_rtsk_table_collection_sort(SEXP tcSEXP, SEXP edge_startSEXP, SEXP optionsSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
-    Rcpp::traits::input_parameter< const int >::type edge_start(edge_startSEXP);
-    Rcpp::traits::input_parameter< const int >::type options(optionsSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< int >::type edge_start(edge_startSEXP);
+    Rcpp::traits::input_parameter< int >::type options(optionsSEXP);
     rtsk_table_collection_sort(tc, edge_start, options);
     return R_NilValue;
 END_RCPP
@@ -659,13 +659,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // rtsk_node_table_get_row
-Rcpp::List rtsk_node_table_get_row(const SEXP tc, const int row_id);
+Rcpp::List rtsk_node_table_get_row(SEXP tc, int row_id);
 RcppExport SEXP _RcppTskit_rtsk_node_table_get_row(SEXP tcSEXP, SEXP row_idSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const SEXP >::type tc(tcSEXP);
-    Rcpp::traits::input_parameter< const int >::type row_id(row_idSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< int >::type row_id(row_idSEXP);
     rcpp_result_gen = Rcpp::wrap(rtsk_node_table_get_row(tc, row_id));
     return rcpp_result_gen;
 END_RCPP

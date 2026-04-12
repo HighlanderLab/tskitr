@@ -10,6 +10,8 @@ ts = msprime.sim_ancestry(
 )
 ts = msprime.sim_mutations(ts, rate=2e-2, random_seed=42)
 ts
+# os.getcwd()
+# ts = tskit.load("RcppTskit/inst/examples/test.trees")
 print(ts)
 ts.num_provenances  # 2
 ts.num_populations  # 1
@@ -25,6 +27,10 @@ ts.sequence_length  # 100.0
 ts.time_units  # 'generations'
 ts.min_time  # 0.0
 ts.max_time  # 6.961993337190808
+
+ts.samples()
+# array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15],
+#       dtype=int32)
 
 ts.metadata  # b''
 type(ts.metadata)  # bytes
