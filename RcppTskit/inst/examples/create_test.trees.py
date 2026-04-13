@@ -32,6 +32,11 @@ ts.samples()
 # array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15],
 #       dtype=int32)
 
+ts.tables.nodes[0]
+# NodeTableRow(flags=1, time=0.0, population=0, individual=0, metadata=b'')
+ts.tables.nodes[38]
+# NodeTableRow(flags=0, time=6.961993337190808, population=0, individual=-1, metadata=b'')
+
 ts.metadata  # b''
 type(ts.metadata)  # bytes
 len(ts.metadata)  # 0

@@ -586,6 +586,39 @@ test_that("node_table_get_row wrapper returns node row fields and validates IDs"
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
   tc_xptr <- rtsk_table_collection_load(ts_file)
   tc <- TableCollection$new(xptr = tc_xptr)
+  last_node <- as.integer(rtsk_table_collection_get_num_nodes(tc_xptr)) - 1L
+
+  first_row_low <- rtsk_node_table_get_row(tc_xptr, 0L)
+  first_row_method <- tc$node_table_get_row(0L)
+  last_row_low <- rtsk_node_table_get_row(tc_xptr, last_node)
+  last_row_method <- tc$node_table_get_row(last_node)
+
+  # we got these values from inst/examples/create_test.trees.py
+  expect_equal(
+    first_row_low,
+    list(
+      id = 0L,
+      flags = 1L,
+      time = 0,
+      population = 0L,
+      individual = 0L,
+      metadata = raw(0)
+    )
+  )
+  expect_equal(first_row_method, first_row_low)
+  # we got these values from inst/examples/create_test.trees.py
+  expect_equal(
+    last_row_low,
+    list(
+      id = 38L,
+      flags = 0L,
+      time = 6.96199333719081,
+      population = 0L,
+      individual = -1L,
+      metadata = raw(0)
+    )
+  )
+  expect_equal(last_row_method, last_row_low)
 
   expect_error(
     rtsk_node_table_get_row(tc_xptr, NA_integer_),

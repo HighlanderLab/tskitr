@@ -1731,7 +1731,6 @@ int rtsk_node_table_add_row(
 // last_node <-
 // as.integer(RcppTskit:::rtsk_table_collection_get_num_nodes(tc_xptr)) - 1L
 // RcppTskit:::rtsk_node_table_get_row(tc_xptr, last_node)
-// TODO: expand unit tests with checking the first and last node contents!
 // [[Rcpp::export]]
 Rcpp::List rtsk_node_table_get_row(SEXP tc, int index) {
   rtsk_table_collection_t tc_xptr(tc);
