@@ -302,11 +302,11 @@ test_that("table_collection_sort wrapper validates inputs and sorts in place", {
 
   expect_error(
     tc$sort(edge_start = NA_integer_),
-    regexp = "edge_start must be a non-NA positive integer scalar!"
+    regexp = "edge_start must be a non-NA zero or positive integer scalar!"
   )
   expect_error(
     tc$sort(edge_start = -1L),
-    regexp = "edge_start must be a non-NA positive integer scalar!"
+    regexp = "edge_start must be a non-NA zero or positive integer scalar!"
   )
   expect_error(
     tc$sort(no_check_integrity = NA),
@@ -437,15 +437,15 @@ test_that("individual_table_add_row wrapper expands the table collection and han
 
   expect_error(
     tc$individual_table_add_row(metadata = c("a", "b")),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     tc$individual_table_add_row(metadata = NA_character_),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     tc$individual_table_add_row(metadata = 1L),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
 })
 
@@ -558,23 +558,23 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
   )
   expect_error(
     tc$node_table_add_row(population = NA_integer_),
-    regexp = "population must be -1L, NULL, or a non-NA integer scalar!"
+    regexp = "population must be -1, NULL, or a non-NA integer scalar!"
   )
   expect_error(
     tc$node_table_add_row(individual = NA_integer_),
-    regexp = "individual must be -1L, NULL, or a non-NA integer scalar!"
+    regexp = "individual must be -1, NULL, or a non-NA integer scalar!"
   )
   expect_error(
     tc$node_table_add_row(metadata = c("a", "b")),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     tc$node_table_add_row(metadata = NA_character_),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     tc$node_table_add_row(metadata = 1L),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     test_rtsk_node_table_add_row_forced_error(tc$xptr),
@@ -589,21 +589,28 @@ test_that("node_table_get_row wrapper returns node row fields and validates IDs"
 
   expect_error(
     rtsk_node_table_get_row(tc_xptr, NA_integer_),
-    regexp = "row_id must not be NA_integer_ in rtsk_node_table_get_row"
+    regexp = "TSK_ERR_NODE_OUT_OF_BOUNDS"
   )
   expect_error(
     rtsk_node_table_get_row(tc_xptr, -1L),
-    regexp = "row_id must be >= 0 in rtsk_node_table_get_row"
+    regexp = "TSK_ERR_NODE_OUT_OF_BOUNDS"
   )
   expect_error(
     tc$node_table_get_row(NA_integer_),
-    regexp = "row_id must be a non-NA integer scalar \\(0-based\\)!"
+    regexp = "index must be a non-NA zero or positive integer scalar!"
   )
   expect_error(
     tc$node_table_get_row(-1L),
-    regexp = "row_id must be >= 0 \\(0-based\\)!"
+    regexp = "index must be a non-NA zero or positive integer scalar!"
   )
-  expect_error(rtsk_node_table_get_row(tc_xptr, 999999L), regexp = "TSK_ERR")
+  expect_error(
+    tc$node_table_get_row(0),
+    regexp = "index must be a non-NA zero or positive integer scalar!"
+  )
+  expect_error(
+    rtsk_node_table_get_row(tc_xptr, 999999L),
+    regexp = "TSK_ERR_NODE_OUT_OF_BOUNDS"
+  )
 
   new_id <- tc$node_table_add_row(
     flags = 1L,
@@ -782,7 +789,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       parent = NULL,
       child = child
     ),
-    regexp = "parent must be a non-NA integer scalar!"
+    regexp = "parent must be a non-NA zero or positive integer scalar!"
   )
   expect_error(
     tc$edge_table_add_row(
@@ -791,7 +798,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       parent = parent,
       child = NULL
     ),
-    regexp = "child must be a non-NA integer scalar!"
+    regexp = "child must be a non-NA zero or positive integer scalar!"
   )
   expect_error(
     tc$edge_table_add_row(
@@ -800,7 +807,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       parent = NA_integer_,
       child = child
     ),
-    regexp = "parent must be a non-NA integer scalar!"
+    regexp = "parent must be a non-NA zero or positive integer scalar!"
   )
   expect_error(
     tc$edge_table_add_row(
@@ -809,7 +816,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       parent = parent,
       child = NA_integer_
     ),
-    regexp = "child must be a non-NA integer scalar!"
+    regexp = "child must be a non-NA zero or positive integer scalar!"
   )
   expect_error(
     tc$edge_table_add_row(
@@ -819,7 +826,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       child = child,
       metadata = c("a", "b")
     ),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     tc$edge_table_add_row(
@@ -829,7 +836,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       child = child,
       metadata = NA_character_
     ),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     tc$edge_table_add_row(
@@ -839,7 +846,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       child = child,
       metadata = 1L
     ),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     test_rtsk_edge_table_add_row_forced_error(tc$xptr),
@@ -969,7 +976,7 @@ test_that("site_table_add_row wrapper expands the table collection and handles i
       ancestral_state = "A",
       metadata = c("a", "b")
     ),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     test_rtsk_site_table_add_row_forced_error(tc$xptr),
@@ -1095,11 +1102,11 @@ test_that("mutation_table_add_row wrapper expands the table collection and handl
 
   expect_error(
     tc$mutation_table_add_row(site = NULL, node = node, derived_state = "T"),
-    regexp = "site must be a non-NA integer scalar!"
+    regexp = "site must be a non-NA zero or positive integer scalar!"
   )
   expect_error(
     tc$mutation_table_add_row(site = site, node = NULL, derived_state = "T"),
-    regexp = "node must be a non-NA integer scalar!"
+    regexp = "node must be a non-NA zero or positive integer scalar!"
   )
   expect_error(
     tc$mutation_table_add_row(
@@ -1108,7 +1115,7 @@ test_that("mutation_table_add_row wrapper expands the table collection and handl
       parent = NA_integer_,
       derived_state = "T"
     ),
-    regexp = "parent must be -1L, NULL, or a non-NA integer scalar!"
+    regexp = "parent must be -1, NULL, or a non-NA integer scalar!"
   )
   expect_error(
     tc$mutation_table_add_row(
@@ -1172,7 +1179,7 @@ test_that("mutation_table_add_row wrapper expands the table collection and handl
       derived_state = "T",
       metadata = c("a", "b")
     ),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     test_rtsk_mutation_table_add_row_forced_error(tc$xptr),

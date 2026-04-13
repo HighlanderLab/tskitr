@@ -99,6 +99,7 @@ check_tskit_py <- function(object, stop = FALSE) {
   }
 }
 
+# INTERNAL
 # @title Validating logical args
 # @param value logical from the argument
 # @param name character of the argument
@@ -109,6 +110,174 @@ validate_logical_arg <- function(value, name) {
   }
 }
 
+# INTERNAL
+# @title Validating integer scalar args
+# @param value integer from the argument
+# @param name character of the argument
+# @param minimum lower bound
+# @return No return value; called for side effects.
+validate_integer_scalar_arg <- function(value, name, minimum = NULL) {
+  if (
+    is.null(value) ||
+      !is.integer(value) ||
+      length(value) != 1L ||
+      is.na(value) ||
+      (!is.null(minimum) && value < minimum)
+  ) {
+    if (is.null(minimum)) {
+      stop(name, " must be a non-NA integer scalar!")
+    }
+    if (identical(minimum, 0L)) {
+      stop(name, " must be a non-NA zero or positive integer scalar!")
+    }
+    stop(name, " must be a non-NA integer scalar >= ", minimum, "!")
+  }
+}
+
+# INTERNAL
+# @title Validating row indexes
+# @param index integer row index (0-based)
+# @param name character of the argument
+# @param allow_null logical
+# @return No return value; called for side effects.
+validate_row_index <- function(
+  index,
+  name = "index",
+  allow_null = FALSE
+) {
+  if (allow_null && is.null(index)) {
+    return(invisible(NULL))
+  }
+  validate_integer_scalar_arg(index, name, minimum = 0L)
+}
+
+# INTERNAL
+# @title Validating optional numeric vectors with no missing values
+# @param value numeric vector or \code{NULL}
+# @param name character of the argument
+# @return No return value; called for side effects.
+validate_optional_numeric_vector_arg <- function(value, name) {
+  if (!is.null(value) && (!is.numeric(value) || anyNA(value))) {
+    stop(name, " must be NULL or a numeric vector with no NA values!")
+  }
+}
+
+# INTERNAL
+# @title Validating optional integer vectors with no missing values
+# @param value integer vector or \code{NULL}
+# @param name character of the argument
+# @return No return value; called for side effects.
+validate_optional_integer_vector_arg <- function(value, name) {
+  if (!is.null(value) && (!is.integer(value) || anyNA(value))) {
+    stop(name, " must be NULL or an integer vector with no NA values!")
+  }
+}
+
+# INTERNAL
+# @title Validating numeric scalar args
+# @param value numeric scalar
+# @param name character of the argument
+# @param allow_null logical
+# @param allow_nan logical
+# @return No return value; called for side effects.
+validate_numeric_scalar_arg <- function(
+  value,
+  name,
+  allow_null = FALSE,
+  allow_nan = FALSE
+) {
+  if (is.null(value)) {
+    if (allow_null) {
+      return(invisible(NULL))
+    }
+    stop(name, " must be a non-NA numeric scalar!")
+  }
+  if (!is.numeric(value) || length(value) != 1L) {
+    if (allow_null && allow_nan) {
+      stop(name, " must be NaN, NULL, or a non-NA numeric scalar!")
+    }
+    stop(name, " must be a non-NA numeric scalar!")
+  }
+  if (allow_nan) {
+    if (!is.na(value) || is.nan(value)) {
+      return(invisible(NULL))
+    }
+    stop(name, " must be NaN, NULL, or a non-NA numeric scalar!")
+  }
+  if (is.na(value)) {
+    stop(name, " must be a non-NA numeric scalar!")
+  }
+}
+
+# INTERNAL
+# @title Validating character scalar args
+# @param value character scalar
+# @param name character of the argument
+# @return No return value; called for side effects.
+validate_character_scalar_arg <- function(value, name) {
+  if (
+    is.null(value) ||
+      !is.character(value) ||
+      length(value) != 1L ||
+      is.na(value)
+  ) {
+    stop(name, " must be a length-1 non-NA character string!")
+  }
+}
+
+# INTERNAL
+# @title Validating nullable integer scalar args with sentinel minimum
+# @param value integer scalar or \code{NULL}
+# @param name character of the argument
+# @param minimum integer scalar sentinel minimum
+# @return No return value; called for side effects.
+validate_nullable_integer_scalar_arg <- function(
+  value,
+  name,
+  minimum = -1L
+) {
+  if (is.null(value)) {
+    return(invisible(NULL))
+  }
+  if (
+    !is.integer(value) ||
+      length(value) != 1L ||
+      is.na(value) ||
+      value < minimum
+  ) {
+    stop(
+      name,
+      " must be ",
+      minimum,
+      ", NULL, or a non-NA integer scalar!"
+    )
+  }
+}
+
+# INTERNAL
+# @title Validating metadata argument and possibly converting it to raw
+# @param metadata \code{NULL}, character, or raw argument
+# @return \code{NULL} when metadata is \code{NULL} and raw vector otherwise.
+validate_metadata_arg <- function(metadata) {
+  if (is.null(metadata)) {
+    return(NULL)
+  }
+  if (
+    is.character(metadata) &&
+      length(metadata) == 1L &&
+      !is.na(metadata)
+  ) {
+    return(charToRaw(metadata))
+  }
+  if (is.raw(metadata)) {
+    return(metadata)
+  }
+  stop(
+    "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
+  )
+}
+
+# INTERNAL
 # @title Converting load arguments to \code{tskit} bitwise options
 # @param skip_tables logical
 # @param skip_reference_sequence logical

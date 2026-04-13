@@ -659,14 +659,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // rtsk_node_table_get_row
-Rcpp::List rtsk_node_table_get_row(SEXP tc, int row_id);
-RcppExport SEXP _RcppTskit_rtsk_node_table_get_row(SEXP tcSEXP, SEXP row_idSEXP) {
+Rcpp::List rtsk_node_table_get_row(SEXP tc, int index);
+RcppExport SEXP _RcppTskit_rtsk_node_table_get_row(SEXP tcSEXP, SEXP indexSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
-    Rcpp::traits::input_parameter< int >::type row_id(row_idSEXP);
-    rcpp_result_gen = Rcpp::wrap(rtsk_node_table_get_row(tc, row_id));
+    Rcpp::traits::input_parameter< int >::type index(indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_node_table_get_row(tc, index));
     return rcpp_result_gen;
 END_RCPP
 }

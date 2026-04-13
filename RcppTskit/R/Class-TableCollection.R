@@ -105,8 +105,8 @@ TableCollection <- R6Class(
 
     # TODO: add site_start and mutation_start
     #' @description Sort this table collection in place.
-    #' @param edge_start integer scalar edge-table start row ID (0-based).
-    #' # TODO: remove this arg since Python code does not have it
+    #' @param edge_start integer scalar edge-table start row index (0-based).
+    #' # TODO: remove this argument since Python code does not have it
     #' @param no_check_integrity logical; when \code{TRUE}, pass
     #'   \code{TSK_NO_CHECK_INTEGRITY} to \code{tskit C}.
     #' @details See the \code{tskit Python} equivalent at
@@ -117,16 +117,8 @@ TableCollection <- R6Class(
     #' tc <- tc_load(ts_file)
     #' tc$sort()
     sort = function(edge_start = 0L, no_check_integrity = FALSE) {
-      if (
-        is.null(edge_start) ||
-          !is.integer(edge_start) ||
-          length(edge_start) != 1L ||
-          is.na(edge_start) ||
-          edge_start < 0L
-      ) {
-        stop("edge_start must be a non-NA positive integer scalar!")
-      }
-      # TODO: remove this arg since Python code does not have it
+      validate_row_index(edge_start, "edge_start")
+      # TODO: remove this argument since Python code does not have it
       if (
         !is.logical(no_check_integrity) ||
           length(no_check_integrity) != 1L ||
@@ -142,7 +134,7 @@ TableCollection <- R6Class(
       rtsk_table_collection_sort(
         tc = self$xptr,
         edge_start = as.integer(edge_start),
-        # TODO: remove this arg since Python code does not have it
+        # TODO: remove this argument since Python code does not have it
         options = options
       )
     },
@@ -197,7 +189,7 @@ TableCollection <- R6Class(
     #'   a raw vector, or a character of length 1.
     #' @details See the \code{tskit Python} equivalent at
     #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.IndividualTable.add_row}.
-    #' @return Integer row ID (0-based) of the newly added individual.
+    #' @return An integer row index and hence ID (0-based) of the newly added individual.
     #' @examples
     #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
     #' tc <- tc_load(ts_file)
@@ -215,34 +207,10 @@ TableCollection <- R6Class(
       parents = NULL,
       metadata = NULL
     ) {
-      if (
-        is.null(flags) ||
-          !is.integer(flags) ||
-          length(flags) != 1L ||
-          is.na(flags) ||
-          flags < 0L
-      ) {
-        stop("flags must be a non-NA zero or positive integer scalar!")
-      }
-      if (!is.null(location) && (!is.numeric(location) || anyNA(location))) {
-        stop("location must be NULL or a numeric vector with no NA values!")
-      }
-      if (!is.null(parents) && (!is.integer(parents) || anyNA(parents))) {
-        stop("parents must be NULL or an integer vector with no NA values!")
-      }
-      if (is.null(metadata)) {
-        metadata_raw <- NULL
-      } else if (is.raw(metadata)) {
-        metadata_raw <- metadata
-      } else if (
-        is.character(metadata) && length(metadata) == 1L && !is.na(metadata)
-      ) {
-        metadata_raw <- charToRaw(metadata)
-      } else {
-        stop(
-          "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
-        )
-      }
+      validate_integer_scalar_arg(flags, "flags", minimum = 0L)
+      validate_optional_numeric_vector_arg(location, "location")
+      validate_optional_integer_vector_arg(parents, "parents")
+      metadata_raw <- validate_metadata_arg(metadata)
       rtsk_individual_table_add_row(
         tc = self$xptr,
         flags = as.integer(flags),
@@ -262,39 +230,18 @@ TableCollection <- R6Class(
       rtsk_table_collection_get_num_nodes(self$xptr)
     },
 
-    #' @description Get one row from the nodes table.
-    #' @param row_id integer scalar node row ID (0-based).
-    #' @details The ID is 0-based, matching \code{tskit C/Python} semantics.
-    #' @return A named list with fields \code{id}, \code{flags}, \code{time},
-    #'   \code{population}, \code{individual}, and \code{metadata}.
-    #' @examples
-    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
-    #' tc <- tc_load(ts_file)
-    #' tc$node_table_get_row(0L)
-    node_table_get_row = function(row_id) {
-      if (
-        is.null(row_id) || length(row_id) != 1L || is.na(as.integer(row_id))
-      ) {
-        stop("row_id must be a non-NA integer scalar (0-based)!")
-      }
-      if (as.integer(row_id) < 0L) {
-        stop("row_id must be >= 0 (0-based)!")
-      }
-      rtsk_node_table_get_row(self$xptr, row_id = as.integer(row_id))
-    },
-
     #' @description Add a row to the nodes table.
     #' @param flags integer scalar flags for the new node.
     #' @param time numeric scalar time value for the new node.
-    #' @param population integer scalar population row ID (0-based);
+    #' @param population integer scalar population ID (0-based);
     #'   use \code{-1} if not known - \code{NULL} maps to \code{-1} (\code{TSK_NULL}).
-    #' @param individual integer scalar individual row ID (0-based);
+    #' @param individual integer scalar individual ID (0-based);
     #'   use \code{-1} if not known - \code{NULL} maps to \code{-1} (\code{TSK_NULL}).
     #' @param metadata for the new node; accepts \code{NULL},
     #'   a raw vector, or a character of length 1.
     #' @details See the \code{tskit Python} equivalent at
     #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.NodeTable.add_row}.
-    #' @return Integer row ID (0-based) of the newly added node.
+    #' @return An integer row index and hence ID (0-based) of the newly added node.
     #' @examples
     #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
     #' tc <- tc_load(ts_file)
@@ -313,51 +260,11 @@ TableCollection <- R6Class(
       individual = -1L,
       metadata = NULL
     ) {
-      if (
-        is.null(flags) ||
-          !is.integer(flags) ||
-          length(flags) != 1L ||
-          is.na(flags) ||
-          flags < 0L
-      ) {
-        stop("flags must be a non-NA zero or positive integer scalar!")
-      }
-      if (
-        is.null(time) || !is.numeric(time) || length(time) != 1L || is.na(time)
-      ) {
-        stop("time must be a non-NA numeric scalar!")
-      }
-      if (
-        !is.null(population) &&
-          (!is.integer(population) ||
-            length(population) != 1L ||
-            is.na(population) ||
-            population < -1L)
-      ) {
-        stop("population must be -1L, NULL, or a non-NA integer scalar!")
-      }
-      if (
-        !is.null(individual) &&
-          (!is.integer(individual) ||
-            length(individual) != 1L ||
-            is.na(individual) ||
-            individual < -1L)
-      ) {
-        stop("individual must be -1L, NULL, or a non-NA integer scalar!")
-      }
-      if (is.null(metadata)) {
-        metadata_raw <- NULL
-      } else if (is.raw(metadata)) {
-        metadata_raw <- metadata
-      } else if (
-        is.character(metadata) && length(metadata) == 1L && !is.na(metadata)
-      ) {
-        metadata_raw <- charToRaw(metadata)
-      } else {
-        stop(
-          "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
-        )
-      }
+      validate_integer_scalar_arg(flags, "flags", minimum = 0L)
+      validate_numeric_scalar_arg(time, "time")
+      validate_nullable_integer_scalar_arg(population, "population")
+      validate_nullable_integer_scalar_arg(individual, "individual")
+      metadata_raw <- validate_metadata_arg(metadata)
       rtsk_node_table_add_row(
         tc = self$xptr,
         flags = as.integer(flags),
@@ -366,6 +273,34 @@ TableCollection <- R6Class(
         individual = if (is.null(individual)) -1L else as.integer(individual),
         metadata = metadata_raw
       )
+    },
+
+    # TODO: how should we handle useR's experience with numeric&integer in getters?
+    #       In Python 0 is integer and 0.0 is numeric, so obj[0] works.
+    #       In R 0L is integer and 0 is numeric, so obj[0] might or might not work depending on context,
+    #       though many sub-setting methods cast numeric to integer.
+    #       So, should we be casting too?
+    #       If we allow numeric for index, then we can add allow_numeric into validate_row_index.
+    #       We cast with as.integer() anyway before calling C++ method.
+    # TODO: Similarly with add_row method on the R side, maybe?
+    # TODO: ALSO, should we use 0-based or 1-based access to elements of an object!? I think not!?
+    #       And should we allow characters as ID names?
+    #' @description Get one row from the nodes table.
+    #' @param index integer scalar row index (0-based).
+    #' @details In \code{tskit Python}, rows are accessed by indexing a
+    #'   \code{NodeTable}, for example \code{tables.nodes[index]}; see
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.NodeTable}.
+    #' @return A named list with fields \code{id}, \code{flags}, \code{time},
+    #'   \code{population}, \code{individual}, and \code{metadata}.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' tc$node_table_get_row(0L)
+    #' last_node <- as.integer(tc$num_nodes()) - 1L
+    #' tc$node_table_get_row(last_node)
+    node_table_get_row = function(index) {
+      validate_row_index(index)
+      rtsk_node_table_get_row(self$xptr, index = as.integer(index))
     },
 
     #' @description Get the number of edges in a table collection.
@@ -381,13 +316,13 @@ TableCollection <- R6Class(
     #' @description Add a row to the edges table.
     #' @param left numeric scalar left coordinate for the new edge.
     #' @param right numeric scalar right coordinate for the new edge.
-    #' @param parent integer scalar parent node row ID (0-based).
-    #' @param child integer scalar child node row ID (0-based).
+    #' @param parent integer scalar parent node ID (0-based).
+    #' @param child integer scalar child node ID (0-based).
     #' @param metadata for the new edge; accepts \code{NULL},
     #'   a raw vector, or a character of length 1.
     #' @details See the \code{tskit Python} equivalent at
     #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.EdgeTable.add_row}.
-    #' @return Integer row ID (0-based) of the newly added edge.
+    #' @return An integer row index and hence ID (0-based) of the newly added edge.
     #' @examples
     #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
     #' tc <- tc_load(ts_file)
@@ -410,54 +345,14 @@ TableCollection <- R6Class(
       child,
       metadata = NULL
     ) {
-      if (
-        is.null(left) ||
-          !is.numeric(left) ||
-          length(left) != 1L ||
-          is.na(left)
-      ) {
-        stop("left must be a non-NA numeric scalar!")
-      }
-      if (
-        is.null(right) ||
-          !is.numeric(right) ||
-          length(right) != 1L ||
-          is.na(right)
-      ) {
-        stop("right must be a non-NA numeric scalar!")
-      }
+      validate_numeric_scalar_arg(left, "left")
+      validate_numeric_scalar_arg(right, "right")
       if (as.numeric(left) >= as.numeric(right)) {
         stop("left must be strictly less than right!")
       }
-      if (
-        is.null(parent) ||
-          !is.integer(parent) ||
-          length(parent) != 1L ||
-          is.na(parent)
-      ) {
-        stop("parent must be a non-NA integer scalar!")
-      }
-      if (
-        is.null(child) ||
-          !is.integer(child) ||
-          length(child) != 1L ||
-          is.na(child)
-      ) {
-        stop("child must be a non-NA integer scalar!")
-      }
-      if (is.null(metadata)) {
-        metadata_raw <- NULL
-      } else if (is.raw(metadata)) {
-        metadata_raw <- metadata
-      } else if (
-        is.character(metadata) && length(metadata) == 1L && !is.na(metadata)
-      ) {
-        metadata_raw <- charToRaw(metadata)
-      } else {
-        stop(
-          "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
-        )
-      }
+      validate_row_index(parent, "parent")
+      validate_row_index(child, "child")
+      metadata_raw <- validate_metadata_arg(metadata)
       rtsk_edge_table_add_row(
         tc = self$xptr,
         left = as.numeric(left),
@@ -485,7 +380,7 @@ TableCollection <- R6Class(
     #'   a raw vector, or a character of length 1.
     #' @details See the \code{tskit Python} equivalent at
     #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.SiteTable.add_row}.
-    #' @return Integer row ID (0-based) of the newly added site.
+    #' @return An integer row index and hence ID (0-based) of the newly added site.
     #' @examples
     #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
     #' tc <- tc_load(ts_file)
@@ -498,37 +393,9 @@ TableCollection <- R6Class(
       ancestral_state,
       metadata = NULL
     ) {
-      if (
-        is.null(position) ||
-          !is.numeric(position) ||
-          length(position) != 1L ||
-          is.na(position)
-      ) {
-        stop("position must be a non-NA numeric scalar!")
-      }
-      if (
-        is.null(ancestral_state) ||
-          !is.character(ancestral_state) ||
-          length(ancestral_state) != 1L ||
-          is.na(ancestral_state)
-      ) {
-        stop(
-          "ancestral_state must be a length-1 non-NA character string!"
-        )
-      }
-      if (is.null(metadata)) {
-        metadata_raw <- NULL
-      } else if (is.raw(metadata)) {
-        metadata_raw <- metadata
-      } else if (
-        is.character(metadata) && length(metadata) == 1L && !is.na(metadata)
-      ) {
-        metadata_raw <- charToRaw(metadata)
-      } else {
-        stop(
-          "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
-        )
-      }
+      validate_numeric_scalar_arg(position, "position")
+      validate_character_scalar_arg(ancestral_state, "ancestral_state")
+      metadata_raw <- validate_metadata_arg(metadata)
       rtsk_site_table_add_row(
         tc = self$xptr,
         position = as.numeric(position),
@@ -548,10 +415,10 @@ TableCollection <- R6Class(
     },
 
     #' @description Add a row to the mutations table.
-    #' @param site integer scalar site row ID (0-based).
-    #' @param node integer scalar node row ID (0-based).
+    #' @param site integer scalar site ID (0-based).
+    #' @param node integer scalar node ID (0-based).
     #' @param derived_state character string for the new mutation.
-    #' @param parent integer scalar parent mutation row ID (0-based);
+    #' @param parent integer scalar parent mutation ID (0-based);
     #'   use \code{-1} if not known - \code{NULL} maps to \code{-1} (\code{TSK_NULL}).
     #' @param metadata for the new mutation; accepts \code{NULL},
     #'   a raw vector, or a character of length 1.
@@ -559,7 +426,7 @@ TableCollection <- R6Class(
     #'   use \code{NaN} if not known - \code{NULL} maps to \code{NaN} (\code{TSK_UNKNOWN_TIME}).
     #' @details See the \code{tskit Python} equivalent at
     #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.MutationTable.add_row}.
-    #' @return Integer row ID (0-based) of the newly added mutation.
+    #' @return An integer row index and hence ID (0-based) of the newly added mutation.
     #' @examples
     #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
     #' tc <- tc_load(ts_file)
@@ -586,57 +453,17 @@ TableCollection <- R6Class(
       metadata = NULL,
       time = NaN
     ) {
-      if (
-        is.null(site) || !is.integer(site) || length(site) != 1L || is.na(site)
-      ) {
-        stop("site must be a non-NA integer scalar!")
-      }
-      if (
-        is.null(node) || !is.integer(node) || length(node) != 1L || is.na(node)
-      ) {
-        stop("node must be a non-NA integer scalar!")
-      }
-      if (
-        is.null(derived_state) ||
-          !is.character(derived_state) ||
-          length(derived_state) != 1L ||
-          is.na(derived_state)
-      ) {
-        stop(
-          "derived_state must be a length-1 non-NA character string!"
-        )
-      }
-      if (
-        !is.null(parent) &&
-          (!is.integer(parent) ||
-            length(parent) != 1L ||
-            is.na(parent) ||
-            parent < -1L)
-      ) {
-        stop("parent must be -1L, NULL, or a non-NA integer scalar!")
-      }
-      if (is.null(metadata)) {
-        metadata_raw <- NULL
-      } else if (is.raw(metadata)) {
-        metadata_raw <- metadata
-      } else if (
-        is.character(metadata) && length(metadata) == 1L && !is.na(metadata)
-      ) {
-        metadata_raw <- charToRaw(metadata)
-      } else {
-        stop(
-          "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
-        )
-      }
-      if (!is.null(time)) {
-        if (
-          !(is.numeric(time) &&
-            length(time) == 1L &&
-            (!is.na(time) || is.nan(time)))
-        ) {
-          stop("time must be NaN, NULL, or a non-NA numeric scalar!")
-        }
-      }
+      validate_row_index(site, "site")
+      validate_row_index(node, "node")
+      validate_character_scalar_arg(derived_state, "derived_state")
+      validate_nullable_integer_scalar_arg(parent, "parent")
+      metadata_raw <- validate_metadata_arg(metadata)
+      validate_numeric_scalar_arg(
+        time,
+        "time",
+        allow_null = TRUE,
+        allow_nan = TRUE
+      )
       rtsk_mutation_table_add_row(
         tc = self$xptr,
         site = as.integer(site),

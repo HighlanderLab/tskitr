@@ -74,7 +74,7 @@ int rtsk_individual_table_add_row(
 int rtsk_node_table_add_row(
     SEXP tc, int flags = 0, double time = 0, int population = -1,
     int individual = -1, Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
-Rcpp::List rtsk_node_table_get_row(SEXP tc, int row_id);
+Rcpp::List rtsk_node_table_get_row(SEXP tc, int index);
 int rtsk_edge_table_add_row(
     SEXP tc, double left, double right, int parent, int child,
     Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);

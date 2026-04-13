@@ -243,8 +243,8 @@ rtsk_node_table_add_row <- function(tc, flags = 0L, time = 0, population = -1L, 
     .Call(`_RcppTskit_rtsk_node_table_add_row`, tc, flags, time, population, individual, metadata)
 }
 
-rtsk_node_table_get_row <- function(tc, row_id) {
-    .Call(`_RcppTskit_rtsk_node_table_get_row`, tc, row_id)
+rtsk_node_table_get_row <- function(tc, index) {
+    .Call(`_RcppTskit_rtsk_node_table_get_row`, tc, index)
 }
 
 rtsk_edge_table_add_row <- function(tc, left, right, parent, child, metadata = NULL) {

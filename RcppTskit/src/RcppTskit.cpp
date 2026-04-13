@@ -1371,7 +1371,7 @@ void rtsk_table_collection_drop_index(SEXP tc, int options = 0) {
 // @title Sort a table collection
 // @param tc an external pointer to table collection as a
 //   \code{tsk_table_collection_t} object.
-// @param edge_start integer scalar edge-table start row (0-based) used in
+// @param edge_start integer scalar edge-table start row index (0-based) used in
 //   sorting bookmark.
 // @param options passed to \code{tskit C}; this wrapper supports
 //   \code{TSK_NO_CHECK_INTEGRITY}.
@@ -1542,7 +1542,8 @@ Rcpp::List rtsk_table_collection_metadata_length(SEXP tc) {
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_individual_table_add_row}
 //   on the individuals table of \code{tc}.
-// @return The row ID (0-based) of the newly added individual.
+// @return An integer row index and hence ID (0-based) of the newly added
+// individual.
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
@@ -1635,16 +1636,16 @@ int rtsk_individual_table_add_row(
 //   \code{tsk_table_collection_t} object.
 // @param flags passed to \code{tskit C}.
 // @param time numeric time value for the new node.
-// @param population integer population row ID (0-based);
+// @param population integer population ID (0-based);
 //   use \code{-1} when unknown, which will map to \code{TSK_NULL}.
-// @param individual integer individual row ID (0-based);
+// @param individual integer individual ID (0-based);
 //   use \code{-1} when unknown, which will map to \code{TSK_NULL}.
 // @param metadata raw vector with metadata bytes
 //   (can be \code{NULL}).
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_node_table_add_row}
 //   on the nodes table of \code{tc}.
-// @return The row ID (0-based) of the newly added node.
+// @return An integer row index and hence ID (0-based) of the newly added node.
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
@@ -1717,7 +1718,7 @@ int rtsk_node_table_add_row(
 // @title Get a row from the node table in a table collection
 // @param tc an external pointer to table collection as a
 //   \code{tsk_table_collection_t} object.
-// @param row_id integer scalar row ID (0-based).
+// @param index integer scalar node ID (0-based).
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_node_table_get_row}
 //   on the nodes table of \code{tc}.
@@ -1727,19 +1728,16 @@ int rtsk_node_table_add_row(
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
 // RcppTskit:::rtsk_node_table_get_row(tc_xptr, 0L)
+// last_node <-
+// as.integer(RcppTskit:::rtsk_table_collection_get_num_nodes(tc_xptr)) - 1L
+// RcppTskit:::rtsk_node_table_get_row(tc_xptr, last_node)
+// TODO: expand unit tests with checking the first and last node contents!
 // [[Rcpp::export]]
-Rcpp::List rtsk_node_table_get_row(SEXP tc, int row_id) {
-  if (Rcpp::IntegerVector::is_na(row_id)) {
-    Rcpp::stop("row_id must not be NA_integer_ in rtsk_node_table_get_row");
-  }
-  if (row_id < 0) {
-    Rcpp::stop("row_id must be >= 0 in rtsk_node_table_get_row");
-  }
-
+Rcpp::List rtsk_node_table_get_row(SEXP tc, int index) {
   rtsk_table_collection_t tc_xptr(tc);
   tsk_node_t row;
-  const tsk_id_t row_id_tsk = static_cast<tsk_id_t>(row_id);
-  int ret = tsk_node_table_get_row(&tc_xptr->nodes, row_id_tsk, &row);
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret = tsk_node_table_get_row(&tc_xptr->nodes, index_tsk, &row);
   if (ret != 0) {
     Rcpp::stop(tsk_strerror(ret));
   }
@@ -1750,7 +1748,7 @@ Rcpp::List rtsk_node_table_get_row(SEXP tc, int row_id) {
   }
 
   return Rcpp::List::create(
-      Rcpp::_["id"] = row_id, Rcpp::_["flags"] = static_cast<int>(row.flags),
+      Rcpp::_["id"] = index, Rcpp::_["flags"] = static_cast<int>(row.flags),
       Rcpp::_["time"] = row.time,
       Rcpp::_["population"] = static_cast<int>(row.population),
       Rcpp::_["individual"] = static_cast<int>(row.individual),
@@ -1763,14 +1761,14 @@ Rcpp::List rtsk_node_table_get_row(SEXP tc, int row_id) {
 //   \code{tsk_table_collection_t} object.
 // @param left numeric scalar left coordinate for the new edge.
 // @param right numeric scalar right coordinate for the new edge.
-// @param parent integer parent node row ID (0-based).
-// @param child integer child node row ID (0-based).
+// @param parent integer parent node ID (0-based).
+// @param child integer child node ID (0-based).
 // @param metadata raw vector with metadata bytes
 //   (can be \code{NULL}).
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_edge_table_add_row}
 //   on the edges table of \code{tc}.
-// @return The row ID (0-based) of the newly added edge.
+// @return An integer row index and hence ID (0-based) of the newly added edge.
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
@@ -1842,7 +1840,7 @@ int rtsk_edge_table_add_row(
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_site_table_add_row}
 //   on the sites table of \code{tc}.
-// @return The row ID (0-based) of the newly added site.
+// @return An integer row index and hence ID (0-based) of the newly added site.
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
@@ -1912,9 +1910,9 @@ int rtsk_site_table_add_row(
 // @title Add a row to the mutation table in a table collection
 // @param tc an external pointer to table collection as a
 //   \code{tsk_table_collection_t} object.
-// @param site integer site row ID (0-based).
-// @param node integer node row ID (0-based).
-// @param parent integer parent mutation row ID (0-based);
+// @param site integer site ID (0-based).
+// @param node integer node ID (0-based).
+// @param parent integer parent mutation ID (0-based);
 //   use \code{-1} when unknown, which will map to \code{TSK_NULL}.
 // @param time numeric mutation time value;
 //   use \code{nan} when unknown, which will map to \code{TSK_UNKNOWN_TIME}.
@@ -1924,7 +1922,8 @@ int rtsk_site_table_add_row(
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_mutation_table_add_row}
 //   on the mutations table of \code{tc}.
-// @return The row ID (0-based) of the newly added mutation.
+// @return An integer row index and hence ID (0-based) of the newly added
+//   mutation.
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
