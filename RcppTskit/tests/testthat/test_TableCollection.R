@@ -310,6 +310,14 @@ test_that("table_collection_sort wrapper validates inputs and sorts in place", {
     rtsk_table_collection_sort(tc_xptr, options = bitwShiftL(1L, 4)),
     regexp = "only supports options"
   )
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, options = -1L),
+    regexp = "does not support negative options"
+  )
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, site_start = 1L),
+    regexp = "SORT_OFFSET_NOT_SUPPORTED|Sort offset"
+  )
   expect_no_error(rtsk_table_collection_sort(tc_xptr))
   expect_no_error(rtsk_table_collection_sort(tc_xptr, 0L, 0L, 0L))
 

@@ -53,6 +53,29 @@ test_that("validate_options() branches are covered", {
   )
 })
 
+test_that("R-side integer and row-index validators cover message branches", {
+  # jarl-ignore internal_function: it's just a test
+  expect_error(
+    RcppTskit:::validate_integer_scalar_arg(1.5, "x"),
+    regexp = "x must be a non-NA integer scalar!"
+  )
+  # jarl-ignore internal_function: it's just a test
+  expect_error(
+    RcppTskit:::validate_integer_scalar_arg(1L, "x", minimum = 2L),
+    regexp = "x must be a non-NA integer scalar >= 2!"
+  )
+  # jarl-ignore internal_function: it's just a test
+  expect_no_error(RcppTskit:::validate_row_index(NULL, allow_null = TRUE))
+})
+
+test_that("TSK_NO_CHECK_INTEGRITY constant wrapper returns integer", {
+  # jarl-ignore internal_function: it's just a test
+  v <- RcppTskit:::rtsk_const_tsk_no_check_integrity()
+  expect_true(is.integer(v))
+  expect_equal(length(v), 1L)
+  expect_true(v > 0L)
+})
+
 test_that("rtsk_wrap_tsk_size_t_as_integer64() works", {
   # jarl-ignore internal_function: it's just a test
   x <- RcppTskit:::test_rtsk_wrap_tsk_size_t_as_integer64("0")

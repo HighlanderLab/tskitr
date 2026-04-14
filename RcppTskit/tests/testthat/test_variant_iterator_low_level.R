@@ -76,6 +76,8 @@ test_that("low-level variant iterator validates bounds", {
 })
 
 test_that("low-level variant iterator validates site-index range helper", {
+  expect_no_error(test_variant_site_index_range("0", "0"))
+
   expect_error(
     test_variant_site_index_range("2147483648", "0"),
     "Site index exceeds tsk_id_t range"
