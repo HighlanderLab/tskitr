@@ -1365,14 +1365,16 @@ void rtsk_table_collection_drop_index(SEXP tc, int options = 0) {
   // # nocov end
 }
 
-// TODO: model this after
-// https://github.com/tskit-dev/tskit/blob/2f26dc6f0d033cdf7d6fb1adfbab96468dde8831/python/_tskitmodule.c#L4526
 // PUBLIC, wrapper for tsk_table_collection_sort
 // @title Sort a table collection
 // @param tc an external pointer to table collection as a
 //   \code{tsk_table_collection_t} object.
 // @param edge_start integer scalar edge-table start row index (0-based) used in
 //   sorting bookmark.
+// @param site_start integer scalar site-table start row index (0-based) used in
+//   sorting bookmark.
+// @param mutation_start integer scalar mutation-table start row index (0-based)
+//   used in sorting bookmark.
 // @param options passed to \code{tskit C}; this wrapper supports
 //   \code{TSK_NO_CHECK_INTEGRITY}.
 // @details This function calls
@@ -1383,7 +1385,8 @@ void rtsk_table_collection_drop_index(SEXP tc, int options = 0) {
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
 // RcppTskit:::rtsk_table_collection_sort(tc_xptr)
 // [[Rcpp::export]]
-void rtsk_table_collection_sort(SEXP tc, int edge_start = 0, int options = 0) {
+void rtsk_table_collection_sort(SEXP tc, int edge_start = 0, int site_start = 0,
+                                int mutation_start = 0, int options = 0) {
   if (Rcpp::IntegerVector::is_na(edge_start)) {
     Rcpp::stop(
         "edge_start must not be NA_integer_ in rtsk_table_collection_sort");
@@ -1391,11 +1394,27 @@ void rtsk_table_collection_sort(SEXP tc, int edge_start = 0, int options = 0) {
   if (edge_start < 0) {
     Rcpp::stop("edge_start must be >= 0 in rtsk_table_collection_sort");
   }
+  if (Rcpp::IntegerVector::is_na(site_start)) {
+    Rcpp::stop(
+        "site_start must not be NA_integer_ in rtsk_table_collection_sort");
+  }
+  if (site_start < 0) {
+    Rcpp::stop("site_start must be >= 0 in rtsk_table_collection_sort");
+  }
+  if (Rcpp::IntegerVector::is_na(mutation_start)) {
+    Rcpp::stop(
+        "mutation_start must not be NA_integer_ in rtsk_table_collection_sort");
+  }
+  if (mutation_start < 0) {
+    Rcpp::stop("mutation_start must be >= 0 in rtsk_table_collection_sort");
+  }
   const tsk_flags_t flags = validate_supported_options(
       options, kTableSortSupportedFlags, "rtsk_table_collection_sort");
   rtsk_table_collection_t tc_xptr(tc);
   tsk_bookmark_t start = {0};
   start.edges = static_cast<tsk_size_t>(edge_start);
+  start.sites = static_cast<tsk_size_t>(site_start);
+  start.mutations = static_cast<tsk_size_t>(mutation_start);
   int ret = tsk_table_collection_sort(tc_xptr, &start, flags);
   if (ret != 0) {
     Rcpp::stop(tsk_strerror(ret));

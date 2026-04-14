@@ -291,14 +291,27 @@ test_that("table_collection_sort wrapper validates inputs and sorts in place", {
     regexp = "edge_start must be >= 0 in rtsk_table_collection_sort"
   )
   expect_error(
+    rtsk_table_collection_sort(tc_xptr, site_start = NA_integer_),
+    regexp = "site_start must not be NA_integer_ in rtsk_table_collection_sort"
+  )
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, site_start = -1L),
+    regexp = "site_start must be >= 0 in rtsk_table_collection_sort"
+  )
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, mutation_start = NA_integer_),
+    regexp = "mutation_start must not be NA_integer_ in rtsk_table_collection_sort"
+  )
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, mutation_start = -1L),
+    regexp = "mutation_start must be >= 0 in rtsk_table_collection_sort"
+  )
+  expect_error(
     rtsk_table_collection_sort(tc_xptr, options = bitwShiftL(1L, 4)),
     regexp = "only supports options"
   )
   expect_no_error(rtsk_table_collection_sort(tc_xptr))
-  expect_no_error(rtsk_table_collection_sort(
-    tc_xptr,
-    options = as.integer(rtsk_const_tsk_no_check_integrity())
-  ))
+  expect_no_error(rtsk_table_collection_sort(tc_xptr, 0L, 0L, 0L))
 
   expect_error(
     tc$sort(edge_start = NA_integer_),
@@ -309,11 +322,19 @@ test_that("table_collection_sort wrapper validates inputs and sorts in place", {
     regexp = "edge_start must be a non-NA zero or positive integer scalar!"
   )
   expect_error(
-    tc$sort(no_check_integrity = NA),
-    regexp = "no_check_integrity must be TRUE/FALSE!"
+    tc$sort(site_start = NA_integer_),
+    regexp = "site_start must be a non-NA zero or positive integer scalar!"
+  )
+  expect_error(
+    tc$sort(mutation_start = NA_integer_),
+    regexp = "mutation_start must be a non-NA zero or positive integer scalar!"
   )
   expect_no_error(tc$sort())
-  expect_no_error(tc$sort(no_check_integrity = TRUE))
+  expect_no_error(tc$sort(
+    edge_start = 0L,
+    site_start = 0L,
+    mutation_start = 0L
+  ))
 })
 
 test_that("individual_table_add_row wrapper expands the table collection and handles inputs", {

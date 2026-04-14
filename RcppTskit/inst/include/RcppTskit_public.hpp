@@ -63,7 +63,8 @@ Rcpp::String rtsk_table_collection_get_file_uuid(SEXP tc);
 bool rtsk_table_collection_has_index(SEXP tc, int options = 0);
 void rtsk_table_collection_build_index(SEXP tc, int options = 0);
 void rtsk_table_collection_drop_index(SEXP tc, int options = 0);
-void rtsk_table_collection_sort(SEXP tc, int edge_start = 0, int options = 0);
+void rtsk_table_collection_sort(SEXP tc, int edge_start = 0, int site_start = 0,
+                                int mutation_start = 0, int options = 0);
 Rcpp::List rtsk_table_collection_summary(SEXP tc);
 Rcpp::List rtsk_table_collection_metadata_length(SEXP tc);
 int rtsk_individual_table_add_row(

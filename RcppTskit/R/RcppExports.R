@@ -223,8 +223,8 @@ rtsk_table_collection_drop_index <- function(tc, options = 0L) {
     invisible(.Call(`_RcppTskit_rtsk_table_collection_drop_index`, tc, options))
 }
 
-rtsk_table_collection_sort <- function(tc, edge_start = 0L, options = 0L) {
-    invisible(.Call(`_RcppTskit_rtsk_table_collection_sort`, tc, edge_start, options))
+rtsk_table_collection_sort <- function(tc, edge_start = 0L, site_start = 0L, mutation_start = 0L, options = 0L) {
+    invisible(.Call(`_RcppTskit_rtsk_table_collection_sort`, tc, edge_start, site_start, mutation_start, options))
 }
 
 rtsk_table_collection_summary <- function(tc) {

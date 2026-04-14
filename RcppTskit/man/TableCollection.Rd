@@ -487,17 +487,18 @@ is(ts)
 \subsection{Method \code{sort()}}{
 Sort this table collection in place.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TableCollection$sort(edge_start = 0L, no_check_integrity = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$sort(edge_start = 0L, site_start = 0L, mutation_start = 0L)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{edge_start}}{integer scalar edge-table start row index (0-based).
-# TODO: remove this argument since Python code does not have it}
+\item{\code{edge_start}}{integer scalar edge-table start row index (0-based).}
 
-\item{\code{no_check_integrity}}{logical; when \code{TRUE}, pass
-\code{TSK_NO_CHECK_INTEGRITY} to \code{tskit C}.}
+\item{\code{site_start}}{integer scalar site-table start row index (0-based).}
+
+\item{\code{mutation_start}}{integer scalar mutation-table start row index
+(0-based).}
 }
 \if{html}{\out{</div>}}
 }

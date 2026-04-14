@@ -594,14 +594,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // rtsk_table_collection_sort
-void rtsk_table_collection_sort(SEXP tc, int edge_start, int options);
-RcppExport SEXP _RcppTskit_rtsk_table_collection_sort(SEXP tcSEXP, SEXP edge_startSEXP, SEXP optionsSEXP) {
+void rtsk_table_collection_sort(SEXP tc, int edge_start, int site_start, int mutation_start, int options);
+RcppExport SEXP _RcppTskit_rtsk_table_collection_sort(SEXP tcSEXP, SEXP edge_startSEXP, SEXP site_startSEXP, SEXP mutation_startSEXP, SEXP optionsSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
     Rcpp::traits::input_parameter< int >::type edge_start(edge_startSEXP);
+    Rcpp::traits::input_parameter< int >::type site_start(site_startSEXP);
+    Rcpp::traits::input_parameter< int >::type mutation_start(mutation_startSEXP);
     Rcpp::traits::input_parameter< int >::type options(optionsSEXP);
-    rtsk_table_collection_sort(tc, edge_start, options);
+    rtsk_table_collection_sort(tc, edge_start, site_start, mutation_start, options);
     return R_NilValue;
 END_RCPP
 }
@@ -899,7 +901,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_rtsk_table_collection_has_index", (DL_FUNC) &_RcppTskit_rtsk_table_collection_has_index, 2},
     {"_RcppTskit_rtsk_table_collection_build_index", (DL_FUNC) &_RcppTskit_rtsk_table_collection_build_index, 2},
     {"_RcppTskit_rtsk_table_collection_drop_index", (DL_FUNC) &_RcppTskit_rtsk_table_collection_drop_index, 2},
-    {"_RcppTskit_rtsk_table_collection_sort", (DL_FUNC) &_RcppTskit_rtsk_table_collection_sort, 3},
+    {"_RcppTskit_rtsk_table_collection_sort", (DL_FUNC) &_RcppTskit_rtsk_table_collection_sort, 5},
     {"_RcppTskit_rtsk_table_collection_summary", (DL_FUNC) &_RcppTskit_rtsk_table_collection_summary, 1},
     {"_RcppTskit_rtsk_table_collection_metadata_length", (DL_FUNC) &_RcppTskit_rtsk_table_collection_metadata_length, 1},
     {"_RcppTskit_rtsk_individual_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_individual_table_add_row, 5},

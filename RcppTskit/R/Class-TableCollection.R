@@ -103,12 +103,11 @@ TableCollection <- R6Class(
       TreeSequence$new(xptr = ts_xptr)
     },
 
-    # TODO: add site_start and mutation_start
     #' @description Sort this table collection in place.
     #' @param edge_start integer scalar edge-table start row index (0-based).
-    #' # TODO: remove this argument since Python code does not have it
-    #' @param no_check_integrity logical; when \code{TRUE}, pass
-    #'   \code{TSK_NO_CHECK_INTEGRITY} to \code{tskit C}.
+    #' @param site_start integer scalar site-table start row index (0-based).
+    #' @param mutation_start integer scalar mutation-table start row index
+    #'   (0-based).
     #' @details See the \code{tskit Python} equivalent at
     #'   \url{https://tskit.dev/tskit/docs/latest/python-api.html#tskit.TableCollection.sort}.
     #' @return No return value; called for side effects.
@@ -116,26 +115,16 @@ TableCollection <- R6Class(
     #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
     #' tc <- tc_load(ts_file)
     #' tc$sort()
-    sort = function(edge_start = 0L, no_check_integrity = FALSE) {
+    sort = function(edge_start = 0L, site_start = 0L, mutation_start = 0L) {
       validate_row_index(edge_start, "edge_start")
-      # TODO: remove this argument since Python code does not have it
-      if (
-        !is.logical(no_check_integrity) ||
-          length(no_check_integrity) != 1L ||
-          is.na(no_check_integrity)
-      ) {
-        stop("no_check_integrity must be TRUE/FALSE!")
-      }
-      options <- if (isTRUE(no_check_integrity)) {
-        as.integer(rtsk_const_tsk_no_check_integrity())
-      } else {
-        0L
-      }
+      validate_row_index(site_start, "site_start")
+      validate_row_index(mutation_start, "mutation_start")
       rtsk_table_collection_sort(
         tc = self$xptr,
         edge_start = as.integer(edge_start),
-        # TODO: remove this argument since Python code does not have it
-        options = options
+        site_start = as.integer(site_start),
+        mutation_start = as.integer(mutation_start),
+        options = 0L
       )
     },
 
