@@ -337,7 +337,16 @@ test_that("table_collection_sort wrapper validates inputs and sorts in place", {
     tc$sort(mutation_start = NA_integer_),
     regexp = "mutation_start must be a non-NA zero or positive integer scalar!"
   )
+  expect_error(
+    tc$sort(edge_start = 0.5),
+    regexp = "edge_start must be a non-NA zero or positive integer scalar!"
+  )
   expect_no_error(tc$sort())
+  expect_no_error(tc$sort(
+    edge_start = 0,
+    site_start = 0,
+    mutation_start = 0
+  ))
   expect_no_error(tc$sort(
     edge_start = 0L,
     site_start = 0L,
@@ -429,7 +438,15 @@ test_that("individual_table_add_row wrapper expands the table collection and han
       metadata = NULL
     )
   )
-  expect_equal(as.integer(tc$num_individuals()), n_before_method + 1L)
+  expect_no_error(
+    tc$individual_table_add_row(
+      flags = 0,
+      location = NULL,
+      parents = c(id1, id2),
+      metadata = NULL
+    )
+  )
+  expect_equal(as.integer(tc$num_individuals()), n_before_method + 2L)
 
   m_before_char <- as.integer(
     rtsk_table_collection_metadata_length(tc$xptr)$individuals
@@ -457,6 +474,10 @@ test_that("individual_table_add_row wrapper expands the table collection and han
   )
   expect_error(
     tc$individual_table_add_row(parents = c(NA_integer_)),
+    regexp = "parents must be NULL or an integer vector with no NA values!"
+  )
+  expect_error(
+    tc$individual_table_add_row(parents = c(0.5, 1)),
     regexp = "parents must be NULL or an integer vector with no NA values!"
   )
   expect_error(
@@ -557,8 +578,18 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
     )
   )
   expect_equal(as.integer(tc$num_nodes()), n_before_method + 1L)
-  expect_no_error(tc$node_table_add_row(population = NULL, individual = NULL))
+  expect_no_error(
+    tc$node_table_add_row(
+      flags = 1,
+      time = 4.5,
+      population = 0,
+      individual = -1,
+      metadata = NULL
+    )
+  )
   expect_equal(as.integer(tc$num_nodes()), n_before_method + 2L)
+  expect_no_error(tc$node_table_add_row(population = NULL, individual = NULL))
+  expect_equal(as.integer(tc$num_nodes()), n_before_method + 3L)
 
   m_before_char <- as.integer(
     rtsk_table_collection_metadata_length(tc$xptr)$nodes
@@ -592,6 +623,10 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
   expect_error(
     tc$node_table_add_row(individual = NA_integer_),
     regexp = "individual must be -1, NULL, or a non-NA integer scalar!"
+  )
+  expect_error(
+    tc$node_table_add_row(population = 0.5),
+    regexp = "population must be -1, NULL, or a non-NA integer scalar!"
   )
   expect_error(
     tc$node_table_add_row(metadata = c("a", "b")),
@@ -665,10 +700,7 @@ test_that("node_table_get_row wrapper returns node row fields and validates IDs"
     tc$node_table_get_row(-1L),
     regexp = "index must be a non-NA zero or positive integer scalar!"
   )
-  expect_error(
-    tc$node_table_get_row(0),
-    regexp = "index must be a non-NA zero or positive integer scalar!"
-  )
+  expect_equal(tc$node_table_get_row(0), first_row_low)
   expect_error(
     rtsk_node_table_get_row(tc_xptr, 999999L),
     regexp = "TSK_ERR_NODE_OUT_OF_BOUNDS"
@@ -775,6 +807,16 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
     )
   )
   expect_equal(as.integer(tc$num_edges()), n_before_method + 1L)
+  expect_no_error(
+    tc$edge_table_add_row(
+      left = 2,
+      right = 3,
+      parent = as.numeric(parent),
+      child = as.numeric(child),
+      metadata = NULL
+    )
+  )
+  expect_equal(as.integer(tc$num_edges()), n_before_method + 2L)
 
   m_before_char <- as.integer(
     rtsk_table_collection_metadata_length(tc$xptr)$edges
@@ -879,6 +921,15 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       child = NA_integer_
     ),
     regexp = "child must be a non-NA zero or positive integer scalar!"
+  )
+  expect_error(
+    tc$edge_table_add_row(
+      left = 5,
+      right = 6,
+      parent = 0.5,
+      child = child
+    ),
+    regexp = "parent must be a non-NA zero or positive integer scalar!"
   )
   expect_error(
     tc$edge_table_add_row(
@@ -1130,6 +1181,17 @@ test_that("mutation_table_add_row wrapper expands the table collection and handl
     )
   )
   expect_equal(as.integer(tc$num_mutations()), n_before_method + 1L)
+  expect_no_error(
+    tc$mutation_table_add_row(
+      site = as.numeric(site),
+      node = as.numeric(node),
+      parent = -1,
+      time = NaN,
+      derived_state = "T",
+      metadata = NULL
+    )
+  )
+  expect_equal(as.integer(tc$num_mutations()), n_before_method + 2L)
 
   m_before_char <- as.integer(rtsk_table_collection_metadata_length(tc$xptr)[[
     "mutations"
@@ -1169,6 +1231,10 @@ test_that("mutation_table_add_row wrapper expands the table collection and handl
   expect_error(
     tc$mutation_table_add_row(site = site, node = NULL, derived_state = "T"),
     regexp = "node must be a non-NA zero or positive integer scalar!"
+  )
+  expect_error(
+    tc$mutation_table_add_row(site = 0.5, node = node, derived_state = "T"),
+    regexp = "site must be a non-NA zero or positive integer scalar!"
   )
   expect_error(
     tc$mutation_table_add_row(
@@ -1285,6 +1351,10 @@ test_that("population_table_add_row wrapper expands the table collection and han
     tc$population_table_add_row(metadata = c("a", "b")),
     regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
+  expect_error(
+    test_rtsk_population_table_add_row_forced_error(tc$xptr),
+    regexp = "TSK_ERR_TABLE_OVERFLOW"
+  )
 })
 
 test_that("migration_table_add_row wrapper expands the table collection and handles inputs", {
@@ -1327,6 +1397,17 @@ test_that("migration_table_add_row wrapper expands the table collection and hand
     )
   )
   expect_equal(as.integer(tc$num_migrations()), n_before_method + 1L)
+  expect_no_error(
+    tc$migration_table_add_row(
+      left = 2,
+      right = 3,
+      node = 1,
+      source = 0,
+      dest = 0,
+      time = 3.0
+    )
+  )
+  expect_equal(as.integer(tc$num_migrations()), n_before_method + 2L)
 
   expect_error(
     tc$migration_table_add_row(
@@ -1365,6 +1446,17 @@ test_that("migration_table_add_row wrapper expands the table collection and hand
     tc$migration_table_add_row(
       left = 0,
       right = 1,
+      node = 0.5,
+      source = 0L,
+      dest = 0L,
+      time = 1.0
+    ),
+    regexp = "node must be a non-NA zero or positive integer scalar!"
+  )
+  expect_error(
+    tc$migration_table_add_row(
+      left = 0,
+      right = 1,
       node = 0L,
       source = 0L,
       dest = 0L,
@@ -1372,6 +1464,10 @@ test_that("migration_table_add_row wrapper expands the table collection and hand
       metadata = c("a", "b")
     ),
     regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
+  )
+  expect_error(
+    test_rtsk_migration_table_add_row_forced_error(tc$xptr),
+    regexp = "TSK_ERR_TABLE_OVERFLOW"
   )
 })
 
@@ -1414,5 +1510,9 @@ test_that("provenance_table_add_row wrapper expands the table collection and han
       record = NA_character_
     ),
     regexp = "record must be a length-1 non-NA character string!"
+  )
+  expect_error(
+    test_rtsk_provenance_table_add_row_forced_error(tc$xptr),
+    regexp = "TSK_ERR_TABLE_OVERFLOW"
   )
 })

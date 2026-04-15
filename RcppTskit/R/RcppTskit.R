@@ -111,27 +111,74 @@ validate_logical_arg <- function(value, name) {
 }
 
 # INTERNAL
-# @title Validating integer scalar args
-# @param value integer from the argument
+# @title Validating integer-like numeric scalar args
+# @param value numeric/integer scalar from the argument
 # @param name character of the argument
 # @param minimum lower bound
-# @return No return value; called for side effects.
-validate_integer_scalar_arg <- function(value, name, minimum = NULL) {
-  if (
-    is.null(value) ||
-      !is.integer(value) ||
-      length(value) != 1L ||
-      is.na(value) ||
-      (!is.null(minimum) && value < minimum)
-  ) {
+# @param allow_null logical
+# @param nullable_msg logical; if TRUE include NULL in error message
+# @return Integer scalar (or NULL if allowed).
+validate_integer_numeric_scalar_arg <- function(
+  value,
+  name,
+  minimum = NULL,
+  allow_null = FALSE,
+  nullable_msg = FALSE
+) {
+  int_min <- -(.Machine$integer.max) - 1
+  int_max <- .Machine$integer.max
+  fail <- function() {
     if (is.null(minimum)) {
       stop(name, " must be a non-NA integer scalar!")
+    }
+    if (nullable_msg) {
+      stop(
+        name,
+        " must be ",
+        minimum,
+        ", NULL, or a non-NA integer scalar!"
+      )
     }
     if (identical(minimum, 0L)) {
       stop(name, " must be a non-NA zero or positive integer scalar!")
     }
     stop(name, " must be a non-NA integer scalar >= ", minimum, "!")
   }
+  if (is.null(value)) {
+    if (allow_null) {
+      return(NULL)
+    }
+    fail()
+  }
+  if (
+    !is.numeric(value) ||
+      length(value) != 1L ||
+      is.na(value) ||
+      !is.finite(value)
+  ) {
+    fail()
+  }
+  if (value != trunc(value)) {
+    fail()
+  }
+  if (value < int_min || value > int_max) {
+    fail()
+  }
+  value_int <- as.integer(value)
+  if (!is.null(minimum) && value_int < minimum) {
+    fail()
+  }
+  value_int
+}
+
+# INTERNAL
+# @title Validating integer scalar args
+# @param value integer from the argument
+# @param name character of the argument
+# @param minimum lower bound
+# @return No return value; called for side effects.
+validate_integer_scalar_arg <- function(value, name, minimum = NULL) {
+  validate_integer_numeric_scalar_arg(value, name, minimum = minimum)
 }
 
 # INTERNAL
@@ -145,10 +192,12 @@ validate_row_index <- function(
   name = "index",
   allow_null = FALSE
 ) {
-  if (allow_null && is.null(index)) {
-    return(invisible(NULL))
-  }
-  validate_integer_scalar_arg(index, name, minimum = 0L)
+  validate_integer_numeric_scalar_arg(
+    index,
+    name,
+    minimum = 0L,
+    allow_null = allow_null
+  )
 }
 
 # INTERNAL
@@ -168,7 +217,19 @@ validate_optional_numeric_vector_arg <- function(value, name) {
 # @param name character of the argument
 # @return No return value; called for side effects.
 validate_optional_integer_vector_arg <- function(value, name) {
-  if (!is.null(value) && (!is.integer(value) || anyNA(value))) {
+  int_min <- -(.Machine$integer.max) - 1
+  int_max <- .Machine$integer.max
+  if (is.null(value)) {
+    return(invisible(NULL))
+  }
+  if (
+    !is.numeric(value) ||
+      anyNA(value) ||
+      !all(is.finite(value)) ||
+      any(value != trunc(value)) ||
+      any(value < int_min) ||
+      any(value > int_max)
+  ) {
     stop(name, " must be NULL or an integer vector with no NA values!")
   }
 }
@@ -236,22 +297,13 @@ validate_nullable_integer_scalar_arg <- function(
   name,
   minimum = -1L
 ) {
-  if (is.null(value)) {
-    return(invisible(NULL))
-  }
-  if (
-    !is.integer(value) ||
-      length(value) != 1L ||
-      is.na(value) ||
-      value < minimum
-  ) {
-    stop(
-      name,
-      " must be ",
-      minimum,
-      ", NULL, or a non-NA integer scalar!"
-    )
-  }
+  validate_integer_numeric_scalar_arg(
+    value,
+    name,
+    minimum = minimum,
+    allow_null = TRUE,
+    nullable_msg = TRUE
+  )
 }
 
 # INTERNAL

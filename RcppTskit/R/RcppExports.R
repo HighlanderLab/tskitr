@@ -323,3 +323,15 @@ test_rtsk_mutation_table_add_row_forced_error <- function(tc) {
     invisible(.Call(`_RcppTskit_test_rtsk_mutation_table_add_row_forced_error`, tc))
 }
 
+test_rtsk_population_table_add_row_forced_error <- function(tc) {
+    invisible(.Call(`_RcppTskit_test_rtsk_population_table_add_row_forced_error`, tc))
+}
+
+test_rtsk_migration_table_add_row_forced_error <- function(tc) {
+    invisible(.Call(`_RcppTskit_test_rtsk_migration_table_add_row_forced_error`, tc))
+}
+
+test_rtsk_provenance_table_add_row_forced_error <- function(tc) {
+    invisible(.Call(`_RcppTskit_test_rtsk_provenance_table_add_row_forced_error`, tc))
+}
+

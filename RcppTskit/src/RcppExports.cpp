@@ -890,6 +890,36 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// test_rtsk_population_table_add_row_forced_error
+void test_rtsk_population_table_add_row_forced_error(SEXP tc);
+RcppExport SEXP _RcppTskit_test_rtsk_population_table_add_row_forced_error(SEXP tcSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    test_rtsk_population_table_add_row_forced_error(tc);
+    return R_NilValue;
+END_RCPP
+}
+// test_rtsk_migration_table_add_row_forced_error
+void test_rtsk_migration_table_add_row_forced_error(SEXP tc);
+RcppExport SEXP _RcppTskit_test_rtsk_migration_table_add_row_forced_error(SEXP tcSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    test_rtsk_migration_table_add_row_forced_error(tc);
+    return R_NilValue;
+END_RCPP
+}
+// test_rtsk_provenance_table_add_row_forced_error
+void test_rtsk_provenance_table_add_row_forced_error(SEXP tc);
+RcppExport SEXP _RcppTskit_test_rtsk_provenance_table_add_row_forced_error(SEXP tcSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    test_rtsk_provenance_table_add_row_forced_error(tc);
+    return R_NilValue;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_rtsk_variant_iterator_init", (DL_FUNC) &_RcppTskit_rtsk_variant_iterator_init, 6},
@@ -969,6 +999,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_test_rtsk_edge_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_edge_table_add_row_forced_error, 1},
     {"_RcppTskit_test_rtsk_site_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_site_table_add_row_forced_error, 1},
     {"_RcppTskit_test_rtsk_mutation_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_mutation_table_add_row_forced_error, 1},
+    {"_RcppTskit_test_rtsk_population_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_population_table_add_row_forced_error, 1},
+    {"_RcppTskit_test_rtsk_migration_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_migration_table_add_row_forced_error, 1},
+    {"_RcppTskit_test_rtsk_provenance_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_provenance_table_add_row_forced_error, 1},
     {NULL, NULL, 0}
 };
 
