@@ -138,6 +138,31 @@ TableCollection <- R6Class(
       rtsk_table_collection_get_num_provenances(self$xptr)
     },
 
+    #' @description Add a row to the provenances table.
+    #' @param timestamp character string timestamp for the new provenance.
+    #' @param record character string record for the new provenance.
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.ProvenanceTable.add_row}.
+    #' @return An integer row index and hence ID (0-based) of the newly added provenance.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' (n_before <- tc$num_provenances())
+    #' new_id <- tc$provenance_table_add_row(
+    #'   timestamp = "2025-01-01T00:00:00Z",
+    #'   record = "{\"software\":\"RcppTskit\"}"
+    #' )
+    #' (n_after <- tc$num_provenances())
+    provenance_table_add_row = function(timestamp, record) {
+      validate_character_scalar_arg(timestamp, "timestamp")
+      validate_character_scalar_arg(record, "record")
+      rtsk_provenance_table_add_row(
+        tc = self$xptr,
+        timestamp = as.character(timestamp),
+        record = as.character(record)
+      )
+    },
+
     #' @description Get the number of populations in a table collection.
     #' @return A signed 64 bit integer \code{bit64::integer64}.
     #' @examples
@@ -148,6 +173,28 @@ TableCollection <- R6Class(
       rtsk_table_collection_get_num_populations(self$xptr)
     },
 
+    #' @description Add a row to the populations table.
+    #' @param metadata for the new population; accepts \code{NULL},
+    #'   a raw vector, or a character of length 1.
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.PopulationTable.add_row}.
+    #' @return An integer row index and hence ID (0-based) of the newly added population.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' (n_before <- tc$num_populations())
+    #' new_id <- tc$population_table_add_row()
+    #' new_id <- tc$population_table_add_row(metadata = "abc")
+    #' new_id <- tc$population_table_add_row(metadata = charToRaw("xyz"))
+    #' (n_after <- tc$num_populations())
+    population_table_add_row = function(metadata = NULL) {
+      metadata_raw <- validate_metadata_arg(metadata)
+      rtsk_population_table_add_row(
+        tc = self$xptr,
+        metadata = metadata_raw
+      )
+    },
+
     #' @description Get the number of migrations in a table collection.
     #' @return A signed 64 bit integer \code{bit64::integer64}.
     #' @examples
@@ -156,6 +203,71 @@ TableCollection <- R6Class(
     #' tc$num_migrations()
     num_migrations = function() {
       rtsk_table_collection_get_num_migrations(self$xptr)
+    },
+
+    #' @description Add a row to the migrations table.
+    #' @param left numeric scalar left coordinate for the new migration.
+    #' @param right numeric scalar right coordinate for the new migration.
+    #' @param node integer scalar node ID (0-based).
+    #' @param source integer scalar source population ID (0-based).
+    #' @param dest integer scalar destination population ID (0-based).
+    #' @param time numeric scalar time value for the new migration.
+    #' @param metadata for the new migration; accepts \code{NULL},
+    #'   a raw vector, or a character of length 1.
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.MigrationTable.add_row}.
+    #' @return An integer row index and hence ID (0-based) of the newly added migration.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' (n_before <- tc$num_migrations())
+    #' new_id <- tc$migration_table_add_row(
+    #'   left = 0,
+    #'   right = 1,
+    #'   node = 0L,
+    #'   source = 0L,
+    #'   dest = 0L,
+    #'   time = 1.0
+    #' )
+    #' new_id <- tc$migration_table_add_row(
+    #'   left = 1,
+    #'   right = 2,
+    #'   node = 1L,
+    #'   source = 0L,
+    #'   dest = 0L,
+    #'   time = 2.0,
+    #'   metadata = "abc"
+    #' )
+    #' (n_after <- tc$num_migrations())
+    migration_table_add_row = function(
+      left,
+      right,
+      node,
+      source,
+      dest,
+      time,
+      metadata = NULL
+    ) {
+      validate_numeric_scalar_arg(left, "left")
+      validate_numeric_scalar_arg(right, "right")
+      if (as.numeric(left) >= as.numeric(right)) {
+        stop("left must be strictly less than right!")
+      }
+      validate_row_index(node, "node")
+      validate_row_index(source, "source")
+      validate_row_index(dest, "dest")
+      validate_numeric_scalar_arg(time, "time")
+      metadata_raw <- validate_metadata_arg(metadata)
+      rtsk_migration_table_add_row(
+        tc = self$xptr,
+        left = as.numeric(left),
+        right = as.numeric(right),
+        node = as.integer(node),
+        source = as.integer(source),
+        dest = as.integer(dest),
+        time = as.numeric(time),
+        metadata = metadata_raw
+      )
     },
 
     #' @description Get the number of individuals in a table collection.

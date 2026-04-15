@@ -2016,3 +2016,154 @@ int rtsk_mutation_table_add_row(
   }
   return static_cast<int>(row_id);
 }
+
+// PUBLIC, wrapper for tsk_population_table_add_row
+// @title Add a row to the population table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param metadata raw vector with metadata bytes
+//   (can be \code{NULL}).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_population_table_add_row}
+//   on the populations table of \code{tc}.
+// @return An integer row index and hence ID (0-based) of the newly added
+//   population.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// (n_before <- RcppTskit:::rtsk_table_collection_get_num_populations(tc_xptr))
+// (m_before <-
+// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)$populations)
+// new_id <- RcppTskit:::rtsk_population_table_add_row(tc = tc_xptr)
+// new_id <- RcppTskit:::rtsk_population_table_add_row(
+//   tc = tc_xptr, metadata = charToRaw("abc")
+// )
+// (n_after <- RcppTskit:::rtsk_table_collection_get_num_populations(tc_xptr))
+// (m_after <-
+// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)$populations)
+// new_id == n_after - 1L
+// n_after == n_before + 2L
+// m_after == m_before + 3L
+// [[Rcpp::export]]
+int rtsk_population_table_add_row(
+    SEXP tc, Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue) {
+  rtsk_table_collection_t tc_xptr(tc);
+
+  const Rcpp::RawVector metadata_vec =
+      nullable_to_vector_or_empty<Rcpp::RawVector>(metadata);
+  const tsk_size_t metadata_length =
+      static_cast<tsk_size_t>(metadata_vec.size());
+  const char *metadata_ptr =
+      metadata_length > 0 ? reinterpret_cast<const char *>(RAW(metadata_vec))
+                          : nullptr;
+
+  const tsk_id_t row_id = tsk_population_table_add_row(
+      &tc_xptr->populations, metadata_ptr, metadata_length);
+  if (row_id < 0) {
+    Rcpp::stop(tsk_strerror(row_id));
+  }
+  return static_cast<int>(row_id);
+}
+
+// PUBLIC, wrapper for tsk_migration_table_add_row
+// @title Add a row to the migration table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param left numeric scalar left coordinate for the new migration.
+// @param right numeric scalar right coordinate for the new migration.
+// @param node integer node ID (0-based).
+// @param source integer source population ID (0-based).
+// @param dest integer destination population ID (0-based).
+// @param time numeric scalar time for the migration.
+// @param metadata raw vector with metadata bytes
+//   (can be \code{NULL}).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_migration_table_add_row}
+//   on the migrations table of \code{tc}.
+// @return An integer row index and hence ID (0-based) of the newly added
+//   migration.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// (n_before <- RcppTskit:::rtsk_table_collection_get_num_migrations(tc_xptr))
+// (m_before <-
+// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)$migrations) new_id
+// <- RcppTskit:::rtsk_migration_table_add_row(
+//   tc = tc_xptr, left = 0, right = 1, node = 0L, source = 0L, dest = 0L,
+//   time = 1.0
+// )
+// new_id <- RcppTskit:::rtsk_migration_table_add_row(
+//   tc = tc_xptr, left = 1, right = 2, node = 1L, source = 0L, dest = 0L,
+//   time = 2.0, metadata = charToRaw("abc")
+// )
+// (n_after <- RcppTskit:::rtsk_table_collection_get_num_migrations(tc_xptr))
+// (m_after <-
+// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)$migrations) new_id
+// == n_after - 1L n_after == n_before + 2L m_after == m_before + 3L
+// [[Rcpp::export]]
+int rtsk_migration_table_add_row(
+    SEXP tc, double left, double right, int node, int source, int dest,
+    double time, Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue) {
+  const tsk_id_t row_node = static_cast<tsk_id_t>(node);
+  const tsk_id_t row_source = static_cast<tsk_id_t>(source);
+  const tsk_id_t row_dest = static_cast<tsk_id_t>(dest);
+  rtsk_table_collection_t tc_xptr(tc);
+
+  const Rcpp::RawVector metadata_vec =
+      nullable_to_vector_or_empty<Rcpp::RawVector>(metadata);
+  const tsk_size_t metadata_length =
+      static_cast<tsk_size_t>(metadata_vec.size());
+  const char *metadata_ptr =
+      metadata_length > 0 ? reinterpret_cast<const char *>(RAW(metadata_vec))
+                          : nullptr;
+
+  const tsk_id_t row_id = tsk_migration_table_add_row(
+      &tc_xptr->migrations, left, right, row_node, row_source, row_dest, time,
+      metadata_ptr, metadata_length);
+  if (row_id < 0) {
+    Rcpp::stop(tsk_strerror(row_id));
+  }
+  return static_cast<int>(row_id);
+}
+
+// PUBLIC, wrapper for tsk_provenance_table_add_row
+// @title Add a row to the provenance table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param timestamp character string timestamp for the new provenance.
+// @param record character string record for the new provenance.
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_provenance_table_add_row}
+//   on the provenances table of \code{tc}.
+// @return An integer row index and hence ID (0-based) of the newly added
+//   provenance.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// (n_before <- RcppTskit:::rtsk_table_collection_get_num_provenances(tc_xptr))
+// new_id <- RcppTskit:::rtsk_provenance_table_add_row(
+//   tc = tc_xptr,
+//   timestamp = "2025-01-01T00:00:00Z",
+//   record = "{\"software\":\"RcppTskit\"}"
+// )
+// (n_after <- RcppTskit:::rtsk_table_collection_get_num_provenances(tc_xptr))
+// new_id == n_after - 1L
+// n_after == n_before + 1L
+// [[Rcpp::export]]
+int rtsk_provenance_table_add_row(SEXP tc, const std::string &timestamp,
+                                  const std::string &record) {
+  rtsk_table_collection_t tc_xptr(tc);
+  const tsk_size_t timestamp_length = static_cast<tsk_size_t>(timestamp.size());
+  const char *timestamp_ptr =
+      timestamp_length > 0 ? timestamp.c_str() : nullptr;
+  const tsk_size_t record_length = static_cast<tsk_size_t>(record.size());
+  const char *record_ptr = record_length > 0 ? record.c_str() : nullptr;
+
+  const tsk_id_t row_id =
+      tsk_provenance_table_add_row(&tc_xptr->provenances, timestamp_ptr,
+                                   timestamp_length, record_ptr, record_length);
+  if (row_id < 0) {
+    Rcpp::stop(tsk_strerror(row_id));
+  }
+  return static_cast<int>(row_id);
+}

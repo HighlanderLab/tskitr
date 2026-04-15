@@ -259,6 +259,18 @@ rtsk_mutation_table_add_row <- function(tc, site, node, parent, time, derived_st
     .Call(`_RcppTskit_rtsk_mutation_table_add_row`, tc, site, node, parent, time, derived_state, metadata)
 }
 
+rtsk_population_table_add_row <- function(tc, metadata = NULL) {
+    .Call(`_RcppTskit_rtsk_population_table_add_row`, tc, metadata)
+}
+
+rtsk_migration_table_add_row <- function(tc, left, right, node, source, dest, time, metadata = NULL) {
+    .Call(`_RcppTskit_rtsk_migration_table_add_row`, tc, left, right, node, source, dest, time, metadata)
+}
+
+rtsk_provenance_table_add_row <- function(tc, timestamp, record) {
+    .Call(`_RcppTskit_rtsk_provenance_table_add_row`, tc, timestamp, record)
+}
+
 test_tsk_bug_assert_c <- function() {
     invisible(.Call(`_RcppTskit_test_tsk_bug_assert_c`))
 }

@@ -40,6 +40,15 @@ and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 - Added `rtsk_mutation_table_add_row()` and
   `TableCollection$mutation_table_add_row()` to append mutation rows from
   \code{R}, mirroring `tsk_mutation_table_add_row()`.
+- Added `rtsk_population_table_add_row()` and
+  `TableCollection$population_table_add_row()` to append population rows from
+  \code{R}, mirroring `tsk_population_table_add_row()`.
+- Added `rtsk_migration_table_add_row()` and
+  `TableCollection$migration_table_add_row()` to append migration rows from
+  \code{R}, mirroring `tsk_migration_table_add_row()`.
+- Added `rtsk_provenance_table_add_row()` and
+  `TableCollection$provenance_table_add_row()` to append provenance rows from
+  \code{R}, mirroring `tsk_provenance_table_add_row()`.
 - Added `rtsk_node_table_get_row()` and `TableCollection$node_table_get_row()`
   to retrieve node-table rows by 0-based row index.
 - Added `rtsk_table_collection_sort()` and `TableCollection$sort()` to sort

@@ -719,6 +719,49 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rtsk_population_table_add_row
+int rtsk_population_table_add_row(SEXP tc, Rcpp::Nullable<Rcpp::RawVector> metadata);
+RcppExport SEXP _RcppTskit_rtsk_population_table_add_row(SEXP tcSEXP, SEXP metadataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::RawVector> >::type metadata(metadataSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_population_table_add_row(tc, metadata));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_migration_table_add_row
+int rtsk_migration_table_add_row(SEXP tc, double left, double right, int node, int source, int dest, double time, Rcpp::Nullable<Rcpp::RawVector> metadata);
+RcppExport SEXP _RcppTskit_rtsk_migration_table_add_row(SEXP tcSEXP, SEXP leftSEXP, SEXP rightSEXP, SEXP nodeSEXP, SEXP sourceSEXP, SEXP destSEXP, SEXP timeSEXP, SEXP metadataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< double >::type left(leftSEXP);
+    Rcpp::traits::input_parameter< double >::type right(rightSEXP);
+    Rcpp::traits::input_parameter< int >::type node(nodeSEXP);
+    Rcpp::traits::input_parameter< int >::type source(sourceSEXP);
+    Rcpp::traits::input_parameter< int >::type dest(destSEXP);
+    Rcpp::traits::input_parameter< double >::type time(timeSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::RawVector> >::type metadata(metadataSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_migration_table_add_row(tc, left, right, node, source, dest, time, metadata));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_provenance_table_add_row
+int rtsk_provenance_table_add_row(SEXP tc, const std::string& timestamp, const std::string& record);
+RcppExport SEXP _RcppTskit_rtsk_provenance_table_add_row(SEXP tcSEXP, SEXP timestampSEXP, SEXP recordSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type timestamp(timestampSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type record(recordSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_provenance_table_add_row(tc, timestamp, record));
+    return rcpp_result_gen;
+END_RCPP
+}
 // test_tsk_bug_assert_c
 void test_tsk_bug_assert_c();
 RcppExport SEXP _RcppTskit_test_tsk_bug_assert_c() {
@@ -910,6 +953,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_rtsk_edge_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_edge_table_add_row, 6},
     {"_RcppTskit_rtsk_site_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_site_table_add_row, 4},
     {"_RcppTskit_rtsk_mutation_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_mutation_table_add_row, 7},
+    {"_RcppTskit_rtsk_population_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_population_table_add_row, 2},
+    {"_RcppTskit_rtsk_migration_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_migration_table_add_row, 8},
+    {"_RcppTskit_rtsk_provenance_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_provenance_table_add_row, 3},
     {"_RcppTskit_test_tsk_bug_assert_c", (DL_FUNC) &_RcppTskit_test_tsk_bug_assert_c, 0},
     {"_RcppTskit_test_tsk_bug_assert_cpp", (DL_FUNC) &_RcppTskit_test_tsk_bug_assert_cpp, 0},
     {"_RcppTskit_test_tsk_trace_error_c", (DL_FUNC) &_RcppTskit_test_tsk_trace_error_c, 0},

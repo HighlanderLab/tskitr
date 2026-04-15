@@ -1248,3 +1248,171 @@ test_that("mutation_table_add_row wrapper expands the table collection and handl
     regexp = "TSK_ERR_TABLE_OVERFLOW"
   )
 })
+
+test_that("population_table_add_row wrapper expands the table collection and handles inputs", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+
+  n_before <- rtsk_table_collection_get_num_populations(tc_xptr)
+  m_before <- rtsk_table_collection_metadata_length(tc_xptr)$populations
+
+  new_id <- rtsk_population_table_add_row(tc_xptr, metadata = charToRaw("abc"))
+  expect_equal(new_id, as.integer(n_before))
+  expect_equal(
+    as.integer(rtsk_table_collection_get_num_populations(tc_xptr)),
+    as.integer(n_before) + 1L
+  )
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)$populations),
+    as.integer(m_before) + 3L
+  )
+
+  tc <- TableCollection$new(xptr = tc_xptr)
+  n_before_method <- as.integer(tc$num_populations())
+  expect_no_error(tc$population_table_add_row())
+  expect_equal(as.integer(tc$num_populations()), n_before_method + 1L)
+
+  m_before_char <- as.integer(
+    rtsk_table_collection_metadata_length(tc$xptr)$populations
+  )
+  expect_no_warning(tc$population_table_add_row(metadata = "xyz"))
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc$xptr)$populations),
+    m_before_char + 3L
+  )
+
+  expect_error(
+    tc$population_table_add_row(metadata = c("a", "b")),
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
+  )
+})
+
+test_that("migration_table_add_row wrapper expands the table collection and handles inputs", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+
+  n_before <- rtsk_table_collection_get_num_migrations(tc_xptr)
+  m_before <- rtsk_table_collection_metadata_length(tc_xptr)$migrations
+
+  new_id <- rtsk_migration_table_add_row(
+    tc = tc_xptr,
+    left = 0,
+    right = 1,
+    node = 0L,
+    source = 0L,
+    dest = 0L,
+    time = 1.0,
+    metadata = charToRaw("abc")
+  )
+  expect_equal(new_id, as.integer(n_before))
+  expect_equal(
+    as.integer(rtsk_table_collection_get_num_migrations(tc_xptr)),
+    as.integer(n_before) + 1L
+  )
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)$migrations),
+    as.integer(m_before) + 3L
+  )
+
+  tc <- TableCollection$new(xptr = tc_xptr)
+  n_before_method <- as.integer(tc$num_migrations())
+  expect_no_error(
+    tc$migration_table_add_row(
+      left = 1,
+      right = 2,
+      node = 1L,
+      source = 0L,
+      dest = 0L,
+      time = 2.0
+    )
+  )
+  expect_equal(as.integer(tc$num_migrations()), n_before_method + 1L)
+
+  expect_error(
+    tc$migration_table_add_row(
+      left = 2,
+      right = 2,
+      node = 0L,
+      source = 0L,
+      dest = 0L,
+      time = 1.0
+    ),
+    regexp = "left must be strictly less than right!"
+  )
+  expect_error(
+    tc$migration_table_add_row(
+      left = 0,
+      right = 1,
+      node = NA_integer_,
+      source = 0L,
+      dest = 0L,
+      time = 1.0
+    ),
+    regexp = "node must be a non-NA zero or positive integer scalar!"
+  )
+  expect_error(
+    tc$migration_table_add_row(
+      left = 0,
+      right = 1,
+      node = 0L,
+      source = 0L,
+      dest = 0L,
+      time = NA_real_
+    ),
+    regexp = "time must be a non-NA numeric scalar!"
+  )
+  expect_error(
+    tc$migration_table_add_row(
+      left = 0,
+      right = 1,
+      node = 0L,
+      source = 0L,
+      dest = 0L,
+      time = 1.0,
+      metadata = c("a", "b")
+    ),
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
+  )
+})
+
+test_that("provenance_table_add_row wrapper expands the table collection and handles inputs", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+
+  n_before <- rtsk_table_collection_get_num_provenances(tc_xptr)
+  new_id <- rtsk_provenance_table_add_row(
+    tc = tc_xptr,
+    timestamp = "2025-01-01T00:00:00Z",
+    record = "{\"software\":\"RcppTskit\"}"
+  )
+  expect_equal(new_id, as.integer(n_before))
+  expect_equal(
+    as.integer(rtsk_table_collection_get_num_provenances(tc_xptr)),
+    as.integer(n_before) + 1L
+  )
+
+  tc <- TableCollection$new(xptr = tc_xptr)
+  n_before_method <- as.integer(tc$num_provenances())
+  expect_no_error(
+    tc$provenance_table_add_row(
+      timestamp = "2025-01-02T00:00:00Z",
+      record = "{\"software\":\"RcppTskit\",\"action\":\"test\"}"
+    )
+  )
+  expect_equal(as.integer(tc$num_provenances()), n_before_method + 1L)
+
+  expect_error(
+    tc$provenance_table_add_row(
+      timestamp = NULL,
+      record = "{}"
+    ),
+    regexp = "timestamp must be a length-1 non-NA character string!"
+  )
+  expect_error(
+    tc$provenance_table_add_row(
+      timestamp = "2025-01-01T00:00:00Z",
+      record = NA_character_
+    ),
+    regexp = "record must be a length-1 non-NA character string!"
+  )
+})

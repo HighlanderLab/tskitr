@@ -58,6 +58,19 @@ tc <- tc_load(tc_file)
 tc$num_provenances()
 
 ## ------------------------------------------------
+## Method `TableCollection$provenance_table_add_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_provenances())
+new_id <- tc$provenance_table_add_row(
+  timestamp = "2025-01-01T00:00:00Z",
+  record = "{\"software\":\"RcppTskit\"}"
+)
+(n_after <- tc$num_provenances())
+
+## ------------------------------------------------
 ## Method `TableCollection$num_populations`
 ## ------------------------------------------------
 
@@ -66,12 +79,50 @@ tc <- tc_load(tc_file)
 tc$num_populations()
 
 ## ------------------------------------------------
+## Method `TableCollection$population_table_add_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_populations())
+new_id <- tc$population_table_add_row()
+new_id <- tc$population_table_add_row(metadata = "abc")
+new_id <- tc$population_table_add_row(metadata = charToRaw("xyz"))
+(n_after <- tc$num_populations())
+
+## ------------------------------------------------
 ## Method `TableCollection$num_migrations`
 ## ------------------------------------------------
 
 tc_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(tc_file)
 tc$num_migrations()
+
+## ------------------------------------------------
+## Method `TableCollection$migration_table_add_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_migrations())
+new_id <- tc$migration_table_add_row(
+  left = 0,
+  right = 1,
+  node = 0L,
+  source = 0L,
+  dest = 0L,
+  time = 1.0
+)
+new_id <- tc$migration_table_add_row(
+  left = 1,
+  right = 2,
+  node = 1L,
+  source = 0L,
+  dest = 0L,
+  time = 2.0,
+  metadata = "abc"
+)
+(n_after <- tc$num_migrations())
 
 ## ------------------------------------------------
 ## Method `TableCollection$num_individuals`
@@ -322,8 +373,11 @@ tc
 \item \href{#method-TableCollection-tree_sequence}{\code{TableCollection$tree_sequence()}}
 \item \href{#method-TableCollection-sort}{\code{TableCollection$sort()}}
 \item \href{#method-TableCollection-num_provenances}{\code{TableCollection$num_provenances()}}
+\item \href{#method-TableCollection-provenance_table_add_row}{\code{TableCollection$provenance_table_add_row()}}
 \item \href{#method-TableCollection-num_populations}{\code{TableCollection$num_populations()}}
+\item \href{#method-TableCollection-population_table_add_row}{\code{TableCollection$population_table_add_row()}}
 \item \href{#method-TableCollection-num_migrations}{\code{TableCollection$num_migrations()}}
+\item \href{#method-TableCollection-migration_table_add_row}{\code{TableCollection$migration_table_add_row()}}
 \item \href{#method-TableCollection-num_individuals}{\code{TableCollection$num_individuals()}}
 \item \href{#method-TableCollection-individual_table_add_row}{\code{TableCollection$individual_table_add_row()}}
 \item \href{#method-TableCollection-num_nodes}{\code{TableCollection$num_nodes()}}
@@ -545,6 +599,48 @@ tc$num_provenances()
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-provenance_table_add_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-provenance_table_add_row}{}}}
+\subsection{Method \code{provenance_table_add_row()}}{
+Add a row to the provenances table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$provenance_table_add_row(timestamp, record)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{timestamp}}{character string timestamp for the new provenance.}
+
+\item{\code{record}}{character string record for the new provenance.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.ProvenanceTable.add_row}.
+}
+
+\subsection{Returns}{
+An integer row index and hence ID (0-based) of the newly added provenance.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_provenances())
+new_id <- tc$provenance_table_add_row(
+  timestamp = "2025-01-01T00:00:00Z",
+  record = "{\"software\":\"RcppTskit\"}"
+)
+(n_after <- tc$num_provenances())
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TableCollection-num_populations"></a>}}
 \if{latex}{\out{\hypertarget{method-TableCollection-num_populations}{}}}
 \subsection{Method \code{num_populations()}}{
@@ -568,6 +664,46 @@ tc$num_populations()
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-population_table_add_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-population_table_add_row}{}}}
+\subsection{Method \code{population_table_add_row()}}{
+Add a row to the populations table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$population_table_add_row(metadata = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{metadata}}{for the new population; accepts \code{NULL},
+a raw vector, or a character of length 1.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.PopulationTable.add_row}.
+}
+
+\subsection{Returns}{
+An integer row index and hence ID (0-based) of the newly added population.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_populations())
+new_id <- tc$population_table_add_row()
+new_id <- tc$population_table_add_row(metadata = "abc")
+new_id <- tc$population_table_add_row(metadata = charToRaw("xyz"))
+(n_after <- tc$num_populations())
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TableCollection-num_migrations"></a>}}
 \if{latex}{\out{\hypertarget{method-TableCollection-num_migrations}{}}}
 \subsection{Method \code{num_migrations()}}{
@@ -584,6 +720,80 @@ A signed 64 bit integer \code{bit64::integer64}.
 \preformatted{tc_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(tc_file)
 tc$num_migrations()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-migration_table_add_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-migration_table_add_row}{}}}
+\subsection{Method \code{migration_table_add_row()}}{
+Add a row to the migrations table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$migration_table_add_row(
+  left,
+  right,
+  node,
+  source,
+  dest,
+  time,
+  metadata = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{left}}{numeric scalar left coordinate for the new migration.}
+
+\item{\code{right}}{numeric scalar right coordinate for the new migration.}
+
+\item{\code{node}}{integer scalar node ID (0-based).}
+
+\item{\code{source}}{integer scalar source population ID (0-based).}
+
+\item{\code{dest}}{integer scalar destination population ID (0-based).}
+
+\item{\code{time}}{numeric scalar time value for the new migration.}
+
+\item{\code{metadata}}{for the new migration; accepts \code{NULL},
+a raw vector, or a character of length 1.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.MigrationTable.add_row}.
+}
+
+\subsection{Returns}{
+An integer row index and hence ID (0-based) of the newly added migration.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_migrations())
+new_id <- tc$migration_table_add_row(
+  left = 0,
+  right = 1,
+  node = 0L,
+  source = 0L,
+  dest = 0L,
+  time = 1.0
+)
+new_id <- tc$migration_table_add_row(
+  left = 1,
+  right = 2,
+  node = 1L,
+  source = 0L,
+  dest = 0L,
+  time = 2.0,
+  metadata = "abc"
+)
+(n_after <- tc$num_migrations())
 }
 \if{html}{\out{</div>}}
 

@@ -86,5 +86,12 @@ int rtsk_mutation_table_add_row(
     SEXP tc, int site, int node, int parent, double time,
     const std::string &derived_state,
     Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
+int rtsk_population_table_add_row(
+    SEXP tc, Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
+int rtsk_migration_table_add_row(
+    SEXP tc, double left, double right, int node, int source, int dest,
+    double time, Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
+int rtsk_provenance_table_add_row(SEXP tc, const std::string &timestamp,
+                                  const std::string &record);
 
 #endif
