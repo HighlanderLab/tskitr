@@ -1588,9 +1588,72 @@ test_that("get_row wrappers for non-node tables return expected fields and valid
   expect_equal(sort(names(prov_low)), c("id", "record", "timestamp"))
   expect_equal(prov_method, prov_low)
 
+  # exercise metadata/location/parents copy paths in individual get_row
+  indiv_new <- tc$individual_table_add_row(
+    location = c(1.25, -2.5),
+    parents = c(0L),
+    metadata = charToRaw("imd")
+  )
+  indiv_new_low <- rtsk_individual_table_get_row(tc_xptr, indiv_new)
+  expect_equal(indiv_new_low$location, c(1.25, -2.5))
+  expect_equal(indiv_new_low$parents, c(0L))
+  expect_equal(indiv_new_low$metadata, charToRaw("imd"))
+
+  # exercise metadata copy path in edge get_row
+  edge_new <- tc$edge_table_add_row(
+    left = 0,
+    right = 0.25,
+    parent = 0L,
+    child = 1L,
+    metadata = charToRaw("emd")
+  )
+  edge_new_low <- rtsk_edge_table_get_row(tc_xptr, edge_new)
+  expect_equal(edge_new_low$metadata, charToRaw("emd"))
+
+  # exercise metadata copy path in site get_row
+  site_new <- tc$site_table_add_row(
+    position = 123.5,
+    ancestral_state = "A",
+    metadata = charToRaw("smd")
+  )
+  site_new_low <- rtsk_site_table_get_row(tc_xptr, site_new)
+  expect_equal(site_new_low$metadata, charToRaw("smd"))
+
+  # exercise metadata copy path in mutation get_row
+  mut_new <- tc$mutation_table_add_row(
+    site = site_new,
+    node = 0L,
+    derived_state = "T",
+    metadata = charToRaw("mmd")
+  )
+  mut_new_low <- rtsk_mutation_table_get_row(tc_xptr, mut_new)
+  expect_equal(mut_new_low$metadata, charToRaw("mmd"))
+
+  # exercise metadata copy path in population get_row
+  pop_new <- tc$population_table_add_row(metadata = charToRaw("pmd"))
+  pop_new_low <- rtsk_population_table_get_row(tc_xptr, pop_new)
+  expect_equal(pop_new_low$metadata, charToRaw("pmd"))
+
+  # exercise metadata copy path in migration get_row
+  mig_new <- tc$migration_table_add_row(
+    left = 0.5,
+    right = 0.75,
+    node = 0L,
+    source = 0L,
+    dest = 0L,
+    time = 2.0,
+    metadata = charToRaw("gmd")
+  )
+  mig_new_low <- rtsk_migration_table_get_row(tc_xptr, mig_new)
+  expect_equal(mig_new_low$metadata, charToRaw("gmd"))
+
   expect_error(
     tc$individual_table_get_row(0.5),
     regexp = "index must be a non-NA zero or positive integer scalar within 32-bit range!"
+  )
+  expect_error(
+    rtsk_individual_table_get_row(tc_xptr, 999999L),
+    regexp = "OUT_OF_BOUNDS"
   )
   expect_error(rtsk_edge_table_get_row(tc_xptr, -1L), regexp = "OUT_OF_BOUNDS")
   expect_error(
