@@ -323,23 +323,23 @@ test_that("table_collection_sort wrapper validates inputs and sorts in place", {
 
   expect_error(
     tc$sort(edge_start = NA_integer_),
-    regexp = "edge_start must be a non-NA zero or positive integer scalar!"
+    regexp = "edge_start must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$sort(edge_start = -1L),
-    regexp = "edge_start must be a non-NA zero or positive integer scalar!"
+    regexp = "edge_start must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$sort(site_start = NA_integer_),
-    regexp = "site_start must be a non-NA zero or positive integer scalar!"
+    regexp = "site_start must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$sort(mutation_start = NA_integer_),
-    regexp = "mutation_start must be a non-NA zero or positive integer scalar!"
+    regexp = "mutation_start must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$sort(edge_start = 0.5),
-    regexp = "edge_start must be a non-NA zero or positive integer scalar!"
+    regexp = "edge_start must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_no_error(tc$sort())
   expect_no_error(tc$sort(
@@ -466,7 +466,7 @@ test_that("individual_table_add_row wrapper expands the table collection and han
   )
   expect_error(
     tc$individual_table_add_row(flags = -1L),
-    regexp = "flags must be a non-NA zero or positive integer scalar!"
+    regexp = "flags must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$individual_table_add_row(location = c(1, NA_real_)),
@@ -474,11 +474,11 @@ test_that("individual_table_add_row wrapper expands the table collection and han
   )
   expect_error(
     tc$individual_table_add_row(parents = c(NA_integer_)),
-    regexp = "parents must be NULL or an integer vector with no NA values!"
+    regexp = "parents must be NULL or an integer vector with no NA values within 32-bit range!"
   )
   expect_error(
     tc$individual_table_add_row(parents = c(0.5, 1)),
-    regexp = "parents must be NULL or an integer vector with no NA values!"
+    regexp = "parents must be NULL or an integer vector with no NA values within 32-bit range!"
   )
   expect_error(
     test_rtsk_individual_table_add_row_forced_error(tc$xptr),
@@ -610,7 +610,7 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
 
   expect_error(
     tc$node_table_add_row(flags = -1L),
-    regexp = "flags must be a non-NA zero or positive integer scalar!"
+    regexp = "flags must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$node_table_add_row(time = NA_real_),
@@ -618,15 +618,15 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
   )
   expect_error(
     tc$node_table_add_row(population = NA_integer_),
-    regexp = "population must be -1, NULL, or a non-NA integer scalar!"
+    regexp = "population must be NULL or a non-NA integer scalar within 32-bit range \\(>= -1\\)!"
   )
   expect_error(
     tc$node_table_add_row(individual = NA_integer_),
-    regexp = "individual must be -1, NULL, or a non-NA integer scalar!"
+    regexp = "individual must be NULL or a non-NA integer scalar within 32-bit range \\(>= -1\\)!"
   )
   expect_error(
     tc$node_table_add_row(population = 0.5),
-    regexp = "population must be -1, NULL, or a non-NA integer scalar!"
+    regexp = "population must be NULL or a non-NA integer scalar within 32-bit range \\(>= -1\\)!"
   )
   expect_error(
     tc$node_table_add_row(metadata = c("a", "b")),
@@ -694,11 +694,11 @@ test_that("node_table_get_row wrapper returns node row fields and validates IDs"
   )
   expect_error(
     tc$node_table_get_row(NA_integer_),
-    regexp = "index must be a non-NA zero or positive integer scalar!"
+    regexp = "index must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$node_table_get_row(-1L),
-    regexp = "index must be a non-NA zero or positive integer scalar!"
+    regexp = "index must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_equal(tc$node_table_get_row(0), first_row_low)
   expect_error(
@@ -893,7 +893,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       parent = NULL,
       child = child
     ),
-    regexp = "parent must be a non-NA zero or positive integer scalar!"
+    regexp = "parent cannot be NULL\\."
   )
   expect_error(
     tc$edge_table_add_row(
@@ -902,7 +902,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       parent = parent,
       child = NULL
     ),
-    regexp = "child must be a non-NA zero or positive integer scalar!"
+    regexp = "child cannot be NULL\\."
   )
   expect_error(
     tc$edge_table_add_row(
@@ -911,7 +911,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       parent = NA_integer_,
       child = child
     ),
-    regexp = "parent must be a non-NA zero or positive integer scalar!"
+    regexp = "parent must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$edge_table_add_row(
@@ -920,7 +920,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       parent = parent,
       child = NA_integer_
     ),
-    regexp = "child must be a non-NA zero or positive integer scalar!"
+    regexp = "child must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$edge_table_add_row(
@@ -929,7 +929,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       parent = 0.5,
       child = child
     ),
-    regexp = "parent must be a non-NA zero or positive integer scalar!"
+    regexp = "parent must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$edge_table_add_row(
@@ -1226,15 +1226,15 @@ test_that("mutation_table_add_row wrapper expands the table collection and handl
 
   expect_error(
     tc$mutation_table_add_row(site = NULL, node = node, derived_state = "T"),
-    regexp = "site must be a non-NA zero or positive integer scalar!"
+    regexp = "site cannot be NULL\\."
   )
   expect_error(
     tc$mutation_table_add_row(site = site, node = NULL, derived_state = "T"),
-    regexp = "node must be a non-NA zero or positive integer scalar!"
+    regexp = "node cannot be NULL\\."
   )
   expect_error(
     tc$mutation_table_add_row(site = 0.5, node = node, derived_state = "T"),
-    regexp = "site must be a non-NA zero or positive integer scalar!"
+    regexp = "site must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$mutation_table_add_row(
@@ -1243,7 +1243,7 @@ test_that("mutation_table_add_row wrapper expands the table collection and handl
       parent = NA_integer_,
       derived_state = "T"
     ),
-    regexp = "parent must be -1, NULL, or a non-NA integer scalar!"
+    regexp = "parent must be NULL or a non-NA integer scalar within 32-bit range \\(>= -1\\)!"
   )
   expect_error(
     tc$mutation_table_add_row(
@@ -1429,7 +1429,7 @@ test_that("migration_table_add_row wrapper expands the table collection and hand
       dest = 0L,
       time = 1.0
     ),
-    regexp = "node must be a non-NA zero or positive integer scalar!"
+    regexp = "node must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$migration_table_add_row(
@@ -1451,7 +1451,7 @@ test_that("migration_table_add_row wrapper expands the table collection and hand
       dest = 0L,
       time = 1.0
     ),
-    regexp = "node must be a non-NA zero or positive integer scalar!"
+    regexp = "node must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$migration_table_add_row(
@@ -1514,5 +1514,103 @@ test_that("provenance_table_add_row wrapper expands the table collection and han
   expect_error(
     test_rtsk_provenance_table_add_row_forced_error(tc$xptr),
     regexp = "TSK_ERR_TABLE_OVERFLOW"
+  )
+})
+
+test_that("get_row wrappers for non-node tables return expected fields and validate indices", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+  tc <- TableCollection$new(xptr = tc_xptr)
+
+  indiv_low <- rtsk_individual_table_get_row(tc_xptr, 0L)
+  indiv_method <- tc$individual_table_get_row(0)
+  expect_equal(
+    sort(names(indiv_low)),
+    c("flags", "id", "location", "metadata", "parents")
+  )
+  expect_equal(indiv_method, indiv_low)
+
+  edge_low <- rtsk_edge_table_get_row(tc_xptr, 0L)
+  edge_method <- tc$edge_table_get_row(0)
+  expect_equal(
+    sort(names(edge_low)),
+    c("child", "id", "left", "metadata", "parent", "right")
+  )
+  expect_equal(edge_method, edge_low)
+
+  site_low <- rtsk_site_table_get_row(tc_xptr, 0L)
+  site_method <- tc$site_table_get_row(0)
+  expect_equal(
+    sort(names(site_low)),
+    c("ancestral_state", "id", "metadata", "position")
+  )
+  expect_equal(site_method, site_low)
+
+  mut_low <- rtsk_mutation_table_get_row(tc_xptr, 0L)
+  mut_method <- tc$mutation_table_get_row(0)
+  expect_equal(
+    sort(names(mut_low)),
+    c("derived_state", "id", "metadata", "node", "parent", "site", "time")
+  )
+  expect_equal(mut_method, mut_low)
+
+  pop_low <- rtsk_population_table_get_row(tc_xptr, 0L)
+  pop_method <- tc$population_table_get_row(0)
+  expect_equal(sort(names(pop_low)), c("id", "metadata"))
+  expect_equal(pop_method, pop_low)
+
+  if (as.integer(tc$num_migrations()) == 0L) {
+    tc$migration_table_add_row(
+      left = 0,
+      right = 1,
+      node = 0,
+      source = 0,
+      dest = 0,
+      time = 1
+    )
+  }
+  mig_low <- rtsk_migration_table_get_row(tc_xptr, 0L)
+  mig_method <- tc$migration_table_get_row(0)
+  expect_equal(
+    sort(names(mig_low)),
+    c("dest", "id", "left", "metadata", "node", "right", "source", "time")
+  )
+  expect_equal(mig_method, mig_low)
+
+  if (as.integer(tc$num_provenances()) == 0L) {
+    tc$provenance_table_add_row(
+      timestamp = "2025-01-01T00:00:00Z",
+      record = "{\"software\":\"RcppTskit\"}"
+    )
+  }
+  prov_low <- rtsk_provenance_table_get_row(tc_xptr, 0L)
+  prov_method <- tc$provenance_table_get_row(0)
+  expect_equal(sort(names(prov_low)), c("id", "record", "timestamp"))
+  expect_equal(prov_method, prov_low)
+
+  expect_error(
+    tc$individual_table_get_row(0.5),
+    regexp = "index must be a non-NA zero or positive integer scalar within 32-bit range!"
+  )
+  expect_error(rtsk_edge_table_get_row(tc_xptr, -1L), regexp = "OUT_OF_BOUNDS")
+  expect_error(
+    rtsk_site_table_get_row(tc_xptr, 999999L),
+    regexp = "OUT_OF_BOUNDS"
+  )
+  expect_error(
+    rtsk_mutation_table_get_row(tc_xptr, -1L),
+    regexp = "OUT_OF_BOUNDS"
+  )
+  expect_error(
+    rtsk_population_table_get_row(tc_xptr, -1L),
+    regexp = "OUT_OF_BOUNDS"
+  )
+  expect_error(
+    rtsk_migration_table_get_row(tc_xptr, -1L),
+    regexp = "OUT_OF_BOUNDS"
+  )
+  expect_error(
+    rtsk_provenance_table_get_row(tc_xptr, -1L),
+    regexp = "OUT_OF_BOUNDS"
   )
 })

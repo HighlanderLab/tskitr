@@ -374,21 +374,28 @@ tc
 \item \href{#method-TableCollection-sort}{\code{TableCollection$sort()}}
 \item \href{#method-TableCollection-num_provenances}{\code{TableCollection$num_provenances()}}
 \item \href{#method-TableCollection-provenance_table_add_row}{\code{TableCollection$provenance_table_add_row()}}
+\item \href{#method-TableCollection-provenance_table_get_row}{\code{TableCollection$provenance_table_get_row()}}
 \item \href{#method-TableCollection-num_populations}{\code{TableCollection$num_populations()}}
 \item \href{#method-TableCollection-population_table_add_row}{\code{TableCollection$population_table_add_row()}}
+\item \href{#method-TableCollection-population_table_get_row}{\code{TableCollection$population_table_get_row()}}
 \item \href{#method-TableCollection-num_migrations}{\code{TableCollection$num_migrations()}}
 \item \href{#method-TableCollection-migration_table_add_row}{\code{TableCollection$migration_table_add_row()}}
+\item \href{#method-TableCollection-migration_table_get_row}{\code{TableCollection$migration_table_get_row()}}
 \item \href{#method-TableCollection-num_individuals}{\code{TableCollection$num_individuals()}}
 \item \href{#method-TableCollection-individual_table_add_row}{\code{TableCollection$individual_table_add_row()}}
+\item \href{#method-TableCollection-individual_table_get_row}{\code{TableCollection$individual_table_get_row()}}
 \item \href{#method-TableCollection-num_nodes}{\code{TableCollection$num_nodes()}}
 \item \href{#method-TableCollection-node_table_add_row}{\code{TableCollection$node_table_add_row()}}
 \item \href{#method-TableCollection-node_table_get_row}{\code{TableCollection$node_table_get_row()}}
 \item \href{#method-TableCollection-num_edges}{\code{TableCollection$num_edges()}}
 \item \href{#method-TableCollection-edge_table_add_row}{\code{TableCollection$edge_table_add_row()}}
+\item \href{#method-TableCollection-edge_table_get_row}{\code{TableCollection$edge_table_get_row()}}
 \item \href{#method-TableCollection-num_sites}{\code{TableCollection$num_sites()}}
 \item \href{#method-TableCollection-site_table_add_row}{\code{TableCollection$site_table_add_row()}}
+\item \href{#method-TableCollection-site_table_get_row}{\code{TableCollection$site_table_get_row()}}
 \item \href{#method-TableCollection-num_mutations}{\code{TableCollection$num_mutations()}}
 \item \href{#method-TableCollection-mutation_table_add_row}{\code{TableCollection$mutation_table_add_row()}}
+\item \href{#method-TableCollection-mutation_table_get_row}{\code{TableCollection$mutation_table_get_row()}}
 \item \href{#method-TableCollection-sequence_length}{\code{TableCollection$sequence_length()}}
 \item \href{#method-TableCollection-time_units}{\code{TableCollection$time_units()}}
 \item \href{#method-TableCollection-has_index}{\code{TableCollection$has_index()}}
@@ -641,6 +648,27 @@ new_id <- tc$provenance_table_add_row(
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-provenance_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-provenance_table_get_row}{}}}
+\subsection{Method \code{provenance_table_get_row()}}{
+Get one row from the provenances table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$provenance_table_get_row(index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{integer scalar row index (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A named list with fields \code{id}, \code{timestamp},
+  and \code{record}.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TableCollection-num_populations"></a>}}
 \if{latex}{\out{\hypertarget{method-TableCollection-num_populations}{}}}
 \subsection{Method \code{num_populations()}}{
@@ -702,6 +730,26 @@ new_id <- tc$population_table_add_row(metadata = charToRaw("xyz"))
 
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-population_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-population_table_get_row}{}}}
+\subsection{Method \code{population_table_get_row()}}{
+Get one row from the populations table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$population_table_get_row(index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{integer scalar row index (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A named list with fields \code{id} and \code{metadata}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TableCollection-num_migrations"></a>}}
@@ -801,6 +849,28 @@ new_id <- tc$migration_table_add_row(
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-migration_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-migration_table_get_row}{}}}
+\subsection{Method \code{migration_table_get_row()}}{
+Get one row from the migrations table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$migration_table_get_row(index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{integer scalar row index (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A named list with fields \code{id}, \code{left}, \code{right},
+  \code{node}, \code{source}, \code{dest}, \code{time}, and
+  \code{metadata}.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TableCollection-num_individuals"></a>}}
 \if{latex}{\out{\hypertarget{method-TableCollection-num_individuals}{}}}
 \subsection{Method \code{num_individuals()}}{
@@ -878,6 +948,27 @@ new_id <- tc$individual_table_add_row(metadata = charToRaw("cba"))
 
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-individual_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-individual_table_get_row}{}}}
+\subsection{Method \code{individual_table_get_row()}}{
+Get one row from the individuals table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$individual_table_get_row(index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{integer scalar row index (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A named list with fields \code{id}, \code{flags},
+  \code{location}, \code{parents}, and \code{metadata}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TableCollection-num_nodes"></a>}}
@@ -1079,6 +1170,27 @@ new_id <- tc$edge_table_add_row(
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-edge_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-edge_table_get_row}{}}}
+\subsection{Method \code{edge_table_get_row()}}{
+Get one row from the edges table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$edge_table_get_row(index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{integer scalar row index (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A named list with fields \code{id}, \code{left}, \code{right},
+  \code{parent}, \code{child}, and \code{metadata}.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TableCollection-num_sites"></a>}}
 \if{latex}{\out{\hypertarget{method-TableCollection-num_sites}{}}}
 \subsection{Method \code{num_sites()}}{
@@ -1143,6 +1255,27 @@ new_id <- tc$site_table_add_row(position = 2.5, ancestral_state = "T", metadata 
 
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-site_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-site_table_get_row}{}}}
+\subsection{Method \code{site_table_get_row()}}{
+Get one row from the sites table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$site_table_get_row(index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{integer scalar row index (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A named list with fields \code{id}, \code{position},
+  \code{ancestral_state}, and \code{metadata}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TableCollection-num_mutations"></a>}}
@@ -1235,6 +1368,28 @@ m1 <- tc$mutation_table_add_row(
 
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-mutation_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-mutation_table_get_row}{}}}
+\subsection{Method \code{mutation_table_get_row()}}{
+Get one row from the mutations table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$mutation_table_get_row(index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{integer scalar row index (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A named list with fields \code{id}, \code{site}, \code{node},
+  \code{parent}, \code{time}, \code{derived_state}, and
+  \code{metadata}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TableCollection-sequence_length"></a>}}

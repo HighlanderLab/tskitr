@@ -239,6 +239,10 @@ rtsk_individual_table_add_row <- function(tc, flags = 0L, location = NULL, paren
     .Call(`_RcppTskit_rtsk_individual_table_add_row`, tc, flags, location, parents, metadata)
 }
 
+rtsk_individual_table_get_row <- function(tc, index) {
+    .Call(`_RcppTskit_rtsk_individual_table_get_row`, tc, index)
+}
+
 rtsk_node_table_add_row <- function(tc, flags = 0L, time = 0, population = -1L, individual = -1L, metadata = NULL) {
     .Call(`_RcppTskit_rtsk_node_table_add_row`, tc, flags, time, population, individual, metadata)
 }
@@ -251,24 +255,48 @@ rtsk_edge_table_add_row <- function(tc, left, right, parent, child, metadata = N
     .Call(`_RcppTskit_rtsk_edge_table_add_row`, tc, left, right, parent, child, metadata)
 }
 
+rtsk_edge_table_get_row <- function(tc, index) {
+    .Call(`_RcppTskit_rtsk_edge_table_get_row`, tc, index)
+}
+
 rtsk_site_table_add_row <- function(tc, position, ancestral_state, metadata = NULL) {
     .Call(`_RcppTskit_rtsk_site_table_add_row`, tc, position, ancestral_state, metadata)
+}
+
+rtsk_site_table_get_row <- function(tc, index) {
+    .Call(`_RcppTskit_rtsk_site_table_get_row`, tc, index)
 }
 
 rtsk_mutation_table_add_row <- function(tc, site, node, parent, time, derived_state, metadata = NULL) {
     .Call(`_RcppTskit_rtsk_mutation_table_add_row`, tc, site, node, parent, time, derived_state, metadata)
 }
 
+rtsk_mutation_table_get_row <- function(tc, index) {
+    .Call(`_RcppTskit_rtsk_mutation_table_get_row`, tc, index)
+}
+
 rtsk_population_table_add_row <- function(tc, metadata = NULL) {
     .Call(`_RcppTskit_rtsk_population_table_add_row`, tc, metadata)
+}
+
+rtsk_population_table_get_row <- function(tc, index) {
+    .Call(`_RcppTskit_rtsk_population_table_get_row`, tc, index)
 }
 
 rtsk_migration_table_add_row <- function(tc, left, right, node, source, dest, time, metadata = NULL) {
     .Call(`_RcppTskit_rtsk_migration_table_add_row`, tc, left, right, node, source, dest, time, metadata)
 }
 
+rtsk_migration_table_get_row <- function(tc, index) {
+    .Call(`_RcppTskit_rtsk_migration_table_get_row`, tc, index)
+}
+
 rtsk_provenance_table_add_row <- function(tc, timestamp, record) {
     .Call(`_RcppTskit_rtsk_provenance_table_add_row`, tc, timestamp, record)
+}
+
+rtsk_provenance_table_get_row <- function(tc, index) {
+    .Call(`_RcppTskit_rtsk_provenance_table_get_row`, tc, index)
 }
 
 test_tsk_bug_assert_c <- function() {

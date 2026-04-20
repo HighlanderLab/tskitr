@@ -72,6 +72,7 @@ int rtsk_individual_table_add_row(
     Rcpp::Nullable<Rcpp::NumericVector> location = R_NilValue,
     Rcpp::Nullable<Rcpp::IntegerVector> parents = R_NilValue,
     Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
+Rcpp::List rtsk_individual_table_get_row(SEXP tc, int index);
 int rtsk_node_table_add_row(
     SEXP tc, int flags = 0, double time = 0, int population = -1,
     int individual = -1, Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
@@ -79,19 +80,25 @@ Rcpp::List rtsk_node_table_get_row(SEXP tc, int index);
 int rtsk_edge_table_add_row(
     SEXP tc, double left, double right, int parent, int child,
     Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
+Rcpp::List rtsk_edge_table_get_row(SEXP tc, int index);
 int rtsk_site_table_add_row(
     SEXP tc, double position, const std::string &ancestral_state,
     Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
+Rcpp::List rtsk_site_table_get_row(SEXP tc, int index);
 int rtsk_mutation_table_add_row(
     SEXP tc, int site, int node, int parent, double time,
     const std::string &derived_state,
     Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
+Rcpp::List rtsk_mutation_table_get_row(SEXP tc, int index);
 int rtsk_population_table_add_row(
     SEXP tc, Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
+Rcpp::List rtsk_population_table_get_row(SEXP tc, int index);
 int rtsk_migration_table_add_row(
     SEXP tc, double left, double right, int node, int source, int dest,
     double time, Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue);
+Rcpp::List rtsk_migration_table_get_row(SEXP tc, int index);
 int rtsk_provenance_table_add_row(SEXP tc, const std::string &timestamp,
                                   const std::string &record);
+Rcpp::List rtsk_provenance_table_get_row(SEXP tc, int index);
 
 #endif

@@ -58,13 +58,26 @@ test_that("R-side integer and row-index validators cover message branches", {
   expect_no_error(RcppTskit:::validate_integer_scalar_arg(1, "x"))
   # jarl-ignore internal_function: it's just a test
   expect_error(
+    RcppTskit:::validate_integer_scalar_arg(1, "x", strict = TRUE),
+    regexp = "x must be a non-NA integer scalar within 32-bit range!"
+  )
+  # jarl-ignore internal_function: it's just a test
+  expect_error(
     RcppTskit:::validate_integer_scalar_arg(1.5, "x"),
-    regexp = "x must be a non-NA integer scalar!"
+    regexp = "x must be a non-NA integer scalar within 32-bit range!"
+  )
+  # jarl-ignore internal_function: it's just a test
+  expect_error(
+    RcppTskit:::validate_integer_scalar_arg(
+      as.numeric(.Machine$integer.max) + 1,
+      "x"
+    ),
+    regexp = "x must be a non-NA integer scalar within 32-bit range!"
   )
   # jarl-ignore internal_function: it's just a test
   expect_error(
     RcppTskit:::validate_integer_scalar_arg(1L, "x", minimum = 2L),
-    regexp = "x must be a non-NA integer scalar >= 2!"
+    regexp = "x must be a non-NA integer scalar within 32-bit range \\(>= 2\\)!"
   )
   # jarl-ignore internal_function: it's just a test
   expect_no_error(
@@ -72,8 +85,17 @@ test_that("R-side integer and row-index validators cover message branches", {
   )
   # jarl-ignore internal_function: it's just a test
   expect_error(
+    RcppTskit:::validate_optional_integer_vector_arg(
+      c(1, 2, 3),
+      "ids",
+      strict = TRUE
+    ),
+    regexp = "ids must be NULL or an integer vector with no NA values within 32-bit range!"
+  )
+  # jarl-ignore internal_function: it's just a test
+  expect_error(
     RcppTskit:::validate_optional_integer_vector_arg(c(1, 2.5), "ids"),
-    regexp = "ids must be NULL or an integer vector with no NA values!"
+    regexp = "ids must be NULL or an integer vector with no NA values within 32-bit range!"
   )
   # jarl-ignore internal_function: it's just a test
   expect_no_error(RcppTskit:::validate_row_index(NULL, allow_null = TRUE))

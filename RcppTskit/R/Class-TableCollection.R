@@ -163,6 +163,15 @@ TableCollection <- R6Class(
       )
     },
 
+    #' @description Get one row from the provenances table.
+    #' @param index integer scalar row index (0-based).
+    #' @return A named list with fields \code{id}, \code{timestamp},
+    #'   and \code{record}.
+    provenance_table_get_row = function(index) {
+      validate_row_index(index)
+      rtsk_provenance_table_get_row(self$xptr, index = as.integer(index))
+    },
+
     #' @description Get the number of populations in a table collection.
     #' @return A signed 64 bit integer \code{bit64::integer64}.
     #' @examples
@@ -193,6 +202,14 @@ TableCollection <- R6Class(
         tc = self$xptr,
         metadata = metadata_raw
       )
+    },
+
+    #' @description Get one row from the populations table.
+    #' @param index integer scalar row index (0-based).
+    #' @return A named list with fields \code{id} and \code{metadata}.
+    population_table_get_row = function(index) {
+      validate_row_index(index)
+      rtsk_population_table_get_row(self$xptr, index = as.integer(index))
     },
 
     #' @description Get the number of migrations in a table collection.
@@ -270,6 +287,16 @@ TableCollection <- R6Class(
       )
     },
 
+    #' @description Get one row from the migrations table.
+    #' @param index integer scalar row index (0-based).
+    #' @return A named list with fields \code{id}, \code{left}, \code{right},
+    #'   \code{node}, \code{source}, \code{dest}, \code{time}, and
+    #'   \code{metadata}.
+    migration_table_get_row = function(index) {
+      validate_row_index(index)
+      rtsk_migration_table_get_row(self$xptr, index = as.integer(index))
+    },
+
     #' @description Get the number of individuals in a table collection.
     #' @return A signed 64 bit integer \code{bit64::integer64}.
     #' @examples
@@ -321,6 +348,15 @@ TableCollection <- R6Class(
       )
     },
 
+    #' @description Get one row from the individuals table.
+    #' @param index integer scalar row index (0-based).
+    #' @return A named list with fields \code{id}, \code{flags},
+    #'   \code{location}, \code{parents}, and \code{metadata}.
+    individual_table_get_row = function(index) {
+      validate_row_index(index)
+      rtsk_individual_table_get_row(self$xptr, index = as.integer(index))
+    },
+
     #' @description Get the number of nodes in a table collection.
     #' @return A signed 64 bit integer \code{bit64::integer64}.
     #' @examples
@@ -363,8 +399,18 @@ TableCollection <- R6Class(
     ) {
       validate_integer_scalar_arg(flags, "flags", minimum = 0L)
       validate_numeric_scalar_arg(time, "time")
-      validate_nullable_integer_scalar_arg(population, "population")
-      validate_nullable_integer_scalar_arg(individual, "individual")
+      validate_integer_scalar_arg(
+        population,
+        "population",
+        minimum = -1L,
+        allow_null = TRUE
+      )
+      validate_integer_scalar_arg(
+        individual,
+        "individual",
+        minimum = -1L,
+        allow_null = TRUE
+      )
       metadata_raw <- validate_metadata_arg(metadata)
       rtsk_node_table_add_row(
         tc = self$xptr,
@@ -464,6 +510,15 @@ TableCollection <- R6Class(
       )
     },
 
+    #' @description Get one row from the edges table.
+    #' @param index integer scalar row index (0-based).
+    #' @return A named list with fields \code{id}, \code{left}, \code{right},
+    #'   \code{parent}, \code{child}, and \code{metadata}.
+    edge_table_get_row = function(index) {
+      validate_row_index(index)
+      rtsk_edge_table_get_row(self$xptr, index = as.integer(index))
+    },
+
     #' @description Get the number of sites in a table collection.
     #' @return A signed 64 bit integer \code{bit64::integer64}.
     #' @examples
@@ -503,6 +558,15 @@ TableCollection <- R6Class(
         ancestral_state = as.character(ancestral_state),
         metadata = metadata_raw
       )
+    },
+
+    #' @description Get one row from the sites table.
+    #' @param index integer scalar row index (0-based).
+    #' @return A named list with fields \code{id}, \code{position},
+    #'   \code{ancestral_state}, and \code{metadata}.
+    site_table_get_row = function(index) {
+      validate_row_index(index)
+      rtsk_site_table_get_row(self$xptr, index = as.integer(index))
     },
 
     #' @description Get the number of mutations in a table collection.
@@ -557,7 +621,12 @@ TableCollection <- R6Class(
       validate_row_index(site, "site")
       validate_row_index(node, "node")
       validate_character_scalar_arg(derived_state, "derived_state")
-      validate_nullable_integer_scalar_arg(parent, "parent")
+      validate_integer_scalar_arg(
+        parent,
+        "parent",
+        minimum = -1L,
+        allow_null = TRUE
+      )
       metadata_raw <- validate_metadata_arg(metadata)
       validate_numeric_scalar_arg(
         time,
@@ -574,6 +643,16 @@ TableCollection <- R6Class(
         metadata = metadata_raw,
         time = if (is.null(time)) NaN else as.numeric(time)
       )
+    },
+
+    #' @description Get one row from the mutations table.
+    #' @param index integer scalar row index (0-based).
+    #' @return A named list with fields \code{id}, \code{site}, \code{node},
+    #'   \code{parent}, \code{time}, \code{derived_state}, and
+    #'   \code{metadata}.
+    mutation_table_get_row = function(index) {
+      validate_row_index(index)
+      rtsk_mutation_table_get_row(self$xptr, index = as.integer(index))
     },
 
     #' @description Get the sequence length.

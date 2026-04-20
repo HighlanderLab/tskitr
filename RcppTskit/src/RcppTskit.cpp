@@ -1649,6 +1649,52 @@ int rtsk_individual_table_add_row(
   return static_cast<int>(row_id);
 }
 
+// PUBLIC, wrapper for tsk_individual_table_get_row
+// @title Get a row from the individual table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param index integer scalar individual ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_individual_table_get_row}
+//   on the individuals table of \code{tc}.
+// @return A named list with fields \code{id}, \code{flags}, \code{location},
+//   \code{parents}, and \code{metadata}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_individual_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_individual_table_get_row(SEXP tc, int index) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_individual_t row;
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret =
+      tsk_individual_table_get_row(&tc_xptr->individuals, index_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::NumericVector location(row.location_length);
+  for (tsk_size_t j = 0; j < row.location_length; ++j) {
+    location[j] = row.location[j];
+  }
+
+  Rcpp::IntegerVector parents(row.parents_length);
+  for (tsk_size_t j = 0; j < row.parents_length; ++j) {
+    parents[j] = static_cast<int>(row.parents[j]);
+  }
+
+  Rcpp::RawVector metadata(row.metadata_length);
+  for (tsk_size_t j = 0; j < row.metadata_length; ++j) {
+    metadata[j] = static_cast<Rbyte>(row.metadata[j]);
+  }
+
+  return Rcpp::List::create(
+      Rcpp::_["id"] = index, Rcpp::_["flags"] = static_cast<int>(row.flags),
+      Rcpp::_["location"] = location, Rcpp::_["parents"] = parents,
+      Rcpp::_["metadata"] = metadata);
+}
+
 // PUBLIC, wrapper for tsk_node_table_add_row
 // @title Add a row to the node table in a table collection
 // @param tc an external pointer to table collection as a
@@ -1847,6 +1893,42 @@ int rtsk_edge_table_add_row(
   return static_cast<int>(row_id);
 }
 
+// PUBLIC, wrapper for tsk_edge_table_get_row
+// @title Get a row from the edge table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param index integer scalar edge ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_edge_table_get_row}
+//   on the edges table of \code{tc}.
+// @return A named list with fields \code{id}, \code{left}, \code{right},
+//   \code{parent}, \code{child}, and \code{metadata}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_edge_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_edge_table_get_row(SEXP tc, int index) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_edge_t row;
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret = tsk_edge_table_get_row(&tc_xptr->edges, index_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::RawVector metadata(row.metadata_length);
+  for (tsk_size_t j = 0; j < row.metadata_length; ++j) {
+    metadata[j] = static_cast<Rbyte>(row.metadata[j]);
+  }
+
+  return Rcpp::List::create(Rcpp::_["id"] = index, Rcpp::_["left"] = row.left,
+                            Rcpp::_["right"] = row.right,
+                            Rcpp::_["parent"] = static_cast<int>(row.parent),
+                            Rcpp::_["child"] = static_cast<int>(row.child),
+                            Rcpp::_["metadata"] = metadata);
+}
+
 // PUBLIC, wrapper for tsk_site_table_add_row
 // @title Add a row to the site table in a table collection
 // @param tc an external pointer to table collection as a
@@ -1922,6 +2004,46 @@ int rtsk_site_table_add_row(
     Rcpp::stop(tsk_strerror(row_id));
   }
   return static_cast<int>(row_id);
+}
+
+// PUBLIC, wrapper for tsk_site_table_get_row
+// @title Get a row from the site table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param index integer scalar site ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_site_table_get_row}
+//   on the sites table of \code{tc}.
+// @return A named list with fields \code{id}, \code{position},
+//   \code{ancestral_state}, and \code{metadata}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_site_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_site_table_get_row(SEXP tc, int index) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_site_t row;
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret = tsk_site_table_get_row(&tc_xptr->sites, index_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::String ancestral_state =
+      row.ancestral_state_length > 0
+          ? Rcpp::String(
+                std::string(row.ancestral_state, row.ancestral_state_length))
+          : Rcpp::String("");
+  Rcpp::RawVector metadata(row.metadata_length);
+  for (tsk_size_t j = 0; j < row.metadata_length; ++j) {
+    metadata[j] = static_cast<Rbyte>(row.metadata[j]);
+  }
+
+  return Rcpp::List::create(Rcpp::_["id"] = index,
+                            Rcpp::_["position"] = row.position,
+                            Rcpp::_["ancestral_state"] = ancestral_state,
+                            Rcpp::_["metadata"] = metadata);
 }
 
 // PUBLIC, wrapper for tsk_mutation_table_add_row
@@ -2017,6 +2139,48 @@ int rtsk_mutation_table_add_row(
   return static_cast<int>(row_id);
 }
 
+// PUBLIC, wrapper for tsk_mutation_table_get_row
+// @title Get a row from the mutation table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param index integer scalar mutation ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_mutation_table_get_row}
+//   on the mutations table of \code{tc}.
+// @return A named list with fields \code{id}, \code{site}, \code{node},
+//   \code{parent}, \code{time}, \code{derived_state}, and \code{metadata}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_mutation_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_mutation_table_get_row(SEXP tc, int index) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_mutation_t row;
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret = tsk_mutation_table_get_row(&tc_xptr->mutations, index_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::String derived_state =
+      row.derived_state_length > 0
+          ? Rcpp::String(
+                std::string(row.derived_state, row.derived_state_length))
+          : Rcpp::String("");
+  Rcpp::RawVector metadata(row.metadata_length);
+  for (tsk_size_t j = 0; j < row.metadata_length; ++j) {
+    metadata[j] = static_cast<Rbyte>(row.metadata[j]);
+  }
+
+  return Rcpp::List::create(
+      Rcpp::_["id"] = index, Rcpp::_["site"] = static_cast<int>(row.site),
+      Rcpp::_["node"] = static_cast<int>(row.node),
+      Rcpp::_["parent"] = static_cast<int>(row.parent),
+      Rcpp::_["time"] = row.time, Rcpp::_["derived_state"] = derived_state,
+      Rcpp::_["metadata"] = metadata);
+}
+
 // PUBLIC, wrapper for tsk_population_table_add_row
 // @title Add a row to the population table in a table collection
 // @param tc an external pointer to table collection as a
@@ -2063,6 +2227,39 @@ int rtsk_population_table_add_row(
     Rcpp::stop(tsk_strerror(row_id));
   }
   return static_cast<int>(row_id);
+}
+
+// PUBLIC, wrapper for tsk_population_table_get_row
+// @title Get a row from the population table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param index integer scalar population ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_population_table_get_row}
+//   on the populations table of \code{tc}.
+// @return A named list with fields \code{id} and \code{metadata}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_population_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_population_table_get_row(SEXP tc, int index) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_population_t row;
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret =
+      tsk_population_table_get_row(&tc_xptr->populations, index_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::RawVector metadata(row.metadata_length);
+  for (tsk_size_t j = 0; j < row.metadata_length; ++j) {
+    metadata[j] = static_cast<Rbyte>(row.metadata[j]);
+  }
+
+  return Rcpp::List::create(Rcpp::_["id"] = index,
+                            Rcpp::_["metadata"] = metadata);
 }
 
 // PUBLIC, wrapper for tsk_migration_table_add_row
@@ -2126,6 +2323,44 @@ int rtsk_migration_table_add_row(
   return static_cast<int>(row_id);
 }
 
+// PUBLIC, wrapper for tsk_migration_table_get_row
+// @title Get a row from the migration table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param index integer scalar migration ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_migration_table_get_row}
+//   on the migrations table of \code{tc}.
+// @return A named list with fields \code{id}, \code{left}, \code{right},
+//   \code{node}, \code{source}, \code{dest}, \code{time}, and \code{metadata}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_migration_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_migration_table_get_row(SEXP tc, int index) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_migration_t row;
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret = tsk_migration_table_get_row(&tc_xptr->migrations, index_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::RawVector metadata(row.metadata_length);
+  for (tsk_size_t j = 0; j < row.metadata_length; ++j) {
+    metadata[j] = static_cast<Rbyte>(row.metadata[j]);
+  }
+
+  return Rcpp::List::create(Rcpp::_["id"] = index, Rcpp::_["left"] = row.left,
+                            Rcpp::_["right"] = row.right,
+                            Rcpp::_["node"] = static_cast<int>(row.node),
+                            Rcpp::_["source"] = static_cast<int>(row.source),
+                            Rcpp::_["dest"] = static_cast<int>(row.dest),
+                            Rcpp::_["time"] = row.time,
+                            Rcpp::_["metadata"] = metadata);
+}
+
 // PUBLIC, wrapper for tsk_provenance_table_add_row
 // @title Add a row to the provenance table in a table collection
 // @param tc an external pointer to table collection as a
@@ -2166,4 +2401,43 @@ int rtsk_provenance_table_add_row(SEXP tc, const std::string &timestamp,
     Rcpp::stop(tsk_strerror(row_id));
   }
   return static_cast<int>(row_id);
+}
+
+// PUBLIC, wrapper for tsk_provenance_table_get_row
+// @title Get a row from the provenance table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param index integer scalar provenance ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_provenance_table_get_row}
+//   on the provenances table of \code{tc}.
+// @return A named list with fields \code{id}, \code{timestamp}, and
+//   \code{record}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_provenance_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_provenance_table_get_row(SEXP tc, int index) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_provenance_t row;
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret =
+      tsk_provenance_table_get_row(&tc_xptr->provenances, index_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::String timestamp =
+      row.timestamp_length > 0
+          ? Rcpp::String(std::string(row.timestamp, row.timestamp_length))
+          : Rcpp::String("");
+  Rcpp::String record =
+      row.record_length > 0
+          ? Rcpp::String(std::string(row.record, row.record_length))
+          : Rcpp::String("");
+
+  return Rcpp::List::create(Rcpp::_["id"] = index,
+                            Rcpp::_["timestamp"] = timestamp,
+                            Rcpp::_["record"] = record);
 }
