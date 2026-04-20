@@ -10,6 +10,66 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// rtsk_variant_iterator_init
+SEXP rtsk_variant_iterator_init(SEXP ts, Rcpp::Nullable<Rcpp::IntegerVector> samples, bool isolated_as_missing, Rcpp::Nullable<Rcpp::CharacterVector> alleles, double left, double right);
+RcppExport SEXP _RcppTskit_rtsk_variant_iterator_init(SEXP tsSEXP, SEXP samplesSEXP, SEXP isolated_as_missingSEXP, SEXP allelesSEXP, SEXP leftSEXP, SEXP rightSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ts(tsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::IntegerVector> >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< bool >::type isolated_as_missing(isolated_as_missingSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::CharacterVector> >::type alleles(allelesSEXP);
+    Rcpp::traits::input_parameter< double >::type left(leftSEXP);
+    Rcpp::traits::input_parameter< double >::type right(rightSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_variant_iterator_init(ts, samples, isolated_as_missing, alleles, left, right));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_variant_iterator_next
+SEXP rtsk_variant_iterator_next(SEXP iterator);
+RcppExport SEXP _RcppTskit_rtsk_variant_iterator_next(SEXP iteratorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type iterator(iteratorSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_variant_iterator_next(iterator));
+    return rcpp_result_gen;
+END_RCPP
+}
+// test_rtsk_variant_iterator_force_null_first_allele
+void test_rtsk_variant_iterator_force_null_first_allele(bool enabled);
+RcppExport SEXP _RcppTskit_test_rtsk_variant_iterator_force_null_first_allele(SEXP enabledSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< bool >::type enabled(enabledSEXP);
+    test_rtsk_variant_iterator_force_null_first_allele(enabled);
+    return R_NilValue;
+END_RCPP
+}
+// test_rtsk_variant_iterator_set_site_bounds
+void test_rtsk_variant_iterator_set_site_bounds(SEXP iterator, int next_site_id, int stop_site_id);
+RcppExport SEXP _RcppTskit_test_rtsk_variant_iterator_set_site_bounds(SEXP iteratorSEXP, SEXP next_site_idSEXP, SEXP stop_site_idSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type iterator(iteratorSEXP);
+    Rcpp::traits::input_parameter< int >::type next_site_id(next_site_idSEXP);
+    Rcpp::traits::input_parameter< int >::type stop_site_id(stop_site_idSEXP);
+    test_rtsk_variant_iterator_set_site_bounds(iterator, next_site_id, stop_site_id);
+    return R_NilValue;
+END_RCPP
+}
+// test_variant_site_index_range
+void test_variant_site_index_range(const std::string& start, const std::string& stop);
+RcppExport SEXP _RcppTskit_test_variant_site_index_range(SEXP startSEXP, SEXP stopSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type start(startSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type stop(stopSEXP);
+    test_variant_site_index_range(start, stop);
+    return R_NilValue;
+END_RCPP
+}
 // test_validate_options
 int test_validate_options(int options, int supported);
 RcppExport SEXP _RcppTskit_test_validate_options(SEXP optionsSEXP, SEXP supportedSEXP) {
@@ -51,6 +111,16 @@ BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     rcpp_result_gen = Rcpp::wrap(tskit_version());
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_const_tsk_no_check_integrity
+int rtsk_const_tsk_no_check_integrity();
+RcppExport SEXP _RcppTskit_rtsk_const_tsk_no_check_integrity() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(rtsk_const_tsk_no_check_integrity());
     return rcpp_result_gen;
 END_RCPP
 }
@@ -178,6 +248,17 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type ts(tsSEXP);
     rcpp_result_gen = Rcpp::wrap(rtsk_treeseq_get_num_samples(ts));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_treeseq_get_samples
+Rcpp::IntegerVector rtsk_treeseq_get_samples(SEXP ts);
+RcppExport SEXP _RcppTskit_rtsk_treeseq_get_samples(SEXP tsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ts(tsSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_treeseq_get_samples(ts));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -512,6 +593,20 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// rtsk_table_collection_sort
+void rtsk_table_collection_sort(SEXP tc, int edge_start, int site_start, int mutation_start, int options);
+RcppExport SEXP _RcppTskit_rtsk_table_collection_sort(SEXP tcSEXP, SEXP edge_startSEXP, SEXP site_startSEXP, SEXP mutation_startSEXP, SEXP optionsSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< int >::type edge_start(edge_startSEXP);
+    Rcpp::traits::input_parameter< int >::type site_start(site_startSEXP);
+    Rcpp::traits::input_parameter< int >::type mutation_start(mutation_startSEXP);
+    Rcpp::traits::input_parameter< int >::type options(optionsSEXP);
+    rtsk_table_collection_sort(tc, edge_start, site_start, mutation_start, options);
+    return R_NilValue;
+END_RCPP
+}
 // rtsk_table_collection_summary
 Rcpp::List rtsk_table_collection_summary(SEXP tc);
 RcppExport SEXP _RcppTskit_rtsk_table_collection_summary(SEXP tcSEXP) {
@@ -549,6 +644,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rtsk_individual_table_get_row
+Rcpp::List rtsk_individual_table_get_row(SEXP tc, int index);
+RcppExport SEXP _RcppTskit_rtsk_individual_table_get_row(SEXP tcSEXP, SEXP indexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< int >::type index(indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_individual_table_get_row(tc, index));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rtsk_node_table_add_row
 int rtsk_node_table_add_row(SEXP tc, int flags, double time, int population, int individual, Rcpp::Nullable<Rcpp::RawVector> metadata);
 RcppExport SEXP _RcppTskit_rtsk_node_table_add_row(SEXP tcSEXP, SEXP flagsSEXP, SEXP timeSEXP, SEXP populationSEXP, SEXP individualSEXP, SEXP metadataSEXP) {
@@ -562,6 +669,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type individual(individualSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::RawVector> >::type metadata(metadataSEXP);
     rcpp_result_gen = Rcpp::wrap(rtsk_node_table_add_row(tc, flags, time, population, individual, metadata));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_node_table_get_row
+Rcpp::List rtsk_node_table_get_row(SEXP tc, int index);
+RcppExport SEXP _RcppTskit_rtsk_node_table_get_row(SEXP tcSEXP, SEXP indexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< int >::type index(indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_node_table_get_row(tc, index));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -581,6 +700,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rtsk_edge_table_get_row
+Rcpp::List rtsk_edge_table_get_row(SEXP tc, int index);
+RcppExport SEXP _RcppTskit_rtsk_edge_table_get_row(SEXP tcSEXP, SEXP indexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< int >::type index(indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_edge_table_get_row(tc, index));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rtsk_site_table_add_row
 int rtsk_site_table_add_row(SEXP tc, double position, const std::string& ancestral_state, Rcpp::Nullable<Rcpp::RawVector> metadata);
 RcppExport SEXP _RcppTskit_rtsk_site_table_add_row(SEXP tcSEXP, SEXP positionSEXP, SEXP ancestral_stateSEXP, SEXP metadataSEXP) {
@@ -592,6 +723,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string& >::type ancestral_state(ancestral_stateSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::RawVector> >::type metadata(metadataSEXP);
     rcpp_result_gen = Rcpp::wrap(rtsk_site_table_add_row(tc, position, ancestral_state, metadata));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_site_table_get_row
+Rcpp::List rtsk_site_table_get_row(SEXP tc, int index);
+RcppExport SEXP _RcppTskit_rtsk_site_table_get_row(SEXP tcSEXP, SEXP indexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< int >::type index(indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_site_table_get_row(tc, index));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -609,6 +752,97 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string& >::type derived_state(derived_stateSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::RawVector> >::type metadata(metadataSEXP);
     rcpp_result_gen = Rcpp::wrap(rtsk_mutation_table_add_row(tc, site, node, parent, time, derived_state, metadata));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_mutation_table_get_row
+Rcpp::List rtsk_mutation_table_get_row(SEXP tc, int index);
+RcppExport SEXP _RcppTskit_rtsk_mutation_table_get_row(SEXP tcSEXP, SEXP indexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< int >::type index(indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_mutation_table_get_row(tc, index));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_population_table_add_row
+int rtsk_population_table_add_row(SEXP tc, Rcpp::Nullable<Rcpp::RawVector> metadata);
+RcppExport SEXP _RcppTskit_rtsk_population_table_add_row(SEXP tcSEXP, SEXP metadataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::RawVector> >::type metadata(metadataSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_population_table_add_row(tc, metadata));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_population_table_get_row
+Rcpp::List rtsk_population_table_get_row(SEXP tc, int index);
+RcppExport SEXP _RcppTskit_rtsk_population_table_get_row(SEXP tcSEXP, SEXP indexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< int >::type index(indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_population_table_get_row(tc, index));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_migration_table_add_row
+int rtsk_migration_table_add_row(SEXP tc, double left, double right, int node, int source, int dest, double time, Rcpp::Nullable<Rcpp::RawVector> metadata);
+RcppExport SEXP _RcppTskit_rtsk_migration_table_add_row(SEXP tcSEXP, SEXP leftSEXP, SEXP rightSEXP, SEXP nodeSEXP, SEXP sourceSEXP, SEXP destSEXP, SEXP timeSEXP, SEXP metadataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< double >::type left(leftSEXP);
+    Rcpp::traits::input_parameter< double >::type right(rightSEXP);
+    Rcpp::traits::input_parameter< int >::type node(nodeSEXP);
+    Rcpp::traits::input_parameter< int >::type source(sourceSEXP);
+    Rcpp::traits::input_parameter< int >::type dest(destSEXP);
+    Rcpp::traits::input_parameter< double >::type time(timeSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::RawVector> >::type metadata(metadataSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_migration_table_add_row(tc, left, right, node, source, dest, time, metadata));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_migration_table_get_row
+Rcpp::List rtsk_migration_table_get_row(SEXP tc, int index);
+RcppExport SEXP _RcppTskit_rtsk_migration_table_get_row(SEXP tcSEXP, SEXP indexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< int >::type index(indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_migration_table_get_row(tc, index));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_provenance_table_add_row
+int rtsk_provenance_table_add_row(SEXP tc, const std::string& timestamp, const std::string& record);
+RcppExport SEXP _RcppTskit_rtsk_provenance_table_add_row(SEXP tcSEXP, SEXP timestampSEXP, SEXP recordSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type timestamp(timestampSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type record(recordSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_provenance_table_add_row(tc, timestamp, record));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rtsk_provenance_table_get_row
+Rcpp::List rtsk_provenance_table_get_row(SEXP tc, int index);
+RcppExport SEXP _RcppTskit_rtsk_provenance_table_get_row(SEXP tcSEXP, SEXP indexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    Rcpp::traits::input_parameter< int >::type index(indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtsk_provenance_table_get_row(tc, index));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -740,12 +974,48 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// test_rtsk_population_table_add_row_forced_error
+void test_rtsk_population_table_add_row_forced_error(SEXP tc);
+RcppExport SEXP _RcppTskit_test_rtsk_population_table_add_row_forced_error(SEXP tcSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    test_rtsk_population_table_add_row_forced_error(tc);
+    return R_NilValue;
+END_RCPP
+}
+// test_rtsk_migration_table_add_row_forced_error
+void test_rtsk_migration_table_add_row_forced_error(SEXP tc);
+RcppExport SEXP _RcppTskit_test_rtsk_migration_table_add_row_forced_error(SEXP tcSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    test_rtsk_migration_table_add_row_forced_error(tc);
+    return R_NilValue;
+END_RCPP
+}
+// test_rtsk_provenance_table_add_row_forced_error
+void test_rtsk_provenance_table_add_row_forced_error(SEXP tc);
+RcppExport SEXP _RcppTskit_test_rtsk_provenance_table_add_row_forced_error(SEXP tcSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type tc(tcSEXP);
+    test_rtsk_provenance_table_add_row_forced_error(tc);
+    return R_NilValue;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_RcppTskit_rtsk_variant_iterator_init", (DL_FUNC) &_RcppTskit_rtsk_variant_iterator_init, 6},
+    {"_RcppTskit_rtsk_variant_iterator_next", (DL_FUNC) &_RcppTskit_rtsk_variant_iterator_next, 1},
+    {"_RcppTskit_test_rtsk_variant_iterator_force_null_first_allele", (DL_FUNC) &_RcppTskit_test_rtsk_variant_iterator_force_null_first_allele, 1},
+    {"_RcppTskit_test_rtsk_variant_iterator_set_site_bounds", (DL_FUNC) &_RcppTskit_test_rtsk_variant_iterator_set_site_bounds, 3},
+    {"_RcppTskit_test_variant_site_index_range", (DL_FUNC) &_RcppTskit_test_variant_site_index_range, 2},
     {"_RcppTskit_test_validate_options", (DL_FUNC) &_RcppTskit_test_validate_options, 2},
     {"_RcppTskit_test_rtsk_wrap_tsk_size_t_as_integer64", (DL_FUNC) &_RcppTskit_test_rtsk_wrap_tsk_size_t_as_integer64, 2},
     {"_RcppTskit_kastore_version", (DL_FUNC) &_RcppTskit_kastore_version, 0},
     {"_RcppTskit_tskit_version", (DL_FUNC) &_RcppTskit_tskit_version, 0},
+    {"_RcppTskit_rtsk_const_tsk_no_check_integrity", (DL_FUNC) &_RcppTskit_rtsk_const_tsk_no_check_integrity, 0},
     {"_RcppTskit_rtsk_treeseq_load", (DL_FUNC) &_RcppTskit_rtsk_treeseq_load, 2},
     {"_RcppTskit_rtsk_table_collection_load", (DL_FUNC) &_RcppTskit_rtsk_table_collection_load, 2},
     {"_RcppTskit_rtsk_treeseq_dump", (DL_FUNC) &_RcppTskit_rtsk_treeseq_dump, 3},
@@ -757,6 +1027,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_rtsk_treeseq_get_num_migrations", (DL_FUNC) &_RcppTskit_rtsk_treeseq_get_num_migrations, 1},
     {"_RcppTskit_rtsk_treeseq_get_num_individuals", (DL_FUNC) &_RcppTskit_rtsk_treeseq_get_num_individuals, 1},
     {"_RcppTskit_rtsk_treeseq_get_num_samples", (DL_FUNC) &_RcppTskit_rtsk_treeseq_get_num_samples, 1},
+    {"_RcppTskit_rtsk_treeseq_get_samples", (DL_FUNC) &_RcppTskit_rtsk_treeseq_get_samples, 1},
     {"_RcppTskit_rtsk_treeseq_get_num_nodes", (DL_FUNC) &_RcppTskit_rtsk_treeseq_get_num_nodes, 1},
     {"_RcppTskit_rtsk_treeseq_get_num_edges", (DL_FUNC) &_RcppTskit_rtsk_treeseq_get_num_edges, 1},
     {"_RcppTskit_rtsk_treeseq_get_num_trees", (DL_FUNC) &_RcppTskit_rtsk_treeseq_get_num_trees, 1},
@@ -787,13 +1058,25 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_rtsk_table_collection_has_index", (DL_FUNC) &_RcppTskit_rtsk_table_collection_has_index, 2},
     {"_RcppTskit_rtsk_table_collection_build_index", (DL_FUNC) &_RcppTskit_rtsk_table_collection_build_index, 2},
     {"_RcppTskit_rtsk_table_collection_drop_index", (DL_FUNC) &_RcppTskit_rtsk_table_collection_drop_index, 2},
+    {"_RcppTskit_rtsk_table_collection_sort", (DL_FUNC) &_RcppTskit_rtsk_table_collection_sort, 5},
     {"_RcppTskit_rtsk_table_collection_summary", (DL_FUNC) &_RcppTskit_rtsk_table_collection_summary, 1},
     {"_RcppTskit_rtsk_table_collection_metadata_length", (DL_FUNC) &_RcppTskit_rtsk_table_collection_metadata_length, 1},
     {"_RcppTskit_rtsk_individual_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_individual_table_add_row, 5},
+    {"_RcppTskit_rtsk_individual_table_get_row", (DL_FUNC) &_RcppTskit_rtsk_individual_table_get_row, 2},
     {"_RcppTskit_rtsk_node_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_node_table_add_row, 6},
+    {"_RcppTskit_rtsk_node_table_get_row", (DL_FUNC) &_RcppTskit_rtsk_node_table_get_row, 2},
     {"_RcppTskit_rtsk_edge_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_edge_table_add_row, 6},
+    {"_RcppTskit_rtsk_edge_table_get_row", (DL_FUNC) &_RcppTskit_rtsk_edge_table_get_row, 2},
     {"_RcppTskit_rtsk_site_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_site_table_add_row, 4},
+    {"_RcppTskit_rtsk_site_table_get_row", (DL_FUNC) &_RcppTskit_rtsk_site_table_get_row, 2},
     {"_RcppTskit_rtsk_mutation_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_mutation_table_add_row, 7},
+    {"_RcppTskit_rtsk_mutation_table_get_row", (DL_FUNC) &_RcppTskit_rtsk_mutation_table_get_row, 2},
+    {"_RcppTskit_rtsk_population_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_population_table_add_row, 2},
+    {"_RcppTskit_rtsk_population_table_get_row", (DL_FUNC) &_RcppTskit_rtsk_population_table_get_row, 2},
+    {"_RcppTskit_rtsk_migration_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_migration_table_add_row, 8},
+    {"_RcppTskit_rtsk_migration_table_get_row", (DL_FUNC) &_RcppTskit_rtsk_migration_table_get_row, 2},
+    {"_RcppTskit_rtsk_provenance_table_add_row", (DL_FUNC) &_RcppTskit_rtsk_provenance_table_add_row, 3},
+    {"_RcppTskit_rtsk_provenance_table_get_row", (DL_FUNC) &_RcppTskit_rtsk_provenance_table_get_row, 2},
     {"_RcppTskit_test_tsk_bug_assert_c", (DL_FUNC) &_RcppTskit_test_tsk_bug_assert_c, 0},
     {"_RcppTskit_test_tsk_bug_assert_cpp", (DL_FUNC) &_RcppTskit_test_tsk_bug_assert_cpp, 0},
     {"_RcppTskit_test_tsk_trace_error_c", (DL_FUNC) &_RcppTskit_test_tsk_trace_error_c, 0},
@@ -807,6 +1090,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RcppTskit_test_rtsk_edge_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_edge_table_add_row_forced_error, 1},
     {"_RcppTskit_test_rtsk_site_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_site_table_add_row_forced_error, 1},
     {"_RcppTskit_test_rtsk_mutation_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_mutation_table_add_row_forced_error, 1},
+    {"_RcppTskit_test_rtsk_population_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_population_table_add_row_forced_error, 1},
+    {"_RcppTskit_test_rtsk_migration_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_migration_table_add_row_forced_error, 1},
+    {"_RcppTskit_test_rtsk_provenance_table_add_row_forced_error", (DL_FUNC) &_RcppTskit_test_rtsk_provenance_table_add_row_forced_error, 1},
     {NULL, NULL, 0}
 };
 

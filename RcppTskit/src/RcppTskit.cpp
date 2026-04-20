@@ -4,10 +4,12 @@
 // they are synced!
 #define RCPPTSKIT_IMPL
 #include <RcppTskit.hpp>
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <exception>
 #include <limits>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -21,6 +23,8 @@ constexpr tsk_flags_t kCopyTablesSupportedFlags = TSK_COPY_FILE_UUID;
 
 constexpr tsk_flags_t kTreeseqInitSupportedFlags =
     TSK_TS_INIT_BUILD_INDEXES | TSK_TS_INIT_COMPUTE_MUTATION_PARENTS;
+
+constexpr tsk_flags_t kTableSortSupportedFlags = TSK_NO_CHECK_INTEGRITY;
 
 // INTERNAL
 // @title Validate load options
@@ -138,8 +142,67 @@ tsk_flags_t validate_options(int options, tsk_flags_t supported,
   return flags;
 }
 
+tsk_flags_t validate_supported_options(int options, tsk_flags_t supported,
+                                       const char *caller) {
+  if (options < 0) {
+    Rcpp::stop("%s does not support negative options", caller);
+  }
+  const tsk_flags_t flags = static_cast<tsk_flags_t>(options);
+  const tsk_flags_t unsupported = flags & ~supported;
+  if (unsupported != 0) {
+    Rcpp::stop("%s only supports options 0x%X; unsupported bits: 0x%X", caller,
+               static_cast<unsigned int>(supported),
+               static_cast<unsigned int>(unsupported));
+  }
+  return flags;
+}
+
 constexpr tsk_size_t kMaxBit64Integer64 =
     static_cast<tsk_size_t>(std::numeric_limits<int64_t>::max());
+
+// R integer storage is C int. Fail at compile time if tsk_id_t changes width
+// or signedness (for example under _TSK_BIG_TABLES) before the wrapper API is
+// extended to integer64.
+static_assert(std::numeric_limits<tsk_id_t>::is_signed &&
+                  std::numeric_limits<int>::is_signed &&
+                  sizeof(tsk_id_t) == sizeof(int) &&
+                  std::numeric_limits<tsk_id_t>::min() ==
+                      std::numeric_limits<int>::min() &&
+                  std::numeric_limits<tsk_id_t>::max() ==
+                      std::numeric_limits<int>::max(),
+              "RcppTskit currently requires tsk_id_t to match R integer "
+              "storage. Builds with widened tsk_id_t (for example "
+              "_TSK_BIG_TABLES) need an integer64-based wrapper before they "
+              "are supported.");
+
+struct rtsk_variant_iterator_state_t {
+  rtsk_treeseq_t ts_xptr;
+  SEXP ts_sexp = R_NilValue;
+  tsk_variant_t variant = {};
+  bool variant_initialized = false;
+  tsk_id_t next_site_id = 0;
+  tsk_id_t stop_site_id = 0;
+
+  explicit rtsk_variant_iterator_state_t(SEXP ts) : ts_xptr(ts) {}
+};
+
+static void rtsk_variant_iterator_free(rtsk_variant_iterator_state_t *ptr) {
+  if (ptr != NULL) {
+    if (ptr->variant_initialized) {
+      tsk_variant_free(&ptr->variant);
+    }
+    if (ptr->ts_sexp != R_NilValue) {
+      R_ReleaseObject(ptr->ts_sexp);
+    }
+    delete ptr;
+  }
+}
+
+using rtsk_variant_iterator_t =
+    Rcpp::XPtr<rtsk_variant_iterator_state_t, Rcpp::PreserveStorage,
+               rtsk_variant_iterator_free, true>;
+
+bool g_test_force_null_first_allele = false;
 
 // INTERNAL
 // @title Convert \code{Rcpp::Nullable} vector to empty-or-value vector
@@ -169,6 +232,50 @@ int_vector_to_tsk_id_vector(const Rcpp::IntegerVector &ids) {
   return out;
 }
 
+void validate_variant_site_index_range(tsk_size_t start, tsk_size_t stop);
+
+std::pair<tsk_id_t, tsk_id_t>
+compute_variant_iteration_bounds(rtsk_treeseq_t &ts_xptr, double left,
+                                 double right) {
+  if (!std::isfinite(left) || !std::isfinite(right)) {
+    Rcpp::stop("left and right must be finite numbers");
+  }
+  if (left < 0 || right < 0) {
+    Rcpp::stop("left and right must be >= 0");
+  }
+
+  const double sequence_length = tsk_treeseq_get_sequence_length(ts_xptr);
+  if (left > sequence_length || right > sequence_length) {
+    Rcpp::stop("left and right must be <= sequence length (%f)",
+               sequence_length);
+  }
+  if (left > right) {
+    Rcpp::stop("left must be <= right");
+  }
+
+  const tsk_size_t num_sites = tsk_treeseq_get_num_sites(ts_xptr);
+  const tsk_site_table_t *sites = &ts_xptr->tables->sites;
+  const double *begin = sites->position;
+  const double *end = begin + num_sites;
+
+  const tsk_size_t start =
+      static_cast<tsk_size_t>(std::lower_bound(begin, end, left) - begin);
+  const tsk_size_t stop =
+      static_cast<tsk_size_t>(std::lower_bound(begin, end, right) - begin);
+  validate_variant_site_index_range(start, stop);
+
+  return std::make_pair(static_cast<tsk_id_t>(start),
+                        static_cast<tsk_id_t>(stop));
+}
+
+void validate_variant_site_index_range(tsk_size_t start, tsk_size_t stop) {
+  const tsk_size_t max_id =
+      static_cast<tsk_size_t>(std::numeric_limits<tsk_id_t>::max());
+  if (start > max_id || stop > max_id) {
+    Rcpp::stop("Site index exceeds tsk_id_t range");
+  }
+}
+
 // INTERNAL
 // @title Wrap \code{C tsk_size_t / uint64_t} to \code{R bit64::integer64}
 // @param value \code{C tsk_size_t / uint64_t} value
@@ -181,8 +288,7 @@ int_vector_to_tsk_id_vector(const Rcpp::IntegerVector &ids) {
 //   a signed 64 bit integer with range from -2^63 to 2^63 - 1
 //   (that is, -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807)
 // @return \code{R bit64::integer64} object.
-SEXP rtsk_wrap_tsk_size_t_as_integer64(const tsk_size_t value,
-                                       const char *caller) {
+SEXP rtsk_wrap_tsk_size_t_as_integer64(tsk_size_t value, const char *caller) {
   const std::string value_str =
       std::to_string(static_cast<unsigned long long>(value));
   if (value > kMaxBit64Integer64) {
@@ -198,6 +304,144 @@ SEXP rtsk_wrap_tsk_size_t_as_integer64(const tsk_size_t value,
 }
 
 } // namespace
+
+// PUBLIC, low-level iterator init for tsk_variant_t decode
+// [[Rcpp::export]]
+SEXP rtsk_variant_iterator_init(
+    SEXP ts, Rcpp::Nullable<Rcpp::IntegerVector> samples = R_NilValue,
+    bool isolated_as_missing = true,
+    Rcpp::Nullable<Rcpp::CharacterVector> alleles = R_NilValue,
+    double left = 0.0, double right = NA_REAL) {
+  std::unique_ptr<rtsk_variant_iterator_state_t> state_ptr(
+      new rtsk_variant_iterator_state_t(ts));
+
+  const tsk_flags_t options =
+      isolated_as_missing ? 0 : TSK_ISOLATED_NOT_MISSING;
+
+  const Rcpp::IntegerVector samples_int =
+      nullable_to_vector_or_empty<Rcpp::IntegerVector>(samples);
+  const std::vector<tsk_id_t> samples_vec =
+      int_vector_to_tsk_id_vector(samples_int);
+  const tsk_id_t *samples_ptr =
+      samples_vec.empty() ? nullptr : samples_vec.data();
+  const tsk_size_t num_samples = static_cast<tsk_size_t>(samples_vec.size());
+
+  const Rcpp::CharacterVector alleles_chr =
+      nullable_to_vector_or_empty<Rcpp::CharacterVector>(alleles);
+  std::vector<std::string> allele_storage;
+  std::vector<const char *> allele_ptrs;
+  const char **alleles_ptr = nullptr;
+  if (alleles_chr.size() > 0) {
+    allele_storage.reserve(alleles_chr.size());
+    for (const SEXP allele : alleles_chr) {
+      if (allele == NA_STRING) {
+        Rcpp::stop("alleles cannot contain NA");
+      }
+      allele_storage.push_back(Rcpp::as<std::string>(allele));
+    }
+    allele_ptrs.reserve(allele_storage.size() + 1);
+    for (const std::string &allele : allele_storage) {
+      allele_ptrs.push_back(allele.c_str());
+    }
+    allele_ptrs.push_back(nullptr);
+    alleles_ptr = allele_ptrs.data();
+  }
+
+  const double effective_right =
+      Rcpp::NumericVector::is_na(right)
+          ? tsk_treeseq_get_sequence_length(state_ptr->ts_xptr)
+          : right;
+  const auto bounds = compute_variant_iteration_bounds(state_ptr->ts_xptr, left,
+                                                       effective_right);
+  state_ptr->next_site_id = bounds.first;
+  state_ptr->stop_site_id = bounds.second;
+
+  int ret = tsk_variant_init(&state_ptr->variant, state_ptr->ts_xptr,
+                             samples_ptr, num_samples, alleles_ptr, options);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+  state_ptr->variant_initialized = true;
+  state_ptr->ts_sexp = ts;
+  R_PreserveObject(ts);
+
+  rtsk_variant_iterator_t iterator_xptr(state_ptr.release(), true);
+  return iterator_xptr;
+}
+
+// PUBLIC, low-level iterator next for tsk_variant_t decode
+// [[Rcpp::export]]
+SEXP rtsk_variant_iterator_next(SEXP iterator) {
+  rtsk_variant_iterator_t iterator_xptr(iterator);
+  if (iterator_xptr->next_site_id >= iterator_xptr->stop_site_id) {
+    return R_NilValue;
+  }
+
+  const tsk_id_t site_id = iterator_xptr->next_site_id;
+  iterator_xptr->next_site_id += 1;
+  int ret = tsk_variant_decode(&iterator_xptr->variant, site_id, 0);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  const tsk_variant_t &variant = iterator_xptr->variant;
+  if (g_test_force_null_first_allele && variant.num_alleles > 0) {
+    iterator_xptr->variant.alleles[0] = nullptr;
+    g_test_force_null_first_allele = false;
+  }
+
+  Rcpp::IntegerVector genotypes(variant.num_samples);
+  for (tsk_size_t j = 0; j < variant.num_samples; ++j) {
+    genotypes[j] = variant.genotypes[j];
+  }
+
+  Rcpp::CharacterVector out_alleles(variant.num_alleles);
+  for (tsk_size_t j = 0; j < variant.num_alleles; ++j) {
+    if (variant.alleles[j] == nullptr) {
+      out_alleles[j] = NA_STRING;
+      continue;
+    }
+    out_alleles[j] = std::string(variant.alleles[j], variant.allele_lengths[j]);
+  }
+
+  return Rcpp::List::create(
+      Rcpp::_["site_id"] = variant.site.id,
+      Rcpp::_["position"] = variant.site.position,
+      Rcpp::_["genotypes"] = genotypes, Rcpp::_["alleles"] = out_alleles,
+      Rcpp::_["has_missing_data"] = variant.has_missing_data);
+}
+
+// TEST-ONLY
+// [[Rcpp::export]]
+void test_rtsk_variant_iterator_force_null_first_allele(bool enabled) {
+  g_test_force_null_first_allele = enabled;
+}
+
+// TEST-ONLY
+// [[Rcpp::export]]
+void test_rtsk_variant_iterator_set_site_bounds(SEXP iterator, int next_site_id,
+                                                int stop_site_id) {
+  rtsk_variant_iterator_t iterator_xptr(iterator);
+  iterator_xptr->next_site_id = static_cast<tsk_id_t>(next_site_id);
+  iterator_xptr->stop_site_id = static_cast<tsk_id_t>(stop_site_id);
+}
+
+// TEST-ONLY
+// [[Rcpp::export]]
+void test_variant_site_index_range(const std::string &start,
+                                   const std::string &stop) {
+  unsigned long long start_parsed = 0;
+  unsigned long long stop_parsed = 0;
+  try {
+    start_parsed = std::stoull(start);
+    stop_parsed = std::stoull(stop);
+  } catch (const std::exception &) {
+    Rcpp::stop("start and stop must be valid base-10 unsigned integer strings");
+  }
+  const tsk_size_t start_size = static_cast<tsk_size_t>(start_parsed);
+  const tsk_size_t stop_size = static_cast<tsk_size_t>(stop_parsed);
+  validate_variant_site_index_range(start_size, stop_size);
+}
 
 // TEST-ONLY
 // @title Test helper for validating tskit flags
@@ -267,6 +511,14 @@ Rcpp::IntegerVector tskit_version() {
   return Rcpp::IntegerVector::create(Rcpp::_["major"] = TSK_VERSION_MAJOR,
                                      Rcpp::_["minor"] = TSK_VERSION_MINOR,
                                      Rcpp::_["patch"] = TSK_VERSION_PATCH);
+}
+
+// PUBLIC
+// @title Return the tskit C option value for \code{TSK_NO_CHECK_INTEGRITY}
+// @return Integer constant value of \code{TSK_NO_CHECK_INTEGRITY}.
+// [[Rcpp::export]]
+int rtsk_const_tsk_no_check_integrity() {
+  return static_cast<int>(TSK_NO_CHECK_INTEGRITY);
 }
 
 // PUBLIC, wrapper for tsk_treeseq_load
@@ -567,13 +819,24 @@ SEXP rtsk_treeseq_get_num_individuals(SEXP ts) {
 
 // PUBLIC, wrapper for tsk_treeseq_get_num_samples
 // @describeIn rtsk_treeseq_summary Get the number of samples (of nodes) in a
-// tree
-//   sequence
+//   tree sequence
 // [[Rcpp::export]]
 SEXP rtsk_treeseq_get_num_samples(SEXP ts) {
   rtsk_treeseq_t ts_xptr(ts);
   return rtsk_wrap_tsk_size_t_as_integer64(tsk_treeseq_get_num_samples(ts_xptr),
                                            "rtsk_treeseq_get_num_samples");
+}
+
+// PUBLIC, wrapper for tsk_treeseq_get_samples
+// @describeIn rtsk_treeseq_summary Get sample node IDs.
+// [[Rcpp::export]]
+Rcpp::IntegerVector rtsk_treeseq_get_samples(SEXP ts) {
+  rtsk_treeseq_t ts_xptr(ts);
+  const tsk_id_t *samples = tsk_treeseq_get_samples(ts_xptr);
+  const tsk_size_t num_samples = tsk_treeseq_get_num_samples(ts_xptr);
+  Rcpp::IntegerVector out(num_samples);
+  std::copy_n(samples, num_samples, out.begin());
+  return out;
 }
 
 // PUBLIC, wrapper for tsk_treeseq_get_num_nodes
@@ -1102,8 +1365,61 @@ void rtsk_table_collection_drop_index(SEXP tc, int options = 0) {
   // # nocov end
 }
 
-// TODO: Do we have to add TableCollection$sort() method? #99
-//       https://github.com/HighlanderLab/RcppTskit/issues/99
+// PUBLIC, wrapper for tsk_table_collection_sort
+// @title Sort a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param edge_start integer scalar edge-table start row index (0-based) used in
+//   sorting bookmark.
+// @param site_start integer scalar site-table start row index (0-based) used in
+//   sorting bookmark.
+// @param mutation_start integer scalar mutation-table start row index (0-based)
+//   used in sorting bookmark.
+// @param options passed to \code{tskit C}; this wrapper supports
+//   \code{TSK_NO_CHECK_INTEGRITY}.
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_table_collection_sort}.
+// @return No return value; called for side effects.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_table_collection_sort(tc_xptr)
+// [[Rcpp::export]]
+void rtsk_table_collection_sort(SEXP tc, int edge_start = 0, int site_start = 0,
+                                int mutation_start = 0, int options = 0) {
+  if (Rcpp::IntegerVector::is_na(edge_start)) {
+    Rcpp::stop(
+        "edge_start must not be NA_integer_ in rtsk_table_collection_sort");
+  }
+  if (edge_start < 0) {
+    Rcpp::stop("edge_start must be >= 0 in rtsk_table_collection_sort");
+  }
+  if (Rcpp::IntegerVector::is_na(site_start)) {
+    Rcpp::stop(
+        "site_start must not be NA_integer_ in rtsk_table_collection_sort");
+  }
+  if (site_start < 0) {
+    Rcpp::stop("site_start must be >= 0 in rtsk_table_collection_sort");
+  }
+  if (Rcpp::IntegerVector::is_na(mutation_start)) {
+    Rcpp::stop(
+        "mutation_start must not be NA_integer_ in rtsk_table_collection_sort");
+  }
+  if (mutation_start < 0) {
+    Rcpp::stop("mutation_start must be >= 0 in rtsk_table_collection_sort");
+  }
+  const tsk_flags_t flags = validate_supported_options(
+      options, kTableSortSupportedFlags, "rtsk_table_collection_sort");
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_bookmark_t start = {0};
+  start.edges = static_cast<tsk_size_t>(edge_start);
+  start.sites = static_cast<tsk_size_t>(site_start);
+  start.mutations = static_cast<tsk_size_t>(mutation_start);
+  int ret = tsk_table_collection_sort(tc_xptr, &start, flags);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+}
 
 // TODO: Do we need any other method on table collection to produce a valid
 //       ts? #100
@@ -1245,7 +1561,8 @@ Rcpp::List rtsk_table_collection_metadata_length(SEXP tc) {
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_individual_table_add_row}
 //   on the individuals table of \code{tc}.
-// @return The row ID (0-based) of the newly added individual.
+// @return An integer row index and hence ID (0-based) of the newly added
+// individual.
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
@@ -1332,22 +1649,68 @@ int rtsk_individual_table_add_row(
   return static_cast<int>(row_id);
 }
 
+// PUBLIC, wrapper for tsk_individual_table_get_row
+// @title Get a row from the individual table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param index integer scalar individual ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_individual_table_get_row}
+//   on the individuals table of \code{tc}.
+// @return A named list with fields \code{id}, \code{flags}, \code{location},
+//   \code{parents}, and \code{metadata}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_individual_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_individual_table_get_row(SEXP tc, int index) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_individual_t row;
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret =
+      tsk_individual_table_get_row(&tc_xptr->individuals, index_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::NumericVector location(row.location_length);
+  for (tsk_size_t j = 0; j < row.location_length; ++j) {
+    location[j] = row.location[j];
+  }
+
+  Rcpp::IntegerVector parents(row.parents_length);
+  for (tsk_size_t j = 0; j < row.parents_length; ++j) {
+    parents[j] = static_cast<int>(row.parents[j]);
+  }
+
+  Rcpp::RawVector metadata(row.metadata_length);
+  for (tsk_size_t j = 0; j < row.metadata_length; ++j) {
+    metadata[j] = static_cast<Rbyte>(row.metadata[j]);
+  }
+
+  return Rcpp::List::create(
+      Rcpp::_["id"] = index, Rcpp::_["flags"] = static_cast<int>(row.flags),
+      Rcpp::_["location"] = location, Rcpp::_["parents"] = parents,
+      Rcpp::_["metadata"] = metadata);
+}
+
 // PUBLIC, wrapper for tsk_node_table_add_row
 // @title Add a row to the node table in a table collection
 // @param tc an external pointer to table collection as a
 //   \code{tsk_table_collection_t} object.
 // @param flags passed to \code{tskit C}.
 // @param time numeric time value for the new node.
-// @param population integer population row ID (0-based);
+// @param population integer population ID (0-based);
 //   use \code{-1} when unknown, which will map to \code{TSK_NULL}.
-// @param individual integer individual row ID (0-based);
+// @param individual integer individual ID (0-based);
 //   use \code{-1} when unknown, which will map to \code{TSK_NULL}.
 // @param metadata raw vector with metadata bytes
 //   (can be \code{NULL}).
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_node_table_add_row}
 //   on the nodes table of \code{tc}.
-// @return The row ID (0-based) of the newly added node.
+// @return An integer row index and hence ID (0-based) of the newly added node.
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
@@ -1416,20 +1779,60 @@ int rtsk_node_table_add_row(
   return static_cast<int>(row_id);
 }
 
+// PUBLIC, wrapper for tsk_node_table_get_row
+// @title Get a row from the node table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param index integer scalar node ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_node_table_get_row}
+//   on the nodes table of \code{tc}.
+// @return A named list with fields \code{id}, \code{flags}, \code{time},
+//   \code{population}, \code{individual}, and \code{metadata}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_node_table_get_row(tc_xptr, 0L)
+// last_node <-
+// as.integer(RcppTskit:::rtsk_table_collection_get_num_nodes(tc_xptr)) - 1L
+// RcppTskit:::rtsk_node_table_get_row(tc_xptr, last_node)
+// [[Rcpp::export]]
+Rcpp::List rtsk_node_table_get_row(SEXP tc, int index) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_node_t row;
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret = tsk_node_table_get_row(&tc_xptr->nodes, index_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::RawVector metadata(row.metadata_length);
+  for (tsk_size_t j = 0; j < row.metadata_length; ++j) {
+    metadata[j] = static_cast<Rbyte>(row.metadata[j]);
+  }
+
+  return Rcpp::List::create(
+      Rcpp::_["id"] = index, Rcpp::_["flags"] = static_cast<int>(row.flags),
+      Rcpp::_["time"] = row.time,
+      Rcpp::_["population"] = static_cast<int>(row.population),
+      Rcpp::_["individual"] = static_cast<int>(row.individual),
+      Rcpp::_["metadata"] = metadata);
+}
+
 // PUBLIC, wrapper for tsk_edge_table_add_row
 // @title Add a row to the edge table in a table collection
 // @param tc an external pointer to table collection as a
 //   \code{tsk_table_collection_t} object.
 // @param left numeric scalar left coordinate for the new edge.
 // @param right numeric scalar right coordinate for the new edge.
-// @param parent integer parent node row ID (0-based).
-// @param child integer child node row ID (0-based).
+// @param parent integer parent node ID (0-based).
+// @param child integer child node ID (0-based).
 // @param metadata raw vector with metadata bytes
 //   (can be \code{NULL}).
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_edge_table_add_row}
 //   on the edges table of \code{tc}.
-// @return The row ID (0-based) of the newly added edge.
+// @return An integer row index and hence ID (0-based) of the newly added edge.
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
@@ -1490,6 +1893,42 @@ int rtsk_edge_table_add_row(
   return static_cast<int>(row_id);
 }
 
+// PUBLIC, wrapper for tsk_edge_table_get_row
+// @title Get a row from the edge table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param index integer scalar edge ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_edge_table_get_row}
+//   on the edges table of \code{tc}.
+// @return A named list with fields \code{id}, \code{left}, \code{right},
+//   \code{parent}, \code{child}, and \code{metadata}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_edge_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_edge_table_get_row(SEXP tc, int index) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_edge_t row;
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret = tsk_edge_table_get_row(&tc_xptr->edges, index_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::RawVector metadata(row.metadata_length);
+  for (tsk_size_t j = 0; j < row.metadata_length; ++j) {
+    metadata[j] = static_cast<Rbyte>(row.metadata[j]);
+  }
+
+  return Rcpp::List::create(Rcpp::_["id"] = index, Rcpp::_["left"] = row.left,
+                            Rcpp::_["right"] = row.right,
+                            Rcpp::_["parent"] = static_cast<int>(row.parent),
+                            Rcpp::_["child"] = static_cast<int>(row.child),
+                            Rcpp::_["metadata"] = metadata);
+}
+
 // PUBLIC, wrapper for tsk_site_table_add_row
 // @title Add a row to the site table in a table collection
 // @param tc an external pointer to table collection as a
@@ -1501,7 +1940,7 @@ int rtsk_edge_table_add_row(
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_site_table_add_row}
 //   on the sites table of \code{tc}.
-// @return The row ID (0-based) of the newly added site.
+// @return An integer row index and hence ID (0-based) of the newly added site.
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
@@ -1567,13 +2006,53 @@ int rtsk_site_table_add_row(
   return static_cast<int>(row_id);
 }
 
+// PUBLIC, wrapper for tsk_site_table_get_row
+// @title Get a row from the site table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param index integer scalar site ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_site_table_get_row}
+//   on the sites table of \code{tc}.
+// @return A named list with fields \code{id}, \code{position},
+//   \code{ancestral_state}, and \code{metadata}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_site_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_site_table_get_row(SEXP tc, int index) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_site_t row;
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret = tsk_site_table_get_row(&tc_xptr->sites, index_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::String ancestral_state =
+      row.ancestral_state_length > 0
+          ? Rcpp::String(
+                std::string(row.ancestral_state, row.ancestral_state_length))
+          : Rcpp::String("");
+  Rcpp::RawVector metadata(row.metadata_length);
+  for (tsk_size_t j = 0; j < row.metadata_length; ++j) {
+    metadata[j] = static_cast<Rbyte>(row.metadata[j]);
+  }
+
+  return Rcpp::List::create(Rcpp::_["id"] = index,
+                            Rcpp::_["position"] = row.position,
+                            Rcpp::_["ancestral_state"] = ancestral_state,
+                            Rcpp::_["metadata"] = metadata);
+}
+
 // PUBLIC, wrapper for tsk_mutation_table_add_row
 // @title Add a row to the mutation table in a table collection
 // @param tc an external pointer to table collection as a
 //   \code{tsk_table_collection_t} object.
-// @param site integer site row ID (0-based).
-// @param node integer node row ID (0-based).
-// @param parent integer parent mutation row ID (0-based);
+// @param site integer site ID (0-based).
+// @param node integer node ID (0-based).
+// @param parent integer parent mutation ID (0-based);
 //   use \code{-1} when unknown, which will map to \code{TSK_NULL}.
 // @param time numeric mutation time value;
 //   use \code{nan} when unknown, which will map to \code{TSK_UNKNOWN_TIME}.
@@ -1583,7 +2062,8 @@ int rtsk_site_table_add_row(
 // @details This function calls
 //   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_mutation_table_add_row}
 //   on the mutations table of \code{tc}.
-// @return The row ID (0-based) of the newly added mutation.
+// @return An integer row index and hence ID (0-based) of the newly added
+//   mutation.
 // @examples
 // ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 // tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
@@ -1657,4 +2137,307 @@ int rtsk_mutation_table_add_row(
     Rcpp::stop(tsk_strerror(row_id));
   }
   return static_cast<int>(row_id);
+}
+
+// PUBLIC, wrapper for tsk_mutation_table_get_row
+// @title Get a row from the mutation table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param index integer scalar mutation ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_mutation_table_get_row}
+//   on the mutations table of \code{tc}.
+// @return A named list with fields \code{id}, \code{site}, \code{node},
+//   \code{parent}, \code{time}, \code{derived_state}, and \code{metadata}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_mutation_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_mutation_table_get_row(SEXP tc, int index) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_mutation_t row;
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret = tsk_mutation_table_get_row(&tc_xptr->mutations, index_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::String derived_state =
+      row.derived_state_length > 0
+          ? Rcpp::String(
+                std::string(row.derived_state, row.derived_state_length))
+          : Rcpp::String("");
+  Rcpp::RawVector metadata(row.metadata_length);
+  for (tsk_size_t j = 0; j < row.metadata_length; ++j) {
+    metadata[j] = static_cast<Rbyte>(row.metadata[j]);
+  }
+
+  return Rcpp::List::create(
+      Rcpp::_["id"] = index, Rcpp::_["site"] = static_cast<int>(row.site),
+      Rcpp::_["node"] = static_cast<int>(row.node),
+      Rcpp::_["parent"] = static_cast<int>(row.parent),
+      Rcpp::_["time"] = row.time, Rcpp::_["derived_state"] = derived_state,
+      Rcpp::_["metadata"] = metadata);
+}
+
+// PUBLIC, wrapper for tsk_population_table_add_row
+// @title Add a row to the population table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param metadata raw vector with metadata bytes
+//   (can be \code{NULL}).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_population_table_add_row}
+//   on the populations table of \code{tc}.
+// @return An integer row index and hence ID (0-based) of the newly added
+//   population.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// (n_before <- RcppTskit:::rtsk_table_collection_get_num_populations(tc_xptr))
+// (m_before <-
+// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)$populations)
+// new_id <- RcppTskit:::rtsk_population_table_add_row(tc = tc_xptr)
+// new_id <- RcppTskit:::rtsk_population_table_add_row(
+//   tc = tc_xptr, metadata = charToRaw("abc")
+// )
+// (n_after <- RcppTskit:::rtsk_table_collection_get_num_populations(tc_xptr))
+// (m_after <-
+// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)$populations)
+// new_id == n_after - 1L
+// n_after == n_before + 2L
+// m_after == m_before + 3L
+// [[Rcpp::export]]
+int rtsk_population_table_add_row(
+    SEXP tc, Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue) {
+  rtsk_table_collection_t tc_xptr(tc);
+
+  const Rcpp::RawVector metadata_vec =
+      nullable_to_vector_or_empty<Rcpp::RawVector>(metadata);
+  const tsk_size_t metadata_length =
+      static_cast<tsk_size_t>(metadata_vec.size());
+  const char *metadata_ptr =
+      metadata_length > 0 ? reinterpret_cast<const char *>(RAW(metadata_vec))
+                          : nullptr;
+
+  const tsk_id_t row_id = tsk_population_table_add_row(
+      &tc_xptr->populations, metadata_ptr, metadata_length);
+  if (row_id < 0) {
+    Rcpp::stop(tsk_strerror(row_id));
+  }
+  return static_cast<int>(row_id);
+}
+
+// PUBLIC, wrapper for tsk_population_table_get_row
+// @title Get a row from the population table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param index integer scalar population ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_population_table_get_row}
+//   on the populations table of \code{tc}.
+// @return A named list with fields \code{id} and \code{metadata}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_population_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_population_table_get_row(SEXP tc, int index) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_population_t row;
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret =
+      tsk_population_table_get_row(&tc_xptr->populations, index_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::RawVector metadata(row.metadata_length);
+  for (tsk_size_t j = 0; j < row.metadata_length; ++j) {
+    metadata[j] = static_cast<Rbyte>(row.metadata[j]);
+  }
+
+  return Rcpp::List::create(Rcpp::_["id"] = index,
+                            Rcpp::_["metadata"] = metadata);
+}
+
+// PUBLIC, wrapper for tsk_migration_table_add_row
+// @title Add a row to the migration table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param left numeric scalar left coordinate for the new migration.
+// @param right numeric scalar right coordinate for the new migration.
+// @param node integer node ID (0-based).
+// @param source integer source population ID (0-based).
+// @param dest integer destination population ID (0-based).
+// @param time numeric scalar time for the migration.
+// @param metadata raw vector with metadata bytes
+//   (can be \code{NULL}).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_migration_table_add_row}
+//   on the migrations table of \code{tc}.
+// @return An integer row index and hence ID (0-based) of the newly added
+//   migration.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// (n_before <- RcppTskit:::rtsk_table_collection_get_num_migrations(tc_xptr))
+// (m_before <-
+// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)$migrations) new_id
+// <- RcppTskit:::rtsk_migration_table_add_row(
+//   tc = tc_xptr, left = 0, right = 1, node = 0L, source = 0L, dest = 0L,
+//   time = 1.0
+// )
+// new_id <- RcppTskit:::rtsk_migration_table_add_row(
+//   tc = tc_xptr, left = 1, right = 2, node = 1L, source = 0L, dest = 0L,
+//   time = 2.0, metadata = charToRaw("abc")
+// )
+// (n_after <- RcppTskit:::rtsk_table_collection_get_num_migrations(tc_xptr))
+// (m_after <-
+// RcppTskit:::rtsk_table_collection_metadata_length(tc_xptr)$migrations) new_id
+// == n_after - 1L n_after == n_before + 2L m_after == m_before + 3L
+// [[Rcpp::export]]
+int rtsk_migration_table_add_row(
+    SEXP tc, double left, double right, int node, int source, int dest,
+    double time, Rcpp::Nullable<Rcpp::RawVector> metadata = R_NilValue) {
+  const tsk_id_t row_node = static_cast<tsk_id_t>(node);
+  const tsk_id_t row_source = static_cast<tsk_id_t>(source);
+  const tsk_id_t row_dest = static_cast<tsk_id_t>(dest);
+  rtsk_table_collection_t tc_xptr(tc);
+
+  const Rcpp::RawVector metadata_vec =
+      nullable_to_vector_or_empty<Rcpp::RawVector>(metadata);
+  const tsk_size_t metadata_length =
+      static_cast<tsk_size_t>(metadata_vec.size());
+  const char *metadata_ptr =
+      metadata_length > 0 ? reinterpret_cast<const char *>(RAW(metadata_vec))
+                          : nullptr;
+
+  const tsk_id_t row_id = tsk_migration_table_add_row(
+      &tc_xptr->migrations, left, right, row_node, row_source, row_dest, time,
+      metadata_ptr, metadata_length);
+  if (row_id < 0) {
+    Rcpp::stop(tsk_strerror(row_id));
+  }
+  return static_cast<int>(row_id);
+}
+
+// PUBLIC, wrapper for tsk_migration_table_get_row
+// @title Get a row from the migration table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param index integer scalar migration ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_migration_table_get_row}
+//   on the migrations table of \code{tc}.
+// @return A named list with fields \code{id}, \code{left}, \code{right},
+//   \code{node}, \code{source}, \code{dest}, \code{time}, and \code{metadata}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_migration_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_migration_table_get_row(SEXP tc, int index) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_migration_t row;
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret = tsk_migration_table_get_row(&tc_xptr->migrations, index_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::RawVector metadata(row.metadata_length);
+  for (tsk_size_t j = 0; j < row.metadata_length; ++j) {
+    metadata[j] = static_cast<Rbyte>(row.metadata[j]);
+  }
+
+  return Rcpp::List::create(Rcpp::_["id"] = index, Rcpp::_["left"] = row.left,
+                            Rcpp::_["right"] = row.right,
+                            Rcpp::_["node"] = static_cast<int>(row.node),
+                            Rcpp::_["source"] = static_cast<int>(row.source),
+                            Rcpp::_["dest"] = static_cast<int>(row.dest),
+                            Rcpp::_["time"] = row.time,
+                            Rcpp::_["metadata"] = metadata);
+}
+
+// PUBLIC, wrapper for tsk_provenance_table_add_row
+// @title Add a row to the provenance table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param timestamp character string timestamp for the new provenance.
+// @param record character string record for the new provenance.
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_provenance_table_add_row}
+//   on the provenances table of \code{tc}.
+// @return An integer row index and hence ID (0-based) of the newly added
+//   provenance.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// (n_before <- RcppTskit:::rtsk_table_collection_get_num_provenances(tc_xptr))
+// new_id <- RcppTskit:::rtsk_provenance_table_add_row(
+//   tc = tc_xptr,
+//   timestamp = "2025-01-01T00:00:00Z",
+//   record = "{\"software\":\"RcppTskit\"}"
+// )
+// (n_after <- RcppTskit:::rtsk_table_collection_get_num_provenances(tc_xptr))
+// new_id == n_after - 1L
+// n_after == n_before + 1L
+// [[Rcpp::export]]
+int rtsk_provenance_table_add_row(SEXP tc, const std::string &timestamp,
+                                  const std::string &record) {
+  rtsk_table_collection_t tc_xptr(tc);
+  const tsk_size_t timestamp_length = static_cast<tsk_size_t>(timestamp.size());
+  const char *timestamp_ptr =
+      timestamp_length > 0 ? timestamp.c_str() : nullptr;
+  const tsk_size_t record_length = static_cast<tsk_size_t>(record.size());
+  const char *record_ptr = record_length > 0 ? record.c_str() : nullptr;
+
+  const tsk_id_t row_id =
+      tsk_provenance_table_add_row(&tc_xptr->provenances, timestamp_ptr,
+                                   timestamp_length, record_ptr, record_length);
+  if (row_id < 0) {
+    Rcpp::stop(tsk_strerror(row_id));
+  }
+  return static_cast<int>(row_id);
+}
+
+// PUBLIC, wrapper for tsk_provenance_table_get_row
+// @title Get a row from the provenance table in a table collection
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @param index integer scalar provenance ID (0-based).
+// @details This function calls
+//   \url{https://tskit.dev/tskit/docs/stable/c-api.html#c.tsk_provenance_table_get_row}
+//   on the provenances table of \code{tc}.
+// @return A named list with fields \code{id}, \code{timestamp}, and
+//   \code{record}.
+// @examples
+// ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+// tc_xptr <- RcppTskit:::rtsk_table_collection_load(ts_file)
+// RcppTskit:::rtsk_provenance_table_get_row(tc_xptr, 0L)
+// [[Rcpp::export]]
+Rcpp::List rtsk_provenance_table_get_row(SEXP tc, int index) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_provenance_t row;
+  tsk_id_t index_tsk = static_cast<tsk_id_t>(index);
+  int ret =
+      tsk_provenance_table_get_row(&tc_xptr->provenances, index_tsk, &row);
+  if (ret != 0) {
+    Rcpp::stop(tsk_strerror(ret));
+  }
+
+  Rcpp::String timestamp =
+      row.timestamp_length > 0
+          ? Rcpp::String(std::string(row.timestamp, row.timestamp_length))
+          : Rcpp::String("");
+  Rcpp::String record =
+      row.record_length > 0
+          ? Rcpp::String(std::string(row.record, row.record_length))
+          : Rcpp::String("");
+
+  return Rcpp::List::create(Rcpp::_["id"] = index,
+                            Rcpp::_["timestamp"] = timestamp,
+                            Rcpp::_["record"] = record);
 }

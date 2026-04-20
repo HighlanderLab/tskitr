@@ -277,6 +277,83 @@ test_that("TableCollection index lifecycle and tree_sequence index handling work
   expect_true(tc$has_index())
 })
 
+test_that("table_collection_sort wrapper validates inputs and sorts in place", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+  tc <- TableCollection$new(xptr = tc_xptr)
+
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, edge_start = NA_integer_),
+    regexp = "edge_start must not be NA_integer_ in rtsk_table_collection_sort"
+  )
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, edge_start = -1L),
+    regexp = "edge_start must be >= 0 in rtsk_table_collection_sort"
+  )
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, site_start = NA_integer_),
+    regexp = "site_start must not be NA_integer_ in rtsk_table_collection_sort"
+  )
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, site_start = -1L),
+    regexp = "site_start must be >= 0 in rtsk_table_collection_sort"
+  )
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, mutation_start = NA_integer_),
+    regexp = "mutation_start must not be NA_integer_ in rtsk_table_collection_sort"
+  )
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, mutation_start = -1L),
+    regexp = "mutation_start must be >= 0 in rtsk_table_collection_sort"
+  )
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, options = bitwShiftL(1L, 4)),
+    regexp = "only supports options"
+  )
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, options = -1L),
+    regexp = "does not support negative options"
+  )
+  expect_error(
+    rtsk_table_collection_sort(tc_xptr, site_start = 1L),
+    regexp = "SORT_OFFSET_NOT_SUPPORTED|Sort offset"
+  )
+  expect_no_error(rtsk_table_collection_sort(tc_xptr))
+  expect_no_error(rtsk_table_collection_sort(tc_xptr, 0L, 0L, 0L))
+
+  expect_error(
+    tc$sort(edge_start = NA_integer_),
+    regexp = "edge_start must be a non-NA zero or positive integer scalar within 32-bit range!"
+  )
+  expect_error(
+    tc$sort(edge_start = -1L),
+    regexp = "edge_start must be a non-NA zero or positive integer scalar within 32-bit range!"
+  )
+  expect_error(
+    tc$sort(site_start = NA_integer_),
+    regexp = "site_start must be a non-NA zero or positive integer scalar within 32-bit range!"
+  )
+  expect_error(
+    tc$sort(mutation_start = NA_integer_),
+    regexp = "mutation_start must be a non-NA zero or positive integer scalar within 32-bit range!"
+  )
+  expect_error(
+    tc$sort(edge_start = 0.5),
+    regexp = "edge_start must be a non-NA zero or positive integer scalar within 32-bit range!"
+  )
+  expect_no_error(tc$sort())
+  expect_no_error(tc$sort(
+    edge_start = 0,
+    site_start = 0,
+    mutation_start = 0
+  ))
+  expect_no_error(tc$sort(
+    edge_start = 0L,
+    site_start = 0L,
+    mutation_start = 0L
+  ))
+})
+
 test_that("individual_table_add_row wrapper expands the table collection and handles inputs", {
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
   tc_xptr <- rtsk_table_collection_load(ts_file)
@@ -361,7 +438,15 @@ test_that("individual_table_add_row wrapper expands the table collection and han
       metadata = NULL
     )
   )
-  expect_equal(as.integer(tc$num_individuals()), n_before_method + 1L)
+  expect_no_error(
+    tc$individual_table_add_row(
+      flags = 0,
+      location = NULL,
+      parents = c(id1, id2),
+      metadata = NULL
+    )
+  )
+  expect_equal(as.integer(tc$num_individuals()), n_before_method + 2L)
 
   m_before_char <- as.integer(
     rtsk_table_collection_metadata_length(tc$xptr)$individuals
@@ -381,7 +466,7 @@ test_that("individual_table_add_row wrapper expands the table collection and han
   )
   expect_error(
     tc$individual_table_add_row(flags = -1L),
-    regexp = "flags must be a non-NA zero or positive integer scalar!"
+    regexp = "flags must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$individual_table_add_row(location = c(1, NA_real_)),
@@ -389,7 +474,11 @@ test_that("individual_table_add_row wrapper expands the table collection and han
   )
   expect_error(
     tc$individual_table_add_row(parents = c(NA_integer_)),
-    regexp = "parents must be NULL or an integer vector with no NA values!"
+    regexp = "parents must be NULL or an integer vector with no NA values within 32-bit range!"
+  )
+  expect_error(
+    tc$individual_table_add_row(parents = c(0.5, 1)),
+    regexp = "parents must be NULL or an integer vector with no NA values within 32-bit range!"
   )
   expect_error(
     test_rtsk_individual_table_add_row_forced_error(tc$xptr),
@@ -398,15 +487,15 @@ test_that("individual_table_add_row wrapper expands the table collection and han
 
   expect_error(
     tc$individual_table_add_row(metadata = c("a", "b")),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     tc$individual_table_add_row(metadata = NA_character_),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     tc$individual_table_add_row(metadata = 1L),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
 })
 
@@ -489,8 +578,18 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
     )
   )
   expect_equal(as.integer(tc$num_nodes()), n_before_method + 1L)
-  expect_no_error(tc$node_table_add_row(population = NULL, individual = NULL))
+  expect_no_error(
+    tc$node_table_add_row(
+      flags = 1,
+      time = 4.5,
+      population = 0,
+      individual = -1,
+      metadata = NULL
+    )
+  )
   expect_equal(as.integer(tc$num_nodes()), n_before_method + 2L)
+  expect_no_error(tc$node_table_add_row(population = NULL, individual = NULL))
+  expect_equal(as.integer(tc$num_nodes()), n_before_method + 3L)
 
   m_before_char <- as.integer(
     rtsk_table_collection_metadata_length(tc$xptr)$nodes
@@ -511,7 +610,7 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
 
   expect_error(
     tc$node_table_add_row(flags = -1L),
-    regexp = "flags must be a non-NA zero or positive integer scalar!"
+    regexp = "flags must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$node_table_add_row(time = NA_real_),
@@ -519,28 +618,115 @@ test_that("node_table_add_row wrapper expands the table collection and handles i
   )
   expect_error(
     tc$node_table_add_row(population = NA_integer_),
-    regexp = "population must be -1L, NULL, or a non-NA integer scalar!"
+    regexp = "population must be NULL or a non-NA integer scalar within 32-bit range \\(>= -1\\)!"
   )
   expect_error(
     tc$node_table_add_row(individual = NA_integer_),
-    regexp = "individual must be -1L, NULL, or a non-NA integer scalar!"
+    regexp = "individual must be NULL or a non-NA integer scalar within 32-bit range \\(>= -1\\)!"
+  )
+  expect_error(
+    tc$node_table_add_row(population = 0.5),
+    regexp = "population must be NULL or a non-NA integer scalar within 32-bit range \\(>= -1\\)!"
   )
   expect_error(
     tc$node_table_add_row(metadata = c("a", "b")),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     tc$node_table_add_row(metadata = NA_character_),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     tc$node_table_add_row(metadata = 1L),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     test_rtsk_node_table_add_row_forced_error(tc$xptr),
     regexp = "TSK_ERR_TABLE_OVERFLOW"
   )
+})
+
+test_that("node_table_get_row wrapper returns node row fields and validates IDs", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+  tc <- TableCollection$new(xptr = tc_xptr)
+  last_node <- as.integer(rtsk_table_collection_get_num_nodes(tc_xptr)) - 1L
+
+  first_row_low <- rtsk_node_table_get_row(tc_xptr, 0L)
+  first_row_method <- tc$node_table_get_row(0L)
+  last_row_low <- rtsk_node_table_get_row(tc_xptr, last_node)
+  last_row_method <- tc$node_table_get_row(last_node)
+
+  # we got these values from inst/examples/create_test.trees.py
+  expect_equal(
+    first_row_low,
+    list(
+      id = 0L,
+      flags = 1L,
+      time = 0,
+      population = 0L,
+      individual = 0L,
+      metadata = raw(0)
+    )
+  )
+  expect_equal(first_row_method, first_row_low)
+  # we got these values from inst/examples/create_test.trees.py
+  expect_equal(
+    last_row_low,
+    list(
+      id = 38L,
+      flags = 0L,
+      time = 6.96199333719081,
+      population = 0L,
+      individual = -1L,
+      metadata = raw(0)
+    )
+  )
+  expect_equal(last_row_method, last_row_low)
+
+  expect_error(
+    rtsk_node_table_get_row(tc_xptr, NA_integer_),
+    regexp = "TSK_ERR_NODE_OUT_OF_BOUNDS"
+  )
+  expect_error(
+    rtsk_node_table_get_row(tc_xptr, -1L),
+    regexp = "TSK_ERR_NODE_OUT_OF_BOUNDS"
+  )
+  expect_error(
+    tc$node_table_get_row(NA_integer_),
+    regexp = "index must be a non-NA zero or positive integer scalar within 32-bit range!"
+  )
+  expect_error(
+    tc$node_table_get_row(-1L),
+    regexp = "index must be a non-NA zero or positive integer scalar within 32-bit range!"
+  )
+  expect_equal(tc$node_table_get_row(0), first_row_low)
+  expect_error(
+    rtsk_node_table_get_row(tc_xptr, 999999L),
+    regexp = "TSK_ERR_NODE_OUT_OF_BOUNDS"
+  )
+
+  new_id <- tc$node_table_add_row(
+    flags = 1L,
+    time = 12.5,
+    population = 0L,
+    individual = -1L,
+    metadata = charToRaw("abc")
+  )
+  row_low <- rtsk_node_table_get_row(tc_xptr, new_id)
+  row_method <- tc$node_table_get_row(new_id)
+
+  expect_equal(
+    sort(names(row_low)),
+    c("flags", "id", "individual", "metadata", "population", "time")
+  )
+  expect_equal(row_low$id, new_id)
+  expect_equal(row_low$flags, 1L)
+  expect_equal(row_low$time, 12.5)
+  expect_equal(row_low$population, 0L)
+  expect_equal(row_low$individual, -1L)
+  expect_equal(row_low$metadata, charToRaw("abc"))
+  expect_equal(row_method, row_low)
 })
 
 test_that("edge_table_add_row wrapper expands the table collection and handles inputs", {
@@ -621,6 +807,16 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
     )
   )
   expect_equal(as.integer(tc$num_edges()), n_before_method + 1L)
+  expect_no_error(
+    tc$edge_table_add_row(
+      left = 2,
+      right = 3,
+      parent = as.numeric(parent),
+      child = as.numeric(child),
+      metadata = NULL
+    )
+  )
+  expect_equal(as.integer(tc$num_edges()), n_before_method + 2L)
 
   m_before_char <- as.integer(
     rtsk_table_collection_metadata_length(tc$xptr)$edges
@@ -697,7 +893,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       parent = NULL,
       child = child
     ),
-    regexp = "parent must be a non-NA integer scalar!"
+    regexp = "parent cannot be NULL\\."
   )
   expect_error(
     tc$edge_table_add_row(
@@ -706,7 +902,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       parent = parent,
       child = NULL
     ),
-    regexp = "child must be a non-NA integer scalar!"
+    regexp = "child cannot be NULL\\."
   )
   expect_error(
     tc$edge_table_add_row(
@@ -715,7 +911,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       parent = NA_integer_,
       child = child
     ),
-    regexp = "parent must be a non-NA integer scalar!"
+    regexp = "parent must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$edge_table_add_row(
@@ -724,7 +920,16 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       parent = parent,
       child = NA_integer_
     ),
-    regexp = "child must be a non-NA integer scalar!"
+    regexp = "child must be a non-NA zero or positive integer scalar within 32-bit range!"
+  )
+  expect_error(
+    tc$edge_table_add_row(
+      left = 5,
+      right = 6,
+      parent = 0.5,
+      child = child
+    ),
+    regexp = "parent must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$edge_table_add_row(
@@ -734,7 +939,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       child = child,
       metadata = c("a", "b")
     ),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     tc$edge_table_add_row(
@@ -744,7 +949,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       child = child,
       metadata = NA_character_
     ),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     tc$edge_table_add_row(
@@ -754,7 +959,7 @@ test_that("edge_table_add_row wrapper expands the table collection and handles i
       child = child,
       metadata = 1L
     ),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     test_rtsk_edge_table_add_row_forced_error(tc$xptr),
@@ -884,7 +1089,7 @@ test_that("site_table_add_row wrapper expands the table collection and handles i
       ancestral_state = "A",
       metadata = c("a", "b")
     ),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     test_rtsk_site_table_add_row_forced_error(tc$xptr),
@@ -976,6 +1181,17 @@ test_that("mutation_table_add_row wrapper expands the table collection and handl
     )
   )
   expect_equal(as.integer(tc$num_mutations()), n_before_method + 1L)
+  expect_no_error(
+    tc$mutation_table_add_row(
+      site = as.numeric(site),
+      node = as.numeric(node),
+      parent = -1,
+      time = NaN,
+      derived_state = "T",
+      metadata = NULL
+    )
+  )
+  expect_equal(as.integer(tc$num_mutations()), n_before_method + 2L)
 
   m_before_char <- as.integer(rtsk_table_collection_metadata_length(tc$xptr)[[
     "mutations"
@@ -1010,11 +1226,15 @@ test_that("mutation_table_add_row wrapper expands the table collection and handl
 
   expect_error(
     tc$mutation_table_add_row(site = NULL, node = node, derived_state = "T"),
-    regexp = "site must be a non-NA integer scalar!"
+    regexp = "site cannot be NULL\\."
   )
   expect_error(
     tc$mutation_table_add_row(site = site, node = NULL, derived_state = "T"),
-    regexp = "node must be a non-NA integer scalar!"
+    regexp = "node cannot be NULL\\."
+  )
+  expect_error(
+    tc$mutation_table_add_row(site = 0.5, node = node, derived_state = "T"),
+    regexp = "site must be a non-NA zero or positive integer scalar within 32-bit range!"
   )
   expect_error(
     tc$mutation_table_add_row(
@@ -1023,7 +1243,7 @@ test_that("mutation_table_add_row wrapper expands the table collection and handl
       parent = NA_integer_,
       derived_state = "T"
     ),
-    regexp = "parent must be -1L, NULL, or a non-NA integer scalar!"
+    regexp = "parent must be NULL or a non-NA integer scalar within 32-bit range \\(>= -1\\)!"
   )
   expect_error(
     tc$mutation_table_add_row(
@@ -1087,10 +1307,373 @@ test_that("mutation_table_add_row wrapper expands the table collection and handl
       derived_state = "T",
       metadata = c("a", "b")
     ),
-    regexp = "metadata must be NULL, a raw vector, or a length-1 non-NA character string!"
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
   )
   expect_error(
     test_rtsk_mutation_table_add_row_forced_error(tc$xptr),
     regexp = "TSK_ERR_TABLE_OVERFLOW"
+  )
+})
+
+test_that("population_table_add_row wrapper expands the table collection and handles inputs", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+
+  n_before <- rtsk_table_collection_get_num_populations(tc_xptr)
+  m_before <- rtsk_table_collection_metadata_length(tc_xptr)$populations
+
+  new_id <- rtsk_population_table_add_row(tc_xptr, metadata = charToRaw("abc"))
+  expect_equal(new_id, as.integer(n_before))
+  expect_equal(
+    as.integer(rtsk_table_collection_get_num_populations(tc_xptr)),
+    as.integer(n_before) + 1L
+  )
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)$populations),
+    as.integer(m_before) + 3L
+  )
+
+  tc <- TableCollection$new(xptr = tc_xptr)
+  n_before_method <- as.integer(tc$num_populations())
+  expect_no_error(tc$population_table_add_row())
+  expect_equal(as.integer(tc$num_populations()), n_before_method + 1L)
+
+  m_before_char <- as.integer(
+    rtsk_table_collection_metadata_length(tc$xptr)$populations
+  )
+  expect_no_warning(tc$population_table_add_row(metadata = "xyz"))
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc$xptr)$populations),
+    m_before_char + 3L
+  )
+
+  expect_error(
+    tc$population_table_add_row(metadata = c("a", "b")),
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
+  )
+  expect_error(
+    test_rtsk_population_table_add_row_forced_error(tc$xptr),
+    regexp = "TSK_ERR_TABLE_OVERFLOW"
+  )
+})
+
+test_that("migration_table_add_row wrapper expands the table collection and handles inputs", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+
+  n_before <- rtsk_table_collection_get_num_migrations(tc_xptr)
+  m_before <- rtsk_table_collection_metadata_length(tc_xptr)$migrations
+
+  new_id <- rtsk_migration_table_add_row(
+    tc = tc_xptr,
+    left = 0,
+    right = 1,
+    node = 0L,
+    source = 0L,
+    dest = 0L,
+    time = 1.0,
+    metadata = charToRaw("abc")
+  )
+  expect_equal(new_id, as.integer(n_before))
+  expect_equal(
+    as.integer(rtsk_table_collection_get_num_migrations(tc_xptr)),
+    as.integer(n_before) + 1L
+  )
+  expect_equal(
+    as.integer(rtsk_table_collection_metadata_length(tc_xptr)$migrations),
+    as.integer(m_before) + 3L
+  )
+
+  tc <- TableCollection$new(xptr = tc_xptr)
+  n_before_method <- as.integer(tc$num_migrations())
+  expect_no_error(
+    tc$migration_table_add_row(
+      left = 1,
+      right = 2,
+      node = 1L,
+      source = 0L,
+      dest = 0L,
+      time = 2.0
+    )
+  )
+  expect_equal(as.integer(tc$num_migrations()), n_before_method + 1L)
+  expect_no_error(
+    tc$migration_table_add_row(
+      left = 2,
+      right = 3,
+      node = 1,
+      source = 0,
+      dest = 0,
+      time = 3.0
+    )
+  )
+  expect_equal(as.integer(tc$num_migrations()), n_before_method + 2L)
+
+  expect_error(
+    tc$migration_table_add_row(
+      left = 2,
+      right = 2,
+      node = 0L,
+      source = 0L,
+      dest = 0L,
+      time = 1.0
+    ),
+    regexp = "left must be strictly less than right!"
+  )
+  expect_error(
+    tc$migration_table_add_row(
+      left = 0,
+      right = 1,
+      node = NA_integer_,
+      source = 0L,
+      dest = 0L,
+      time = 1.0
+    ),
+    regexp = "node must be a non-NA zero or positive integer scalar within 32-bit range!"
+  )
+  expect_error(
+    tc$migration_table_add_row(
+      left = 0,
+      right = 1,
+      node = 0L,
+      source = 0L,
+      dest = 0L,
+      time = NA_real_
+    ),
+    regexp = "time must be a non-NA numeric scalar!"
+  )
+  expect_error(
+    tc$migration_table_add_row(
+      left = 0,
+      right = 1,
+      node = 0.5,
+      source = 0L,
+      dest = 0L,
+      time = 1.0
+    ),
+    regexp = "node must be a non-NA zero or positive integer scalar within 32-bit range!"
+  )
+  expect_error(
+    tc$migration_table_add_row(
+      left = 0,
+      right = 1,
+      node = 0L,
+      source = 0L,
+      dest = 0L,
+      time = 1.0,
+      metadata = c("a", "b")
+    ),
+    regexp = "metadata must be NULL, a length-1 non-NA character string, or a raw vector!"
+  )
+  expect_error(
+    test_rtsk_migration_table_add_row_forced_error(tc$xptr),
+    regexp = "TSK_ERR_TABLE_OVERFLOW"
+  )
+})
+
+test_that("provenance_table_add_row wrapper expands the table collection and handles inputs", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+
+  n_before <- rtsk_table_collection_get_num_provenances(tc_xptr)
+  new_id <- rtsk_provenance_table_add_row(
+    tc = tc_xptr,
+    timestamp = "2025-01-01T00:00:00Z",
+    record = "{\"software\":\"RcppTskit\"}"
+  )
+  expect_equal(new_id, as.integer(n_before))
+  expect_equal(
+    as.integer(rtsk_table_collection_get_num_provenances(tc_xptr)),
+    as.integer(n_before) + 1L
+  )
+
+  tc <- TableCollection$new(xptr = tc_xptr)
+  n_before_method <- as.integer(tc$num_provenances())
+  expect_no_error(
+    tc$provenance_table_add_row(
+      timestamp = "2025-01-02T00:00:00Z",
+      record = "{\"software\":\"RcppTskit\",\"action\":\"test\"}"
+    )
+  )
+  expect_equal(as.integer(tc$num_provenances()), n_before_method + 1L)
+
+  expect_error(
+    tc$provenance_table_add_row(
+      timestamp = NULL,
+      record = "{}"
+    ),
+    regexp = "timestamp must be a length-1 non-NA character string!"
+  )
+  expect_error(
+    tc$provenance_table_add_row(
+      timestamp = "2025-01-01T00:00:00Z",
+      record = NA_character_
+    ),
+    regexp = "record must be a length-1 non-NA character string!"
+  )
+  expect_error(
+    test_rtsk_provenance_table_add_row_forced_error(tc$xptr),
+    regexp = "TSK_ERR_TABLE_OVERFLOW"
+  )
+})
+
+test_that("get_row wrappers for non-node tables return expected fields and validate indices", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc_xptr <- rtsk_table_collection_load(ts_file)
+  tc <- TableCollection$new(xptr = tc_xptr)
+
+  indiv_low <- rtsk_individual_table_get_row(tc_xptr, 0L)
+  indiv_method <- tc$individual_table_get_row(0)
+  expect_equal(
+    sort(names(indiv_low)),
+    c("flags", "id", "location", "metadata", "parents")
+  )
+  expect_equal(indiv_method, indiv_low)
+
+  edge_low <- rtsk_edge_table_get_row(tc_xptr, 0L)
+  edge_method <- tc$edge_table_get_row(0)
+  expect_equal(
+    sort(names(edge_low)),
+    c("child", "id", "left", "metadata", "parent", "right")
+  )
+  expect_equal(edge_method, edge_low)
+
+  site_low <- rtsk_site_table_get_row(tc_xptr, 0L)
+  site_method <- tc$site_table_get_row(0)
+  expect_equal(
+    sort(names(site_low)),
+    c("ancestral_state", "id", "metadata", "position")
+  )
+  expect_equal(site_method, site_low)
+
+  mut_low <- rtsk_mutation_table_get_row(tc_xptr, 0L)
+  mut_method <- tc$mutation_table_get_row(0)
+  expect_equal(
+    sort(names(mut_low)),
+    c("derived_state", "id", "metadata", "node", "parent", "site", "time")
+  )
+  expect_equal(mut_method, mut_low)
+
+  pop_low <- rtsk_population_table_get_row(tc_xptr, 0L)
+  pop_method <- tc$population_table_get_row(0)
+  expect_equal(sort(names(pop_low)), c("id", "metadata"))
+  expect_equal(pop_method, pop_low)
+
+  if (as.integer(tc$num_migrations()) == 0L) {
+    tc$migration_table_add_row(
+      left = 0,
+      right = 1,
+      node = 0,
+      source = 0,
+      dest = 0,
+      time = 1
+    )
+  }
+  mig_low <- rtsk_migration_table_get_row(tc_xptr, 0L)
+  mig_method <- tc$migration_table_get_row(0)
+  expect_equal(
+    sort(names(mig_low)),
+    c("dest", "id", "left", "metadata", "node", "right", "source", "time")
+  )
+  expect_equal(mig_method, mig_low)
+
+  if (as.integer(tc$num_provenances()) == 0L) {
+    tc$provenance_table_add_row(
+      timestamp = "2025-01-01T00:00:00Z",
+      record = "{\"software\":\"RcppTskit\"}"
+    )
+  }
+  prov_low <- rtsk_provenance_table_get_row(tc_xptr, 0L)
+  prov_method <- tc$provenance_table_get_row(0)
+  expect_equal(sort(names(prov_low)), c("id", "record", "timestamp"))
+  expect_equal(prov_method, prov_low)
+
+  # exercise metadata/location/parents copy paths in individual get_row
+  indiv_new <- tc$individual_table_add_row(
+    location = c(1.25, -2.5),
+    parents = c(0L),
+    metadata = charToRaw("imd")
+  )
+  indiv_new_low <- rtsk_individual_table_get_row(tc_xptr, indiv_new)
+  expect_equal(indiv_new_low$location, c(1.25, -2.5))
+  expect_equal(indiv_new_low$parents, c(0L))
+  expect_equal(indiv_new_low$metadata, charToRaw("imd"))
+
+  # exercise metadata copy path in edge get_row
+  edge_new <- tc$edge_table_add_row(
+    left = 0,
+    right = 0.25,
+    parent = 0L,
+    child = 1L,
+    metadata = charToRaw("emd")
+  )
+  edge_new_low <- rtsk_edge_table_get_row(tc_xptr, edge_new)
+  expect_equal(edge_new_low$metadata, charToRaw("emd"))
+
+  # exercise metadata copy path in site get_row
+  site_new <- tc$site_table_add_row(
+    position = 123.5,
+    ancestral_state = "A",
+    metadata = charToRaw("smd")
+  )
+  site_new_low <- rtsk_site_table_get_row(tc_xptr, site_new)
+  expect_equal(site_new_low$metadata, charToRaw("smd"))
+
+  # exercise metadata copy path in mutation get_row
+  mut_new <- tc$mutation_table_add_row(
+    site = site_new,
+    node = 0L,
+    derived_state = "T",
+    metadata = charToRaw("mmd")
+  )
+  mut_new_low <- rtsk_mutation_table_get_row(tc_xptr, mut_new)
+  expect_equal(mut_new_low$metadata, charToRaw("mmd"))
+
+  # exercise metadata copy path in population get_row
+  pop_new <- tc$population_table_add_row(metadata = charToRaw("pmd"))
+  pop_new_low <- rtsk_population_table_get_row(tc_xptr, pop_new)
+  expect_equal(pop_new_low$metadata, charToRaw("pmd"))
+
+  # exercise metadata copy path in migration get_row
+  mig_new <- tc$migration_table_add_row(
+    left = 0.5,
+    right = 0.75,
+    node = 0L,
+    source = 0L,
+    dest = 0L,
+    time = 2.0,
+    metadata = charToRaw("gmd")
+  )
+  mig_new_low <- rtsk_migration_table_get_row(tc_xptr, mig_new)
+  expect_equal(mig_new_low$metadata, charToRaw("gmd"))
+
+  expect_error(
+    tc$individual_table_get_row(0.5),
+    regexp = "index must be a non-NA zero or positive integer scalar within 32-bit range!"
+  )
+  expect_error(
+    rtsk_individual_table_get_row(tc_xptr, 999999L),
+    regexp = "OUT_OF_BOUNDS"
+  )
+  expect_error(rtsk_edge_table_get_row(tc_xptr, -1L), regexp = "OUT_OF_BOUNDS")
+  expect_error(
+    rtsk_site_table_get_row(tc_xptr, 999999L),
+    regexp = "OUT_OF_BOUNDS"
+  )
+  expect_error(
+    rtsk_mutation_table_get_row(tc_xptr, -1L),
+    regexp = "OUT_OF_BOUNDS"
+  )
+  expect_error(
+    rtsk_population_table_get_row(tc_xptr, -1L),
+    regexp = "OUT_OF_BOUNDS"
+  )
+  expect_error(
+    rtsk_migration_table_get_row(tc_xptr, -1L),
+    regexp = "OUT_OF_BOUNDS"
+  )
+  expect_error(
+    rtsk_provenance_table_get_row(tc_xptr, -1L),
+    regexp = "OUT_OF_BOUNDS"
   )
 })

@@ -40,6 +40,28 @@ and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 - Added `rtsk_mutation_table_add_row()` and
   `TableCollection$mutation_table_add_row()` to append mutation rows from
   \code{R}, mirroring `tsk_mutation_table_add_row()`.
+- Added `rtsk_population_table_add_row()` and
+  `TableCollection$population_table_add_row()` to append population rows from
+  \code{R}, mirroring `tsk_population_table_add_row()`.
+- Added `rtsk_migration_table_add_row()` and
+  `TableCollection$migration_table_add_row()` to append migration rows from
+  \code{R}, mirroring `tsk_migration_table_add_row()`.
+- Added `rtsk_provenance_table_add_row()` and
+  `TableCollection$provenance_table_add_row()` to append provenance rows from
+  \code{R}, mirroring `tsk_provenance_table_add_row()`.
+- Added `rtsk_node_table_get_row()` and `TableCollection$node_table_get_row()`
+  to retrieve node-table rows by 0-based row index.
+- Added `rtsk_table_collection_sort()` and `TableCollection$sort()` to sort
+  table collections with 0-based `edge_start`, `site_start`, and
+  `mutation_start` semantics.
+- Added low-level variant iterators
+  (`rtsk_variant_iterator_init()`/`rtsk_variant_iterator_next()`) and a
+  user-facing `TreeSequence$variants()` method to iterate over decoded
+  site-by-site variants from \code{R}, aligned with `tskit` Python API
+  semantics for `samples`, `isolated_as_missing`, `alleles`, and
+  `left`/`right` intervals.
+- Added `rtsk_treeseq_get_samples()` and `TreeSequence$samples()` to retrieve
+  sample node IDs from a tree sequence.
 - TODO
 
 ### Changed

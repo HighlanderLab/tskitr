@@ -270,3 +270,89 @@ void test_rtsk_mutation_table_add_row_forced_error(SEXP tc) {
     throw;
   }
 }
+
+// TEST-ONLY
+// @title Force tskit-level error path in \\code{rtsk_population_table_add_row}
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @return No return value; called for side effects - testing.
+// [[Rcpp::export]]
+void test_rtsk_population_table_add_row_forced_error(SEXP tc) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_population_table_t &populations = tc_xptr->populations;
+  tsk_size_t saved_max_rows = populations.max_rows;
+  tsk_size_t saved_max_rows_increment = populations.max_rows_increment;
+  populations.max_rows = 1;
+  populations.max_rows_increment = static_cast<tsk_size_t>(TSK_MAX_ID) + 1;
+  try {
+    (void)rtsk_population_table_add_row(tc, R_NilValue);
+    // Lines below not hit by tests because rtsk_population_table_add_row()
+    // throws error # nocov start
+    populations.max_rows = saved_max_rows;
+    populations.max_rows_increment = saved_max_rows_increment;
+    return;
+    // # nocov end
+  } catch (...) {
+    populations.max_rows = saved_max_rows;
+    populations.max_rows_increment = saved_max_rows_increment;
+    throw;
+  }
+}
+
+// TEST-ONLY
+// @title Force tskit-level error path in \\code{rtsk_migration_table_add_row}
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @return No return value; called for side effects - testing.
+// [[Rcpp::export]]
+void test_rtsk_migration_table_add_row_forced_error(SEXP tc) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_migration_table_t &migrations = tc_xptr->migrations;
+  tsk_size_t saved_max_rows = migrations.max_rows;
+  tsk_size_t saved_max_rows_increment = migrations.max_rows_increment;
+  migrations.max_rows = 1;
+  migrations.max_rows_increment = static_cast<tsk_size_t>(TSK_MAX_ID) + 1;
+  try {
+    (void)rtsk_migration_table_add_row(tc, 0.0, 1.0, 0, 0, 0, 1.0, R_NilValue);
+    // Lines below not hit by tests because rtsk_migration_table_add_row()
+    // throws error # nocov start
+    migrations.max_rows = saved_max_rows;
+    migrations.max_rows_increment = saved_max_rows_increment;
+    return;
+    // # nocov end
+  } catch (...) {
+    migrations.max_rows = saved_max_rows;
+    migrations.max_rows_increment = saved_max_rows_increment;
+    throw;
+  }
+}
+
+// TEST-ONLY
+// @title Force tskit-level error path in \\code{rtsk_provenance_table_add_row}
+// @param tc an external pointer to table collection as a
+//   \code{tsk_table_collection_t} object.
+// @return No return value; called for side effects - testing.
+// [[Rcpp::export]]
+void test_rtsk_provenance_table_add_row_forced_error(SEXP tc) {
+  rtsk_table_collection_t tc_xptr(tc);
+  tsk_provenance_table_t &provenances = tc_xptr->provenances;
+  tsk_size_t saved_max_rows = provenances.max_rows;
+  tsk_size_t saved_max_rows_increment = provenances.max_rows_increment;
+  provenances.max_rows = 1;
+  provenances.max_rows_increment = static_cast<tsk_size_t>(TSK_MAX_ID) + 1;
+  const std::string timestamp = "2025-01-01T00:00:00Z";
+  const std::string record = "{\"software\":\"RcppTskit\"}";
+  try {
+    (void)rtsk_provenance_table_add_row(tc, timestamp, record);
+    // Lines below not hit by tests because rtsk_provenance_table_add_row()
+    // throws error # nocov start
+    provenances.max_rows = saved_max_rows;
+    provenances.max_rows_increment = saved_max_rows_increment;
+    return;
+    // # nocov end
+  } catch (...) {
+    provenances.max_rows = saved_max_rows;
+    provenances.max_rows_increment = saved_max_rows_increment;
+    throw;
+  }
+}
