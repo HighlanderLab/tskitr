@@ -75,6 +75,21 @@ and releases adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
   `pointer` to `xptr`.
 - Ensured `TableCollection$tree_sequence()` matches `tskit Python` API:
   it now builds indexes on the `TableCollection`, if indexes are not present.
+- Expanded `TableCollection$*_table_get_row()` documentation with runnable
+  examples, Python `__getitem__` references, and explicit note that numeric
+  row indices are validated and converted to 32-bit integers.
+- Aligned low-level row getters with `tskit C` caveats by returning
+  `mutations = NULL` for `rtsk_site_table_get_row()`, exposing `edge` and
+  `inherited_state` (as `NULL` for table access) in
+  `rtsk_mutation_table_get_row()`, and exposing `nodes` in
+  `rtsk_individual_table_get_row()`.
+- Kept high-level `TableCollection$individual_table_get_row()`,
+  `TableCollection$site_table_get_row()`, and
+  `TableCollection$mutation_table_get_row()` aligned with `tskit Python`
+  row-shape semantics.
+- Refined integer validators to use a single 32-bit integer-like validation
+  path with explicit `strict` handling for integer-only versus numeric-allowed
+  inputs across scalar and optional vector arguments.
 - We now use `bit64::integer64` (signed 64 bit integer) instead of `int` aiming
   to approach `tsk_size_t` in `tskit C` (unsigned 64 bit integer); in low-level
   `rtsk_treeseq_get_num_*()` wrappers and count/metadata-length fields.

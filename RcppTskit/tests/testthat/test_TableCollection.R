@@ -1517,7 +1517,7 @@ test_that("provenance_table_add_row wrapper expands the table collection and han
   )
 })
 
-test_that("get_row wrappers for non-node tables return expected fields and validate indices", {
+test_that("get_row wrappers return expected fields and validate indices", {
   ts_file <- system.file("examples/test.trees", package = "RcppTskit")
   tc_xptr <- rtsk_table_collection_load(ts_file)
   tc <- TableCollection$new(xptr = tc_xptr)
@@ -1526,9 +1526,16 @@ test_that("get_row wrappers for non-node tables return expected fields and valid
   indiv_method <- tc$individual_table_get_row(0)
   expect_equal(
     sort(names(indiv_low)),
+    c("flags", "id", "location", "metadata", "nodes", "parents")
+  )
+  expect_equal(
+    sort(names(indiv_method)),
     c("flags", "id", "location", "metadata", "parents")
   )
-  expect_equal(indiv_method, indiv_low)
+  expect_equal(
+    indiv_method,
+    indiv_low[c("id", "flags", "location", "parents", "metadata")]
+  )
 
   edge_low <- rtsk_edge_table_get_row(tc_xptr, 0L)
   edge_method <- tc$edge_table_get_row(0)
@@ -1542,17 +1549,50 @@ test_that("get_row wrappers for non-node tables return expected fields and valid
   site_method <- tc$site_table_get_row(0)
   expect_equal(
     sort(names(site_low)),
+    c("ancestral_state", "id", "metadata", "mutations", "position")
+  )
+  expect_equal(
+    sort(names(site_method)),
     c("ancestral_state", "id", "metadata", "position")
   )
-  expect_equal(site_method, site_low)
+  expect_equal(
+    site_method,
+    site_low[c("id", "position", "ancestral_state", "metadata")]
+  )
+  expect_null(site_low$mutations)
 
   mut_low <- rtsk_mutation_table_get_row(tc_xptr, 0L)
   mut_method <- tc$mutation_table_get_row(0)
   expect_equal(
     sort(names(mut_low)),
+    c(
+      "derived_state",
+      "edge",
+      "id",
+      "inherited_state",
+      "metadata",
+      "node",
+      "parent",
+      "site",
+      "time"
+    )
+  )
+  expect_equal(
+    sort(names(mut_method)),
     c("derived_state", "id", "metadata", "node", "parent", "site", "time")
   )
-  expect_equal(mut_method, mut_low)
+  expect_equal(
+    mut_method,
+    mut_low[c(
+      "id",
+      "site",
+      "node",
+      "derived_state",
+      "parent",
+      "metadata",
+      "time"
+    )]
+  )
 
   pop_low <- rtsk_population_table_get_row(tc_xptr, 0L)
   pop_method <- tc$population_table_get_row(0)
@@ -1598,6 +1638,7 @@ test_that("get_row wrappers for non-node tables return expected fields and valid
   expect_equal(indiv_new_low$location, c(1.25, -2.5))
   expect_equal(indiv_new_low$parents, c(0L))
   expect_equal(indiv_new_low$metadata, charToRaw("imd"))
+  expect_true(length(indiv_new_low$nodes) >= 0L)
 
   # exercise metadata copy path in edge get_row
   edge_new <- tc$edge_table_add_row(
@@ -1618,6 +1659,7 @@ test_that("get_row wrappers for non-node tables return expected fields and valid
   )
   site_new_low <- rtsk_site_table_get_row(tc_xptr, site_new)
   expect_equal(site_new_low$metadata, charToRaw("smd"))
+  expect_null(site_new_low$mutations)
 
   # exercise metadata copy path in mutation get_row
   mut_new <- tc$mutation_table_add_row(
@@ -1628,6 +1670,7 @@ test_that("get_row wrappers for non-node tables return expected fields and valid
   )
   mut_new_low <- rtsk_mutation_table_get_row(tc_xptr, mut_new)
   expect_equal(mut_new_low$metadata, charToRaw("mmd"))
+  expect_equal(mut_new_low$edge, -1L)
 
   # exercise metadata copy path in population get_row
   pop_new <- tc$population_table_add_row(metadata = charToRaw("pmd"))
@@ -1676,4 +1719,103 @@ test_that("get_row wrappers for non-node tables return expected fields and valid
     rtsk_provenance_table_get_row(tc_xptr, -1L),
     regexp = "OUT_OF_BOUNDS"
   )
+})
+
+test_that("add_row and get_row round-trip works across tables", {
+  ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+  tc <- tc_load(ts_file)
+
+  ind_id <- tc$individual_table_add_row(
+    flags = 1L,
+    location = c(9.5, -3.25),
+    parents = c(0L),
+    metadata = "imd"
+  )
+  ind_row <- tc$individual_table_get_row(ind_id)
+  expect_equal(ind_row$id, ind_id)
+  expect_equal(ind_row$flags, 1L)
+  expect_equal(ind_row$location, c(9.5, -3.25))
+  expect_equal(ind_row$parents, c(0L))
+  expect_equal(ind_row$metadata, charToRaw("imd"))
+
+  node_id <- tc$node_table_add_row(
+    flags = 0L,
+    time = 0.125,
+    population = 0L,
+    individual = ind_id,
+    metadata = "nmd"
+  )
+  node_row <- tc$node_table_get_row(node_id)
+  expect_equal(node_row$id, node_id)
+  expect_equal(node_row$time, 0.125)
+  expect_equal(node_row$population, 0L)
+  expect_equal(node_row$individual, ind_id)
+  expect_equal(node_row$metadata, charToRaw("nmd"))
+
+  edge_id <- tc$edge_table_add_row(
+    left = 0,
+    right = 0.5,
+    parent = 16L,
+    child = node_id,
+    metadata = "emd"
+  )
+  edge_row <- tc$edge_table_get_row(edge_id)
+  expect_equal(edge_row$id, edge_id)
+  expect_equal(edge_row$parent, 16L)
+  expect_equal(edge_row$child, node_id)
+  expect_equal(edge_row$metadata, charToRaw("emd"))
+
+  site_id <- tc$site_table_add_row(
+    position = 9.75,
+    ancestral_state = "A",
+    metadata = "smd"
+  )
+  site_row <- tc$site_table_get_row(site_id)
+  expect_equal(site_row$id, site_id)
+  expect_equal(site_row$position, 9.75)
+  expect_equal(site_row$ancestral_state, "A")
+  expect_equal(site_row$metadata, charToRaw("smd"))
+
+  mut_id <- tc$mutation_table_add_row(
+    site = site_id,
+    node = node_id,
+    derived_state = "T",
+    parent = -1L,
+    metadata = "mmd",
+    time = 0.1
+  )
+  mut_row <- tc$mutation_table_get_row(mut_id)
+  expect_equal(mut_row$id, mut_id)
+  expect_equal(mut_row$site, site_id)
+  expect_equal(mut_row$node, node_id)
+  expect_equal(mut_row$derived_state, "T")
+  expect_equal(mut_row$metadata, charToRaw("mmd"))
+
+  pop_id <- tc$population_table_add_row(metadata = "pmd")
+  pop_row <- tc$population_table_get_row(pop_id)
+  expect_equal(pop_row$id, pop_id)
+  expect_equal(pop_row$metadata, charToRaw("pmd"))
+
+  mig_id <- tc$migration_table_add_row(
+    left = 0,
+    right = 0.5,
+    node = node_id,
+    source = 0L,
+    dest = 0L,
+    time = 0.2,
+    metadata = "gmd"
+  )
+  mig_row <- tc$migration_table_get_row(mig_id)
+  expect_equal(mig_row$id, mig_id)
+  expect_equal(mig_row$node, node_id)
+  expect_equal(mig_row$metadata, charToRaw("gmd"))
+
+  prov_id <- tc$provenance_table_add_row(
+    timestamp = "2026-01-01T00:00:00Z",
+    record = "{\"software\":\"RcppTskit\"}"
+  )
+  prov_row <- tc$provenance_table_get_row(prov_id)
+  expect_equal(prov_row$id, prov_id)
+  expect_equal(prov_row$timestamp, "2026-01-01T00:00:00Z")
+  expect_equal(prov_row$record, "{\"software\":\"RcppTskit\"}")
 })

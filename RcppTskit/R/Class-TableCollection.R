@@ -138,7 +138,7 @@ TableCollection <- R6Class(
       rtsk_table_collection_get_num_provenances(self$xptr)
     },
 
-    #' @description Add a row to the provenances table.
+    #' @description Add a row to the provenance table.
     #' @param timestamp character string timestamp for the new provenance.
     #' @param record character string record for the new provenance.
     #' @details See the \code{tskit Python} equivalent at
@@ -163,10 +163,18 @@ TableCollection <- R6Class(
       )
     },
 
-    #' @description Get one row from the provenances table.
-    #' @param index integer scalar row index (0-based).
+    #' @description Get one row from the provenance table.
+    #' @param index integer or numeric scalar row index (0-based).
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.ProvenanceTable.__getitem__}.
+    #'   The function accepts numeric \code{index} for ease of use, but converts
+    #'   it to integer after checking that conversion to 32-bit integer succeeds.
     #' @return A named list with fields \code{id}, \code{timestamp},
     #'   and \code{record}.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' tc$provenance_table_get_row(0)
     provenance_table_get_row = function(index) {
       validate_row_index(index)
       rtsk_provenance_table_get_row(self$xptr, index = as.integer(index))
@@ -204,9 +212,17 @@ TableCollection <- R6Class(
       )
     },
 
-    #' @description Get one row from the populations table.
-    #' @param index integer scalar row index (0-based).
+    #' @description Get one row from the population table.
+    #' @param index integer or numeric scalar row index (0-based).
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.PopulationTable.__getitem__}.
+    #'   The function accepts numeric \code{index} for ease of use, but converts
+    #'   it to integer after checking that conversion to 32-bit integer succeeds.
     #' @return A named list with fields \code{id} and \code{metadata}.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' tc$population_table_get_row(0)
     population_table_get_row = function(index) {
       validate_row_index(index)
       rtsk_population_table_get_row(self$xptr, index = as.integer(index))
@@ -287,11 +303,24 @@ TableCollection <- R6Class(
       )
     },
 
-    #' @description Get one row from the migrations table.
-    #' @param index integer scalar row index (0-based).
+    #' @description Get one row from the migration table.
+    #' @param index integer or numeric scalar row index (0-based).
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.MigrationTable.__getitem__}.
+    #'   The function accepts numeric \code{index} for ease of use, but converts
+    #'   it to integer after checking that conversion to 32-bit integer succeeds.
     #' @return A named list with fields \code{id}, \code{left}, \code{right},
     #'   \code{node}, \code{source}, \code{dest}, \code{time}, and
     #'   \code{metadata}.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' if (as.integer(tc$num_migrations()) == 0L) {
+    #'   tc$migration_table_add_row(
+    #'     left = 0, right = 1, node = 0L, source = 0L, dest = 0L, time = 1
+    #'   )
+    #' }
+    #' tc$migration_table_get_row(0)
     migration_table_get_row = function(index) {
       validate_row_index(index)
       rtsk_migration_table_get_row(self$xptr, index = as.integer(index))
@@ -348,13 +377,22 @@ TableCollection <- R6Class(
       )
     },
 
-    #' @description Get one row from the individuals table.
-    #' @param index integer scalar row index (0-based).
+    #' @description Get one row from the individual table.
+    #' @param index integer or numeric scalar row index (0-based).
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.IndividualTable.__getitem__}.
+    #'   The function accepts numeric \code{index} for ease of use, but converts
+    #'   it to integer after checking that conversion to 32-bit integer succeeds.
     #' @return A named list with fields \code{id}, \code{flags},
     #'   \code{location}, \code{parents}, and \code{metadata}.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' tc$individual_table_get_row(0)
     individual_table_get_row = function(index) {
       validate_row_index(index)
-      rtsk_individual_table_get_row(self$xptr, index = as.integer(index))
+      row <- rtsk_individual_table_get_row(self$xptr, index = as.integer(index))
+      row[c("id", "flags", "location", "parents", "metadata")]
     },
 
     #' @description Get the number of nodes in a table collection.
@@ -432,11 +470,13 @@ TableCollection <- R6Class(
     # TODO: Similarly with add_row method on the R side, maybe?
     # TODO: ALSO, should we use 0-based or 1-based access to elements of an object!? I think not!?
     #       And should we allow characters as ID names?
-    #' @description Get one row from the nodes table.
-    #' @param index integer scalar row index (0-based).
+    #' @description Get one row from the node table.
+    #' @param index integer or numeric scalar row index (0-based).
     #' @details In \code{tskit Python}, rows are accessed by indexing a
     #'   \code{NodeTable}, for example \code{tables.nodes[index]}; see
     #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.NodeTable}.
+    #'   The function accepts numeric \code{index} for ease of use, but converts
+    #'   it to integer after checking that conversion to 32-bit integer succeeds.
     #' @return A named list with fields \code{id}, \code{flags}, \code{time},
     #'   \code{population}, \code{individual}, and \code{metadata}.
     #' @examples
@@ -510,10 +550,18 @@ TableCollection <- R6Class(
       )
     },
 
-    #' @description Get one row from the edges table.
-    #' @param index integer scalar row index (0-based).
+    #' @description Get one row from the edge table.
+    #' @param index integer or numeric scalar row index (0-based).
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.EdgeTable.__getitem__}.
+    #'   The function accepts numeric \code{index} for ease of use, but converts
+    #'   it to integer after checking that conversion to 32-bit integer succeeds.
     #' @return A named list with fields \code{id}, \code{left}, \code{right},
     #'   \code{parent}, \code{child}, and \code{metadata}.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' tc$edge_table_get_row(0)
     edge_table_get_row = function(index) {
       validate_row_index(index)
       rtsk_edge_table_get_row(self$xptr, index = as.integer(index))
@@ -560,13 +608,22 @@ TableCollection <- R6Class(
       )
     },
 
-    #' @description Get one row from the sites table.
-    #' @param index integer scalar row index (0-based).
+    #' @description Get one row from the site table.
+    #' @param index integer or numeric scalar row index (0-based).
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.SiteTable.__getitem__}.
+    #'   The function accepts numeric \code{index} for ease of use, but converts
+    #'   it to integer after checking that conversion to 32-bit integer succeeds.
     #' @return A named list with fields \code{id}, \code{position},
     #'   \code{ancestral_state}, and \code{metadata}.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' tc$site_table_get_row(0)
     site_table_get_row = function(index) {
       validate_row_index(index)
-      rtsk_site_table_get_row(self$xptr, index = as.integer(index))
+      row <- rtsk_site_table_get_row(self$xptr, index = as.integer(index))
+      row[c("id", "position", "ancestral_state", "metadata")]
     },
 
     #' @description Get the number of mutations in a table collection.
@@ -645,14 +702,31 @@ TableCollection <- R6Class(
       )
     },
 
-    #' @description Get one row from the mutations table.
-    #' @param index integer scalar row index (0-based).
+    #' @description Get one row from the mutation table.
+    #' @param index integer or numeric scalar row index (0-based).
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.MutationTable.__getitem__}.
+    #'   The function accepts numeric \code{index} for ease of use, but converts
+    #'   it to integer after checking that conversion to 32-bit integer succeeds.
     #' @return A named list with fields \code{id}, \code{site}, \code{node},
-    #'   \code{parent}, \code{time}, \code{derived_state}, and
-    #'   \code{metadata}.
+    #'   \code{derived_state}, \code{parent}, \code{metadata}, and
+    #'   \code{time}.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' tc <- tc_load(ts_file)
+    #' tc$mutation_table_get_row(0)
     mutation_table_get_row = function(index) {
       validate_row_index(index)
-      rtsk_mutation_table_get_row(self$xptr, index = as.integer(index))
+      row <- rtsk_mutation_table_get_row(self$xptr, index = as.integer(index))
+      row[c(
+        "id",
+        "site",
+        "node",
+        "derived_state",
+        "parent",
+        "metadata",
+        "time"
+      )]
     },
 
     #' @description Get the sequence length.

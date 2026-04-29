@@ -127,9 +127,6 @@ validate_integer_scalar_arg <- function(
   allow_null = FALSE,
   strict = FALSE
 ) {
-  int_min <- -as.numeric(.Machine$integer.max) - 1
-  int_max <- .Machine$integer.max
-
   if (is.null(value)) {
     if (allow_null) {
       return(NULL)
@@ -137,35 +134,49 @@ validate_integer_scalar_arg <- function(
     stop(name, " cannot be NULL.", call. = FALSE)
   }
 
-  is_type_ok <- if (strict) is.integer(value) else is.numeric(value)
-  is_valid_scalar <- is_type_ok &&
-    length(value) == 1L &&
-    !is.na(value) &&
-    is.finite(value) &&
-    value == trunc(value)
-
-  in_range <- is_valid_scalar &&
-    value >= int_min &&
-    value <= int_max &&
-    (is.null(minimum) || value >= minimum)
-
-  if (!in_range) {
-    reqs <- if (identical(minimum, 0L)) {
-      "a non-NA zero or positive integer scalar within 32-bit range"
-    } else {
-      "a non-NA integer scalar within 32-bit range"
-    }
-    if (!is.null(minimum) && !identical(minimum, 0L)) {
-      reqs <- paste0(reqs, " (>= ", minimum, ")")
+  abort <- function() {
+    msg <- "a non-NA integer scalar within 32-bit range"
+    if (identical(minimum, 0L)) {
+      msg <- "a non-NA zero or positive integer scalar within 32-bit range"
+    } else if (!is.null(minimum)) {
+      msg <- paste0(msg, " (>= ", minimum, ")")
     }
     if (allow_null) {
-      reqs <- paste("NULL or", reqs)
+      stop(name, " must be NULL or ", msg, "!", call. = FALSE)
     }
-
-    stop(name, " must be ", reqs, "!", call. = FALSE)
+    stop(name, " must be ", msg, "!", call. = FALSE)
   }
 
-  as.integer(value)
+  is_valid_type <- if (strict) {
+    is.integer(value)
+  } else {
+    is.numeric(value)
+  }
+  if (!is_valid_type || length(value) != 1L || is.na(value)) {
+    abort()
+  }
+
+  if (is.integer(value)) {
+    if (!is.null(minimum) && value < minimum) {
+      abort()
+    }
+    return(value)
+  }
+
+  value_num <- as.numeric(value)
+  int_min <- -as.numeric(.Machine$integer.max) - 1
+  int_max <- as.numeric(.Machine$integer.max)
+  is_whole <- value_num %% 1 == 0
+  is_within_bounds <- value_num >= int_min && value_num <= int_max
+  is_above_min <- is.null(minimum) || value_num >= minimum
+
+  if (
+    !is.finite(value_num) || !is_whole || !is_within_bounds || !is_above_min
+  ) {
+    abort()
+  }
+
+  return(as.integer(value_num))
 }
 
 # INTERNAL
@@ -207,30 +218,37 @@ validate_optional_numeric_vector_arg <- function(value, name) {
 #   unless \code{strict = TRUE} (in that case this function throws an error).
 # @return No return value; called for side effects.
 validate_optional_integer_vector_arg <- function(value, name, strict = FALSE) {
-  int_min <- -(.Machine$integer.max) - 1
-  int_max <- .Machine$integer.max
+  int_min <- -as.numeric(.Machine$integer.max) - 1
+  int_max <- as.numeric(.Machine$integer.max)
+
   if (is.null(value)) {
     return(invisible(NULL))
   }
+
   if (strict && !is.integer(value)) {
     stop(
       name,
       " must be NULL or an integer vector with no NA values within 32-bit range!"
     )
   }
+
+  value_num <- suppressWarnings(as.numeric(value))
+
   if (
     !is.numeric(value) ||
-      anyNA(value) ||
-      !all(is.finite(value)) ||
-      any(value != trunc(value)) ||
-      any(value < int_min) ||
-      any(value > int_max)
+      anyNA(value_num) ||
+      !all(is.finite(value_num)) ||
+      any(value_num != trunc(value_num)) ||
+      any(value_num < int_min) ||
+      any(value_num > int_max)
   ) {
     stop(
       name,
       " must be NULL or an integer vector with no NA values within 32-bit range!"
     )
   }
+
+  invisible(as.integer(value_num))
 }
 
 # INTERNAL

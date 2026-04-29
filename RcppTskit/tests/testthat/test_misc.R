@@ -57,6 +57,11 @@ test_that("R-side integer and row-index validators cover message branches", {
   # jarl-ignore internal_function: it's just a test
   expect_no_error(RcppTskit:::validate_integer_scalar_arg(1, "x"))
   # jarl-ignore internal_function: it's just a test
+  expect_equal(
+    RcppTskit:::validate_integer_scalar_arg(1L, "x", strict = TRUE),
+    1L
+  )
+  # jarl-ignore internal_function: it's just a test
   expect_error(
     RcppTskit:::validate_integer_scalar_arg(1, "x", strict = TRUE),
     regexp = "x must be a non-NA integer scalar within 32-bit range!"
@@ -80,8 +85,30 @@ test_that("R-side integer and row-index validators cover message branches", {
     regexp = "x must be a non-NA integer scalar within 32-bit range \\(>= 2\\)!"
   )
   # jarl-ignore internal_function: it's just a test
+  expect_error(
+    RcppTskit:::validate_integer_scalar_arg(
+      -as.numeric(.Machine$integer.max) - 2,
+      "x"
+    ),
+    regexp = "x must be a non-NA integer scalar within 32-bit range!"
+  )
+  # jarl-ignore internal_function: it's just a test
+  expect_error(
+    RcppTskit:::validate_integer_scalar_arg(NULL, "x"),
+    regexp = "x cannot be NULL\\."
+  )
+  # jarl-ignore internal_function: it's just a test
   expect_no_error(
     RcppTskit:::validate_optional_integer_vector_arg(c(1, 2, 3), "ids")
+  )
+  # jarl-ignore internal_function: it's just a test
+  expect_equal(
+    RcppTskit:::validate_optional_integer_vector_arg(c(1, 2, 3), "ids"),
+    invisible(c(1L, 2L, 3L))
+  )
+  # jarl-ignore internal_function: it's just a test
+  expect_no_error(
+    RcppTskit:::validate_optional_integer_vector_arg(c(1.0, 2.0), "ids")
   )
   # jarl-ignore internal_function: it's just a test
   expect_error(
@@ -95,6 +122,14 @@ test_that("R-side integer and row-index validators cover message branches", {
   # jarl-ignore internal_function: it's just a test
   expect_error(
     RcppTskit:::validate_optional_integer_vector_arg(c(1, 2.5), "ids"),
+    regexp = "ids must be NULL or an integer vector with no NA values within 32-bit range!"
+  )
+  # jarl-ignore internal_function: it's just a test
+  expect_error(
+    RcppTskit:::validate_optional_integer_vector_arg(
+      c(as.numeric(.Machine$integer.max) + 1),
+      "ids"
+    ),
     regexp = "ids must be NULL or an integer vector with no NA values within 32-bit range!"
   )
   # jarl-ignore internal_function: it's just a test
