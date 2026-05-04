@@ -42,12 +42,41 @@ ts <- tc$tree_sequence()
 is(ts)
 
 ## ------------------------------------------------
+## Method `TableCollection$sort`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$sort()
+
+## ------------------------------------------------
 ## Method `TableCollection$num_provenances`
 ## ------------------------------------------------
 
 tc_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(tc_file)
 tc$num_provenances()
+
+## ------------------------------------------------
+## Method `TableCollection$provenance_table_add_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_provenances())
+new_id <- tc$provenance_table_add_row(
+  timestamp = "2025-01-01T00:00:00Z",
+  record = "{\"software\":\"RcppTskit\"}"
+)
+(n_after <- tc$num_provenances())
+
+## ------------------------------------------------
+## Method `TableCollection$provenance_table_get_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$provenance_table_get_row(0)
 
 ## ------------------------------------------------
 ## Method `TableCollection$num_populations`
@@ -58,12 +87,71 @@ tc <- tc_load(tc_file)
 tc$num_populations()
 
 ## ------------------------------------------------
+## Method `TableCollection$population_table_add_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_populations())
+new_id <- tc$population_table_add_row()
+new_id <- tc$population_table_add_row(metadata = "abc")
+new_id <- tc$population_table_add_row(metadata = charToRaw("xyz"))
+(n_after <- tc$num_populations())
+
+## ------------------------------------------------
+## Method `TableCollection$population_table_get_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$population_table_get_row(0)
+
+## ------------------------------------------------
 ## Method `TableCollection$num_migrations`
 ## ------------------------------------------------
 
 tc_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(tc_file)
 tc$num_migrations()
+
+## ------------------------------------------------
+## Method `TableCollection$migration_table_add_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_migrations())
+new_id <- tc$migration_table_add_row(
+  left = 0,
+  right = 1,
+  node = 0L,
+  source = 0L,
+  dest = 0L,
+  time = 1.0
+)
+new_id <- tc$migration_table_add_row(
+  left = 1,
+  right = 2,
+  node = 1L,
+  source = 0L,
+  dest = 0L,
+  time = 2.0,
+  metadata = "abc"
+)
+(n_after <- tc$num_migrations())
+
+## ------------------------------------------------
+## Method `TableCollection$migration_table_get_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+if (tc$num_migrations() == 0L) {
+  tc$migration_table_add_row(
+    left = 0, right = 1, node = 0L, source = 0L, dest = 0L, time = 1
+  )
+}
+tc$migration_table_get_row(0)
 
 ## ------------------------------------------------
 ## Method `TableCollection$num_individuals`
@@ -89,6 +177,14 @@ new_id <- tc$individual_table_add_row(metadata = charToRaw("cba"))
 (n_after <- tc$num_individuals())
 
 ## ------------------------------------------------
+## Method `TableCollection$individual_table_get_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$individual_table_get_row(0)
+
+## ------------------------------------------------
 ## Method `TableCollection$num_nodes`
 ## ------------------------------------------------
 
@@ -110,6 +206,16 @@ new_id <- tc$node_table_add_row(flags = 1L, time = 4.5, individual = 0L)
 new_id <- tc$node_table_add_row(metadata = "abc")
 new_id <- tc$node_table_add_row(metadata = charToRaw("cba"))
 (n_after <- tc$num_nodes())
+
+## ------------------------------------------------
+## Method `TableCollection$node_table_get_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$node_table_get_row(0L)
+last_node <- as.integer(tc$num_nodes()) - 1L
+tc$node_table_get_row(last_node)
 
 ## ------------------------------------------------
 ## Method `TableCollection$num_edges`
@@ -139,6 +245,14 @@ new_id <- tc$edge_table_add_row(
 (n_after <- tc$num_edges())
 
 ## ------------------------------------------------
+## Method `TableCollection$edge_table_get_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$edge_table_get_row(0)
+
+## ------------------------------------------------
 ## Method `TableCollection$num_sites`
 ## ------------------------------------------------
 
@@ -156,6 +270,14 @@ tc <- tc_load(ts_file)
 new_id <- tc$site_table_add_row(position = 0.5, ancestral_state = "A")
 new_id <- tc$site_table_add_row(position = 2.5, ancestral_state = "T", metadata = "abc")
 (n_after <- tc$num_sites())
+
+## ------------------------------------------------
+## Method `TableCollection$site_table_get_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$site_table_get_row(0)
 
 ## ------------------------------------------------
 ## Method `TableCollection$num_mutations`
@@ -186,6 +308,14 @@ m1 <- tc$mutation_table_add_row(
   metadata = "abc"
 )
 (n_after <- tc$num_mutations())
+
+## ------------------------------------------------
+## Method `TableCollection$mutation_table_get_row`
+## ------------------------------------------------
+
+ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$mutation_table_get_row(0)
 
 ## ------------------------------------------------
 ## Method `TableCollection$sequence_length`
@@ -302,19 +432,31 @@ tc
 \item \href{#method-TableCollection-dump}{\code{TableCollection$dump()}}
 \item \href{#method-TableCollection-write}{\code{TableCollection$write()}}
 \item \href{#method-TableCollection-tree_sequence}{\code{TableCollection$tree_sequence()}}
+\item \href{#method-TableCollection-sort}{\code{TableCollection$sort()}}
 \item \href{#method-TableCollection-num_provenances}{\code{TableCollection$num_provenances()}}
+\item \href{#method-TableCollection-provenance_table_add_row}{\code{TableCollection$provenance_table_add_row()}}
+\item \href{#method-TableCollection-provenance_table_get_row}{\code{TableCollection$provenance_table_get_row()}}
 \item \href{#method-TableCollection-num_populations}{\code{TableCollection$num_populations()}}
+\item \href{#method-TableCollection-population_table_add_row}{\code{TableCollection$population_table_add_row()}}
+\item \href{#method-TableCollection-population_table_get_row}{\code{TableCollection$population_table_get_row()}}
 \item \href{#method-TableCollection-num_migrations}{\code{TableCollection$num_migrations()}}
+\item \href{#method-TableCollection-migration_table_add_row}{\code{TableCollection$migration_table_add_row()}}
+\item \href{#method-TableCollection-migration_table_get_row}{\code{TableCollection$migration_table_get_row()}}
 \item \href{#method-TableCollection-num_individuals}{\code{TableCollection$num_individuals()}}
 \item \href{#method-TableCollection-individual_table_add_row}{\code{TableCollection$individual_table_add_row()}}
+\item \href{#method-TableCollection-individual_table_get_row}{\code{TableCollection$individual_table_get_row()}}
 \item \href{#method-TableCollection-num_nodes}{\code{TableCollection$num_nodes()}}
 \item \href{#method-TableCollection-node_table_add_row}{\code{TableCollection$node_table_add_row()}}
+\item \href{#method-TableCollection-node_table_get_row}{\code{TableCollection$node_table_get_row()}}
 \item \href{#method-TableCollection-num_edges}{\code{TableCollection$num_edges()}}
 \item \href{#method-TableCollection-edge_table_add_row}{\code{TableCollection$edge_table_add_row()}}
+\item \href{#method-TableCollection-edge_table_get_row}{\code{TableCollection$edge_table_get_row()}}
 \item \href{#method-TableCollection-num_sites}{\code{TableCollection$num_sites()}}
 \item \href{#method-TableCollection-site_table_add_row}{\code{TableCollection$site_table_add_row()}}
+\item \href{#method-TableCollection-site_table_get_row}{\code{TableCollection$site_table_get_row()}}
 \item \href{#method-TableCollection-num_mutations}{\code{TableCollection$num_mutations()}}
 \item \href{#method-TableCollection-mutation_table_add_row}{\code{TableCollection$mutation_table_add_row()}}
+\item \href{#method-TableCollection-mutation_table_get_row}{\code{TableCollection$mutation_table_get_row()}}
 \item \href{#method-TableCollection-sequence_length}{\code{TableCollection$sequence_length()}}
 \item \href{#method-TableCollection-time_units}{\code{TableCollection$time_units()}}
 \item \href{#method-TableCollection-has_index}{\code{TableCollection$has_index()}}
@@ -462,6 +604,46 @@ is(ts)
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-sort"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-sort}{}}}
+\subsection{Method \code{sort()}}{
+Sort this table collection in place.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$sort(edge_start = 0L, site_start = 0L, mutation_start = 0L)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{edge_start}}{integer scalar edge-table start row index (0-based).}
+
+\item{\code{site_start}}{integer scalar site-table start row index (0-based).}
+
+\item{\code{mutation_start}}{integer scalar mutation-table start row index
+(0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/latest/python-api.html#tskit.TableCollection.sort}.
+}
+
+\subsection{Returns}{
+No return value; called for side effects.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$sort()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TableCollection-num_provenances"></a>}}
 \if{latex}{\out{\hypertarget{method-TableCollection-num_provenances}{}}}
 \subsection{Method \code{num_provenances()}}{
@@ -478,6 +660,86 @@ A signed 64 bit integer \code{bit64::integer64}.
 \preformatted{tc_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(tc_file)
 tc$num_provenances()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-provenance_table_add_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-provenance_table_add_row}{}}}
+\subsection{Method \code{provenance_table_add_row()}}{
+Add a row to the provenance table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$provenance_table_add_row(timestamp, record)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{timestamp}}{character string timestamp for the new provenance.}
+
+\item{\code{record}}{character string record for the new provenance.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.ProvenanceTable.add_row}.
+}
+
+\subsection{Returns}{
+An integer row index and hence ID (0-based) of the newly added provenance.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_provenances())
+new_id <- tc$provenance_table_add_row(
+  timestamp = "2025-01-01T00:00:00Z",
+  record = "{\"software\":\"RcppTskit\"}"
+)
+(n_after <- tc$num_provenances())
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-provenance_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-provenance_table_get_row}{}}}
+\subsection{Method \code{provenance_table_get_row()}}{
+Get one row from the provenance table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$provenance_table_get_row(index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{integer or numeric scalar row index (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.ProvenanceTable.__getitem__}.
+  The function accepts numeric \code{index} for ease of use, but converts
+  it to integer after checking that conversion to 32-bit integer succeeds.
+}
+
+\subsection{Returns}{
+A named list with fields \code{id}, \code{timestamp},
+  and \code{record}.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$provenance_table_get_row(0)
 }
 \if{html}{\out{</div>}}
 
@@ -508,6 +770,83 @@ tc$num_populations()
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-population_table_add_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-population_table_add_row}{}}}
+\subsection{Method \code{population_table_add_row()}}{
+Add a row to the populations table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$population_table_add_row(metadata = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{metadata}}{for the new population; accepts \code{NULL},
+a raw vector, or a character of length 1.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.PopulationTable.add_row}.
+}
+
+\subsection{Returns}{
+An integer row index and hence ID (0-based) of the newly added population.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_populations())
+new_id <- tc$population_table_add_row()
+new_id <- tc$population_table_add_row(metadata = "abc")
+new_id <- tc$population_table_add_row(metadata = charToRaw("xyz"))
+(n_after <- tc$num_populations())
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-population_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-population_table_get_row}{}}}
+\subsection{Method \code{population_table_get_row()}}{
+Get one row from the population table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$population_table_get_row(index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{integer or numeric scalar row index (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.PopulationTable.__getitem__}.
+  The function accepts numeric \code{index} for ease of use, but converts
+  it to integer after checking that conversion to 32-bit integer succeeds.
+}
+
+\subsection{Returns}{
+A named list with fields \code{id} and \code{metadata}.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$population_table_get_row(0)
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TableCollection-num_migrations"></a>}}
 \if{latex}{\out{\hypertarget{method-TableCollection-num_migrations}{}}}
 \subsection{Method \code{num_migrations()}}{
@@ -524,6 +863,124 @@ A signed 64 bit integer \code{bit64::integer64}.
 \preformatted{tc_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(tc_file)
 tc$num_migrations()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-migration_table_add_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-migration_table_add_row}{}}}
+\subsection{Method \code{migration_table_add_row()}}{
+Add a row to the migrations table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$migration_table_add_row(
+  left,
+  right,
+  node,
+  source,
+  dest,
+  time,
+  metadata = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{left}}{numeric scalar left coordinate for the new migration.}
+
+\item{\code{right}}{numeric scalar right coordinate for the new migration.}
+
+\item{\code{node}}{integer scalar node ID (0-based).}
+
+\item{\code{source}}{integer scalar source population ID (0-based).}
+
+\item{\code{dest}}{integer scalar destination population ID (0-based).}
+
+\item{\code{time}}{numeric scalar time value for the new migration.}
+
+\item{\code{metadata}}{for the new migration; accepts \code{NULL},
+a raw vector, or a character of length 1.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.MigrationTable.add_row}.
+}
+
+\subsection{Returns}{
+An integer row index and hence ID (0-based) of the newly added migration.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+(n_before <- tc$num_migrations())
+new_id <- tc$migration_table_add_row(
+  left = 0,
+  right = 1,
+  node = 0L,
+  source = 0L,
+  dest = 0L,
+  time = 1.0
+)
+new_id <- tc$migration_table_add_row(
+  left = 1,
+  right = 2,
+  node = 1L,
+  source = 0L,
+  dest = 0L,
+  time = 2.0,
+  metadata = "abc"
+)
+(n_after <- tc$num_migrations())
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-migration_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-migration_table_get_row}{}}}
+\subsection{Method \code{migration_table_get_row()}}{
+Get one row from the migration table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$migration_table_get_row(index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{integer or numeric scalar row index (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.MigrationTable.__getitem__}.
+  The function accepts numeric \code{index} for ease of use, but converts
+  it to integer after checking that conversion to 32-bit integer succeeds.
+}
+
+\subsection{Returns}{
+A named list with fields \code{id}, \code{left}, \code{right},
+  \code{node}, \code{source}, \code{dest}, \code{time}, and
+  \code{metadata}.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+if (tc$num_migrations() == 0L) {
+  tc$migration_table_add_row(
+    left = 0, right = 1, node = 0L, source = 0L, dest = 0L, time = 1
+  )
+}
+tc$migration_table_get_row(0)
 }
 \if{html}{\out{</div>}}
 
@@ -589,7 +1046,7 @@ See the \code{tskit Python} equivalent at
 }
 
 \subsection{Returns}{
-Integer row ID (0-based) of the newly added individual.
+An integer row index and hence ID (0-based) of the newly added individual.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
@@ -603,6 +1060,44 @@ new_id <- tc$individual_table_add_row(parents = c(0L, 2L))
 new_id <- tc$individual_table_add_row(metadata = "abc")
 new_id <- tc$individual_table_add_row(metadata = charToRaw("cba"))
 (n_after <- tc$num_individuals())
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-individual_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-individual_table_get_row}{}}}
+\subsection{Method \code{individual_table_get_row()}}{
+Get one row from the individual table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$individual_table_get_row(index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{integer or numeric scalar row index (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.IndividualTable.__getitem__}.
+  The function accepts numeric \code{index} for ease of use, but converts
+  it to integer after checking that conversion to 32-bit integer succeeds.
+}
+
+\subsection{Returns}{
+A named list with fields \code{id}, \code{flags},
+  \code{location}, \code{parents}, and \code{metadata}.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$individual_table_get_row(0)
 }
 \if{html}{\out{</div>}}
 
@@ -654,10 +1149,10 @@ Add a row to the nodes table.
 
 \item{\code{time}}{numeric scalar time value for the new node.}
 
-\item{\code{population}}{integer scalar population row ID (0-based);
+\item{\code{population}}{integer scalar population ID (0-based);
 use \code{-1} if not known - \code{NULL} maps to \code{-1} (\code{TSK_NULL}).}
 
-\item{\code{individual}}{integer scalar individual row ID (0-based);
+\item{\code{individual}}{integer scalar individual ID (0-based);
 use \code{-1} if not known - \code{NULL} maps to \code{-1} (\code{TSK_NULL}).}
 
 \item{\code{metadata}}{for the new node; accepts \code{NULL},
@@ -671,7 +1166,7 @@ See the \code{tskit Python} equivalent at
 }
 
 \subsection{Returns}{
-Integer row ID (0-based) of the newly added node.
+An integer row index and hence ID (0-based) of the newly added node.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
@@ -685,6 +1180,47 @@ new_id <- tc$node_table_add_row(flags = 1L, time = 4.5, individual = 0L)
 new_id <- tc$node_table_add_row(metadata = "abc")
 new_id <- tc$node_table_add_row(metadata = charToRaw("cba"))
 (n_after <- tc$num_nodes())
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-node_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-node_table_get_row}{}}}
+\subsection{Method \code{node_table_get_row()}}{
+Get one row from the node table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$node_table_get_row(index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{integer or numeric scalar row index (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+In \code{tskit Python}, rows are accessed by indexing a
+  \code{NodeTable}, for example \code{tables.nodes[index]}; see
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.NodeTable}.
+  The function accepts numeric \code{index} for ease of use, but converts
+  it to integer after checking that conversion to 32-bit integer succeeds.
+}
+
+\subsection{Returns}{
+A named list with fields \code{id}, \code{flags}, \code{time},
+  \code{population}, \code{individual}, and \code{metadata}.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$node_table_get_row(0L)
+last_node <- as.integer(tc$num_nodes()) - 1L
+tc$node_table_get_row(last_node)
 }
 \if{html}{\out{</div>}}
 
@@ -730,9 +1266,9 @@ Add a row to the edges table.
 
 \item{\code{right}}{numeric scalar right coordinate for the new edge.}
 
-\item{\code{parent}}{integer scalar parent node row ID (0-based).}
+\item{\code{parent}}{integer scalar parent node ID (0-based).}
 
-\item{\code{child}}{integer scalar child node row ID (0-based).}
+\item{\code{child}}{integer scalar child node ID (0-based).}
 
 \item{\code{metadata}}{for the new edge; accepts \code{NULL},
 a raw vector, or a character of length 1.}
@@ -745,7 +1281,7 @@ See the \code{tskit Python} equivalent at
 }
 
 \subsection{Returns}{
-Integer row ID (0-based) of the newly added edge.
+An integer row index and hence ID (0-based) of the newly added edge.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
@@ -763,6 +1299,44 @@ new_id <- tc$edge_table_add_row(
   left = 75, right = 100, parent = 18L, child = child, metadata = charToRaw("cba")
 )
 (n_after <- tc$num_edges())
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-edge_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-edge_table_get_row}{}}}
+\subsection{Method \code{edge_table_get_row()}}{
+Get one row from the edge table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$edge_table_get_row(index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{integer or numeric scalar row index (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.EdgeTable.__getitem__}.
+  The function accepts numeric \code{index} for ease of use, but converts
+  it to integer after checking that conversion to 32-bit integer succeeds.
+}
+
+\subsection{Returns}{
+A named list with fields \code{id}, \code{left}, \code{right},
+  \code{parent}, \code{child}, and \code{metadata}.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$edge_table_get_row(0)
 }
 \if{html}{\out{</div>}}
 
@@ -819,7 +1393,7 @@ See the \code{tskit Python} equivalent at
 }
 
 \subsection{Returns}{
-Integer row ID (0-based) of the newly added site.
+An integer row index and hence ID (0-based) of the newly added site.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
@@ -829,6 +1403,44 @@ tc <- tc_load(ts_file)
 new_id <- tc$site_table_add_row(position = 0.5, ancestral_state = "A")
 new_id <- tc$site_table_add_row(position = 2.5, ancestral_state = "T", metadata = "abc")
 (n_after <- tc$num_sites())
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-site_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-site_table_get_row}{}}}
+\subsection{Method \code{site_table_get_row()}}{
+Get one row from the site table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$site_table_get_row(index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{integer or numeric scalar row index (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.SiteTable.__getitem__}.
+  The function accepts numeric \code{index} for ease of use, but converts
+  it to integer after checking that conversion to 32-bit integer succeeds.
+}
+
+\subsection{Returns}{
+A named list with fields \code{id}, \code{position},
+  \code{ancestral_state}, and \code{metadata}.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$site_table_get_row(0)
 }
 \if{html}{\out{</div>}}
 
@@ -877,13 +1489,13 @@ Add a row to the mutations table.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{site}}{integer scalar site row ID (0-based).}
+\item{\code{site}}{integer scalar site ID (0-based).}
 
-\item{\code{node}}{integer scalar node row ID (0-based).}
+\item{\code{node}}{integer scalar node ID (0-based).}
 
 \item{\code{derived_state}}{character string for the new mutation.}
 
-\item{\code{parent}}{integer scalar parent mutation row ID (0-based);
+\item{\code{parent}}{integer scalar parent mutation ID (0-based);
 use \code{-1} if not known - \code{NULL} maps to \code{-1} (\code{TSK_NULL}).}
 
 \item{\code{metadata}}{for the new mutation; accepts \code{NULL},
@@ -900,7 +1512,7 @@ See the \code{tskit Python} equivalent at
 }
 
 \subsection{Returns}{
-Integer row ID (0-based) of the newly added mutation.
+An integer row index and hence ID (0-based) of the newly added mutation.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
@@ -921,6 +1533,45 @@ m1 <- tc$mutation_table_add_row(
   metadata = "abc"
 )
 (n_after <- tc$num_mutations())
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TableCollection-mutation_table_get_row"></a>}}
+\if{latex}{\out{\hypertarget{method-TableCollection-mutation_table_get_row}{}}}
+\subsection{Method \code{mutation_table_get_row()}}{
+Get one row from the mutation table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TableCollection$mutation_table_get_row(index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{integer or numeric scalar row index (0-based).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+See the \code{tskit Python} equivalent at
+  \url{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.MutationTable.__getitem__}.
+  The function accepts numeric \code{index} for ease of use, but converts
+  it to integer after checking that conversion to 32-bit integer succeeds.
+}
+
+\subsection{Returns}{
+A named list with fields \code{id}, \code{site}, \code{node},
+  \code{derived_state}, \code{parent}, \code{metadata}, and
+  \code{time}.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+tc <- tc_load(ts_file)
+tc$mutation_table_get_row(0)
 }
 \if{html}{\out{</div>}}
 

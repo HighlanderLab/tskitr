@@ -161,6 +161,90 @@ TreeSequence <- R6Class(
       )
     },
 
+    #' @description Iterate over sites as decoded variants.
+    #' @param samples Optional integer vector of sample node IDs to decode.
+    #' @param isolated_as_missing Logical; decode isolated samples as missing
+    #'   data (\code{TRUE}, default) or as ancestral state (\code{FALSE}).
+    #' @param alleles Optional character vector of allele states; when set,
+    #'   genotypes are indexed to this allele order.
+    #' @param impute_missing_data Deprecated alias for
+    #'   \code{!isolated_as_missing}.
+    #' @param copy Logical; currently only \code{TRUE} is supported.
+    #' @param left Left genomic coordinate (inclusive).
+    #' @param right Right genomic coordinate (exclusive). \code{NULL} means
+    #'   sequence length.
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/latest/python-api.html#tskit.TreeSequence.variants}.
+    #' @return A simple iterator object with methods \code{next()} and
+    #'   \code{next_variant()} that each return either a variant list or
+    #'   \code{NULL} at end.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' ts <- ts_load(ts_file)
+    #' it <- ts$variants()
+    #' v1 <- it$next_variant()
+    #' v2 <- it$next_variant()
+    #' is.list(v1)
+    #' is.list(v2)
+    variants = function(
+      samples = NULL,
+      isolated_as_missing = TRUE,
+      alleles = NULL,
+      impute_missing_data = NULL,
+      copy = TRUE,
+      left = 0,
+      right = NULL
+    ) {
+      if (!is.logical(copy) || length(copy) != 1 || is.na(copy)) {
+        stop("copy must be TRUE/FALSE!")
+      }
+      if (!copy) {
+        stop("copy = FALSE is not supported yet!")
+      }
+      if (!is.null(impute_missing_data)) {
+        if (
+          !is.logical(impute_missing_data) ||
+            length(impute_missing_data) != 1 ||
+            is.na(impute_missing_data)
+        ) {
+          stop("impute_missing_data must be TRUE/FALSE or NULL!")
+        }
+        mapped <- !impute_missing_data
+        if (
+          !missing(isolated_as_missing) &&
+            !identical(isolated_as_missing, mapped)
+        ) {
+          stop(
+            "isolated_as_missing and impute_missing_data are inconsistent!"
+          )
+        }
+        warning(
+          "impute_missing_data is deprecated; use isolated_as_missing",
+          call. = FALSE
+        )
+        isolated_as_missing <- mapped
+      }
+
+      iter_xptr <- rtsk_variant_iterator_init(
+        ts = self$xptr,
+        samples = samples,
+        isolated_as_missing = isolated_as_missing,
+        alleles = alleles,
+        left = left,
+        right = if (is.null(right)) NA_real_ else right
+      )
+
+      env <- new.env(parent = emptyenv())
+      env$iter_xptr <- iter_xptr
+      next_fun <- function() {
+        rtsk_variant_iterator_next(env$iter_xptr)
+      }
+      structure(
+        list(`next` = next_fun, next_variant = next_fun),
+        class = "rtsk_variant_iterator"
+      )
+    },
+
     #' @description Get the number of provenances in a tree sequence.
     #' @return A signed 64 bit integer \code{bit64::integer64}.
     #' @details See the \code{tskit Python} equivalent at
@@ -219,6 +303,19 @@ TreeSequence <- R6Class(
     #' ts$num_samples()
     num_samples = function() {
       rtsk_treeseq_get_num_samples(self$xptr)
+    },
+
+    # TODO: add population, population_id, and time arguments
+    #' @description Get sample node IDs in this tree sequence.
+    #' @return An integer vector with sample node IDs (0-based).
+    #' @details See the \code{tskit Python} equivalent at
+    #'   \url{https://tskit.dev/tskit/docs/latest/python-api.html#tskit.TreeSequence.samples}.
+    #' @examples
+    #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
+    #' ts <- ts_load(ts_file)
+    #' ts$samples()
+    samples = function() {
+      rtsk_treeseq_get_samples(self$xptr)
     },
 
     #' @description Get the number of nodes in a tree sequence.
