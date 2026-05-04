@@ -146,7 +146,7 @@ new_id <- tc$migration_table_add_row(
 
 ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(ts_file)
-if (as.integer(tc$num_migrations()) == 0L) {
+if (tc$num_migrations() == 0L) {
   tc$migration_table_add_row(
     left = 0, right = 1, node = 0L, source = 0L, dest = 0L, time = 1
   )
@@ -975,7 +975,7 @@ A named list with fields \code{id}, \code{left}, \code{right},
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{ts_file <- system.file("examples/test.trees", package = "RcppTskit")
 tc <- tc_load(ts_file)
-if (as.integer(tc$num_migrations()) == 0L) {
+if (tc$num_migrations() == 0L) {
   tc$migration_table_add_row(
     left = 0, right = 1, node = 0L, source = 0L, dest = 0L, time = 1
   )

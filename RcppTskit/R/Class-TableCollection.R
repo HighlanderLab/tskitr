@@ -315,7 +315,7 @@ TableCollection <- R6Class(
     #' @examples
     #' ts_file <- system.file("examples/test.trees", package = "RcppTskit")
     #' tc <- tc_load(ts_file)
-    #' if (as.integer(tc$num_migrations()) == 0L) {
+    #' if (tc$num_migrations() == 0L) {
     #'   tc$migration_table_add_row(
     #'     left = 0, right = 1, node = 0L, source = 0L, dest = 0L, time = 1
     #'   )

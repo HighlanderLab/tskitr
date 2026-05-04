@@ -1599,13 +1599,13 @@ test_that("get_row wrappers return expected fields and validate indices", {
   expect_equal(sort(names(pop_low)), c("id", "metadata"))
   expect_equal(pop_method, pop_low)
 
-  if (as.integer(tc$num_migrations()) == 0L) {
+  if (tc$num_migrations() == 0L) {
     tc$migration_table_add_row(
       left = 0,
       right = 1,
-      node = 0,
-      source = 0,
-      dest = 0,
+      node = 0L,
+      source = 0L,
+      dest = 0L,
       time = 1
     )
   }
@@ -1617,7 +1617,7 @@ test_that("get_row wrappers return expected fields and validate indices", {
   )
   expect_equal(mig_method, mig_low)
 
-  if (as.integer(tc$num_provenances()) == 0L) {
+  if (tc$num_provenances() == 0L) {
     tc$provenance_table_add_row(
       timestamp = "2025-01-01T00:00:00Z",
       record = "{\"software\":\"RcppTskit\"}"
@@ -1631,14 +1631,14 @@ test_that("get_row wrappers return expected fields and validate indices", {
   # exercise metadata/location/parents copy paths in individual get_row
   indiv_new <- tc$individual_table_add_row(
     location = c(1.25, -2.5),
-    parents = c(0L),
+    parents = 0L,
     metadata = charToRaw("imd")
   )
   indiv_new_low <- rtsk_individual_table_get_row(tc_xptr, indiv_new)
   expect_equal(indiv_new_low$location, c(1.25, -2.5))
-  expect_equal(indiv_new_low$parents, c(0L))
+  expect_equal(indiv_new_low$parents, 0L)
   expect_equal(indiv_new_low$metadata, charToRaw("imd"))
-  expect_true(length(indiv_new_low$nodes) >= 0L)
+  expect_length(indiv_new_low$nodes, 0L)
 
   # exercise metadata copy path in edge get_row
   edge_new <- tc$edge_table_add_row(
@@ -1728,14 +1728,14 @@ test_that("add_row and get_row round-trip works across tables", {
   ind_id <- tc$individual_table_add_row(
     flags = 1L,
     location = c(9.5, -3.25),
-    parents = c(0L),
+    parents = 0L,
     metadata = "imd"
   )
   ind_row <- tc$individual_table_get_row(ind_id)
   expect_equal(ind_row$id, ind_id)
   expect_equal(ind_row$flags, 1L)
   expect_equal(ind_row$location, c(9.5, -3.25))
-  expect_equal(ind_row$parents, c(0L))
+  expect_equal(ind_row$parents, 0L)
   expect_equal(ind_row$metadata, charToRaw("imd"))
 
   node_id <- tc$node_table_add_row(
